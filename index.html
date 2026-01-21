@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Prompt Engineer Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            500: '#64748b',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .markdown-output h1 { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+        .markdown-output h2 { font-size: 1.25rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #94a3b8; }
+        .markdown-output h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .markdown-output p { margin-bottom: 0.75rem; line-height: 1.7; }
+        .markdown-output ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .markdown-output ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .markdown-output li { margin-bottom: 0.5rem; }
+        .markdown-output strong { font-weight: 600; color: #e2e8f0; }
+        .markdown-output code { background: #1e293b; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; }
+        .markdown-output pre { background: #1e293b; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+        .markdown-output blockquote { border-left: 3px solid #6366f1; padding-left: 1rem; margin: 1rem 0; color: #94a3b8; }
+        .markdown-output table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .markdown-output th, .markdown-output td { border: 1px solid #334155; padding: 0.5rem; text-align: left; }
+        .markdown-output th { background: #1e293b; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+    <div id="app"></div>
+
+    <script>
+        // ===== MARKETING LIBRARY DATA =====
+        const libraries = {
+            seo: {
+                title: "SEO — AI Prompt Library for Marketers",
+                summary: "Elite SEO marketers think in systems: technical foundations, content-authority loops, and search intent mapping. They obsess over compounding returns—every piece of content builds domain authority.",
+                mentalModels: [
+                    { name: "Content-Search Intent Fit", description: "Match content format to the user's stage in the search journey.", lesson: "A 'best X' query needs comparison content, not a product page.", source: "Eli Schwartz, Product-Led SEO (2021)" },
+                    { name: "Topical Authority Clusters", description: "Build interconnected content hubs that signal expertise to Google.", lesson: "One pillar page + 15-20 supporting articles outperforms 50 disconnected posts.", source: "HubSpot Topic Cluster Model (2017)" },
+                    { name: "The Compounding Content Effect", description: "Invest in content that grows traffic over time, not spikes.", lesson: "10% of blog posts drive 90% of traffic. Identify and double down on compounding posts.", source: "Tomasz Tunguz, Redpoint (2019)" },
+                    { name: "Technical SEO as Foundation", description: "No amount of content fixes crawlability and indexation issues.", lesson: "Audit site speed, crawl budget, and Core Web Vitals before scaling content.", source: "Aleyda Solis, Crawling Mondays (2020)" },
+                    { name: "SERP Real Estate Thinking", description: "Optimize for featured snippets, PAA boxes, and rich results.", lesson: "Position zero can drive more clicks than position one.", source: "Cyrus Shepard, Moz (2019)" },
+                    { name: "Link Earning vs Link Building", description: "Create assets worth linking to instead of chasing placements.", lesson: "Original research, tools, and data studies earn links passively at scale.", source: "Brian Dean, Backlinko (2016)" }
+                ],
+                prompts: [
+                    { id: 1, goal: "Keyword Clustering & Intent Mapping", prompt: "I have a list of keywords for {{BRAND}}'s {{INDUSTRY}} business. Group them into clusters based on search intent (informational, navigational, commercial, transactional). For each cluster, recommend the ideal content format and suggest a primary keyword to target. Context: {{CHALLENGE}}", whyFits: "Intent-first clustering prevents content cannibalization.", howUsed: "Run after keyword research in Ahrefs/Semrush." },
+                    { id: 2, goal: "Content Brief Generation", prompt: "Create a comprehensive SEO content brief for {{BRAND}} targeting their ideal customer. Include: target word count, H2/H3 structure, semantic keywords, questions to answer (from PAA), and internal linking opportunities. Business context: {{CHALLENGE}}", whyFits: "Structured briefs improve writer output and ranking probability.", howUsed: "Generate before assigning to writers." },
+                    { id: 3, goal: "Technical SEO Audit Prioritization", prompt: "{{BRAND}} ({{WEBSITE}}) needs to prioritize technical SEO fixes. Given their business challenge: {{CHALLENGE}}, create a 30-60-90 day remediation roadmap focusing on: crawlability, user experience, and Core Web Vitals.", whyFits: "Elite SEOs triage ruthlessly by impact.", howUsed: "Run monthly after crawl audits." },
+                    { id: 4, goal: "Featured Snippet Optimization", prompt: "Help {{BRAND}} win featured snippets in the {{INDUSTRY}} space. Given their challenge: {{CHALLENGE}}, identify 5 high-opportunity keywords and provide optimized content structures (paragraph, list, or table format) for each.", whyFits: "Position zero requires surgical precision.", howUsed: "Target pages ranking #2-5." },
+                    { id: 5, goal: "Internal Linking Architecture", prompt: "Design an internal linking strategy for {{BRAND}}'s website ({{WEBSITE}}). Identify orphan pages, high-authority pages for link equity distribution, and anchor text recommendations. Business goal: {{CHALLENGE}}", whyFits: "Internal linking is the most underrated SEO lever.", howUsed: "Run quarterly." },
+                    { id: 6, goal: "Content Refresh Strategy", prompt: "{{BRAND}} wants to refresh their existing content. Given their challenge: {{CHALLENGE}}, create a content decay analysis framework and prioritize which pages to update first based on traffic trends and business impact.", whyFits: "Content decay is a silent traffic killer.", howUsed: "Run quarterly on top traffic drivers." },
+                    { id: 7, goal: "Programmatic SEO Template", prompt: "Design a programmatic SEO strategy for {{BRAND}} in the {{INDUSTRY}} space. Create page templates for scalable content (e.g., location pages, comparison pages). Business context: {{CHALLENGE}}", whyFits: "Programmatic SEO scales to millions of pages.", howUsed: "Validate with 10-page pilot first." },
+                    { id: 8, goal: "Competitor Content Gap Analysis", prompt: "Analyze {{BRAND}}'s content gaps versus competitors in {{INDUSTRY}}. Identify keywords they're missing, content formats to add, and topical areas needing depth. Strategic goal: {{CHALLENGE}}", whyFits: "Competitive intelligence drives strategy.", howUsed: "Run with Ahrefs Content Gap tool." },
+                    { id: 9, goal: "Link-Worthy Asset Ideation", prompt: "Generate 5 link-worthy content asset ideas for {{BRAND}} in {{INDUSTRY}}. Each should be based on original data/research and useful enough to earn passive links. Business challenge: {{CHALLENGE}}", whyFits: "Links come from value, not outreach volume.", howUsed: "Brief content team on quarterly link magnets." },
+                    { id: 10, goal: "EEAT Signal Enhancement", prompt: "Audit {{BRAND}}'s website ({{WEBSITE}}) for Experience, Expertise, Authoritativeness, and Trustworthiness signals. Provide specific recommendations for author bios, credentials, citations, and trust badges. Context: {{CHALLENGE}}", whyFits: "EEAT is critical for YMYL niches.", howUsed: "Run on money pages." }
+                ]
+            },
+            paid: {
+                title: "Paid Media — AI Prompt Library for Marketers",
+                summary: "Elite paid media operators think in systems of creative velocity, audience segmentation, and margin math. They know 80% of performance comes from creative, not targeting.",
+                mentalModels: [
+                    { name: "Creative is the New Targeting", description: "Algorithm-driven platforms mean creative quality determines reach.", lesson: "Invest 70% of effort in creative production and testing.", source: "Alex Garcia, Marketing Examined (2023)" },
+                    { name: "The 3-3-3 Creative Testing Framework", description: "Test 3 hooks, 3 bodies, 3 CTAs systematically.", lesson: "Modular testing isolates variables and scales winners faster.", source: "Barry Hott, Paid Media Pro (2022)" },
+                    { name: "Contribution Margin Thinking", description: "Optimize for profit, not ROAS—factor in COGS and LTV.", lesson: "A 3x ROAS on a 20% margin product loses money.", source: "Taylor Holiday, CTC (2021)" },
+                    { name: "Creative Fatigue Curves", description: "Every ad has a decay curve—plan refresh cycles.", lesson: "Refresh creative at 3x frequency or 30% CTR decline.", source: "Sarah Sal, Facebook Ads Expert (2020)" },
+                    { name: "Platform-Native Creative", description: "Ads that look like content outperform polished ads.", lesson: "UGC-style, lo-fi creative often beats brand ads.", source: "Nick Shackelford (2021)" }
+                ],
+                prompts: [
+                    { id: 1, goal: "Ad Creative Hook Generation", prompt: "Generate 15 scroll-stopping hooks for {{BRAND}} in {{INDUSTRY}} targeting their ideal customer. Include: 3 curiosity hooks, 3 pain-point hooks, 3 social proof hooks, 3 contrarian hooks, 3 benefit hooks. Business challenge: {{CHALLENGE}}", whyFits: "The hook determines 80% of ad performance.", howUsed: "A/B test in Meta Ads Manager." },
+                    { id: 2, goal: "Audience Segmentation Strategy", prompt: "Create a tiered audience strategy for {{BRAND}}: 1) High-intent (warm), 2) Interest-based (tepid), 3) Broad (cold). For each tier, recommend budget allocation, creative approach, and expected CPAs. Goal: {{CHALLENGE}}", whyFits: "Audience architecture drives efficiency.", howUsed: "Implement as separate ad sets." },
+                    { id: 3, goal: "Creative Testing Roadmap", prompt: "Build a 4-week creative testing plan for {{BRAND}}. Structure each week as: hypothesis, variants to test, success metric, sample size, decision criteria. Business context: {{CHALLENGE}}", whyFits: "Systematic testing beats random iteration.", howUsed: "Execute in Meta's A/B framework." },
+                    { id: 4, goal: "Landing Page-Ad Message Match", prompt: "{{BRAND}} needs to improve ad-to-landing page alignment. Audit their current approach and score message match on: headline alignment, value prop consistency, visual continuity, CTA clarity. Challenge: {{CHALLENGE}}", whyFits: "Message mismatch kills conversion rates.", howUsed: "Run before launching campaigns." },
+                    { id: 5, goal: "Competitor Ad Intelligence", prompt: "Analyze competitor ads in {{INDUSTRY}} for {{BRAND}}. Identify: common hooks, offer structures, creative formats, and gaps to exploit. Strategic goal: {{CHALLENGE}}", whyFits: "Competitive intelligence informs differentiation.", howUsed: "Run monthly on top 5 competitors." },
+                    { id: 6, goal: "UGC Creator Brief", prompt: "Create a UGC video brief for {{BRAND}} targeting their ideal customer. Include: video structure (hook-problem-solution-CTA), talking points, phrases to include/avoid, ideal creator profile. Context: {{CHALLENGE}}", whyFits: "Clear briefs produce better UGC.", howUsed: "Send to creators via Billo/Insense." },
+                    { id: 7, goal: "Budget Allocation Optimization", prompt: "{{BRAND}} needs to optimize their paid media budget across channels. Given their goal: {{CHALLENGE}}, recommend reallocation to maximize ROI, factoring in diminishing returns and attribution windows.", whyFits: "Capital allocation is strategy.", howUsed: "Run weekly during scaling." },
+                    { id: 8, goal: "Retargeting Sequence Design", prompt: "Design a 14-day retargeting sequence for {{BRAND}}: Day 1-3 (reminder), Day 4-7 (objection handling), Day 8-14 (urgency). Include message angles, formats, and frequency caps. Goal: {{CHALLENGE}}", whyFits: "Sequenced retargeting prevents fatigue.", howUsed: "Build as custom audiences." },
+                    { id: 9, goal: "Post-iOS14 Measurement Framework", prompt: "Design a measurement framework for {{BRAND}} given signal loss. Include: first-party data strategy, server-side tracking, MMM approach, and which metrics to trust. Business context: {{CHALLENGE}}", whyFits: "Attribution is broken—triangulate.", howUsed: "Brief data team on implementation." },
+                    { id: 10, goal: "Creative Fatigue Diagnosis", prompt: "Help {{BRAND}} diagnose creative fatigue across their ad account. Create a framework to identify when ads start declining, what metrics signal it, and when to refresh vs retire. Challenge: {{CHALLENGE}}", whyFits: "Knowing when to kill ads matters.", howUsed: "Run weekly on top-spending ads." }
+                ]
+            },
+            lifecycle: {
+                title: "Lifecycle Marketing — AI Prompt Library for Marketers",
+                summary: "Elite lifecycle marketers think in journeys, not campaigns. They architect automated experiences from acquisition to advocacy, obsessing over activation moments and retention curves.",
+                mentalModels: [
+                    { name: "The Aha Moment Framework", description: "Identify the action that correlates with retention, then accelerate users to it.", lesson: "Facebook: 7 friends in 10 days. Find your activation metric.", source: "Chamath Palihapitiya (2013)" },
+                    { name: "Retention is the New Growth", description: "Focus on keeping customers before acquiring more.", lesson: "Improving retention by 5% can increase profits by 25-95%.", source: "Brian Balfour, Reforge (2017)" },
+                    { name: "Behavioral Cohort Segmentation", description: "Segment by actions taken, not demographics.", lesson: "Users who complete action X within 48 hours retain 3x better.", source: "Amplitude (2020)" },
+                    { name: "Trigger-Based > Time-Based", description: "Send messages based on user actions, not schedules.", lesson: "Behavioral triggers outperform calendar sends by 5-10x.", source: "Iterable (2022)" },
+                    { name: "The Reactivation Window", description: "There's an optimal window to win back churned users.", lesson: "Win-back campaigns work best 7-30 days post-churn.", source: "Klaviyo (2023)" }
+                ],
+                prompts: [
+                    { id: 1, goal: "Onboarding Sequence Architecture", prompt: "Design a 14-day onboarding sequence for {{BRAND}} mapping to: signup → first value → activation → habit formation. For each touchpoint: trigger, delay, subject line, message, CTA. Business goal: {{CHALLENGE}}", whyFits: "Onboarding is where retention is won or lost.", howUsed: "Build in Klaviyo/Customer.io." },
+                    { id: 2, goal: "Activation Metric Identification", prompt: "Help {{BRAND}} identify their 'aha moment'. Analyze which early user actions correlate with 30/60/90 day retention. Output: the activation metric, time window, and confidence level. Context: {{CHALLENGE}}", whyFits: "The activation metric is the north star.", howUsed: "Run analysis in Amplitude/Mixpanel." },
+                    { id: 3, goal: "Churn Prediction & Prevention", prompt: "Build a churn risk scoring model for {{BRAND}}. Define high/medium/low risk criteria, early warning signals, and intervention triggers. For each risk level, recommend a save campaign. Goal: {{CHALLENGE}}", whyFits: "Predicting churn before it happens is a superpower.", howUsed: "Implement in CDP." },
+                    { id: 4, goal: "Win-Back Campaign Strategy", prompt: "Design a win-back campaign for {{BRAND}} targeting churned users. Include: 3-email sequence, subject lines, timing, offers, and suppression rules. Business context: {{CHALLENGE}}", whyFits: "Win-back campaigns recover revenue efficiently.", howUsed: "Build as automated flow." },
+                    { id: 5, goal: "Behavioral Segmentation Framework", prompt: "Create a behavioral segmentation framework for {{BRAND}}. Define 5-7 segments (Power Users, At-Risk, Dormant, etc.) with criteria, messaging approach, and triggers. Challenge: {{CHALLENGE}}", whyFits: "One-size-fits-all messaging fails.", howUsed: "Implement in CDP or email platform." },
+                    { id: 6, goal: "Email Subject Line Testing Plan", prompt: "Generate a 4-week subject line testing plan for {{BRAND}}. Each week test one variable: personalization, urgency, curiosity, emoji, length. Include variants and success metrics. Goal: {{CHALLENGE}}", whyFits: "Subject line optimization compounds.", howUsed: "Run A/B tests in email platform." },
+                    { id: 7, goal: "Cross-Channel Journey Mapping", prompt: "Map the ideal customer journey for {{BRAND}} from awareness to advocacy. For each stage: primary channel, message theme, trigger, success metric, handoff. Business context: {{CHALLENGE}}", whyFits: "Journey mapping reveals gaps.", howUsed: "Visualize in Miro/Figma." },
+                    { id: 8, goal: "Loyalty & Referral Program", prompt: "Design a loyalty/referral program for {{BRAND}}. Include: reward structure, earning mechanics, gamification, and program economics (cost per referral, LTV lift). Goal: {{CHALLENGE}}", whyFits: "Referral programs scale efficiently.", howUsed: "Implement in ReferralCandy/custom." },
+                    { id: 9, goal: "Sunset Policy & List Hygiene", prompt: "Create a sunset policy for {{BRAND}}'s email list. Define engagement thresholds, re-engagement sequence, suppression criteria. Estimate deliverability impact. Context: {{CHALLENGE}}", whyFits: "List hygiene protects deliverability.", howUsed: "Implement as automated segment." },
+                    { id: 10, goal: "NPS-Triggered Automation", prompt: "Design NPS-triggered flows for {{BRAND}}: Promoters (referral request), Passives (feedback + follow-up), Detractors (escalation + recovery). Include timing and messaging. Goal: {{CHALLENGE}}", whyFits: "NPS is a goldmine for automation.", howUsed: "Integrate NPS tool with email." }
+                ]
+            },
+            content: {
+                title: "Content Marketing — AI Prompt Library for Marketers",
+                summary: "Elite content marketers think in distribution, not just creation. They build content engines that compound—every piece serves multiple purposes across multiple channels.",
+                mentalModels: [
+                    { name: "Distribution > Creation", description: "Spend 20% creating, 80% distributing.", lesson: "Before writing, have a distribution plan with 10+ channels.", source: "Ross Simmonds (2021)" },
+                    { name: "Content-Audience Fit", description: "Match format to where your audience consumes.", lesson: "LinkedIn carousel for B2B, TikTok for Gen Z.", source: "Amanda Natividad, SparkToro (2022)" },
+                    { name: "The Repurposing Pyramid", description: "Create one pillar piece, atomize into 10+ assets.", lesson: "One podcast = clips, quotes, blogs, threads, carousels.", source: "Gary Vaynerchuk (2019)" },
+                    { name: "POV-Driven Content", description: "Unique perspectives beat regurgitated information.", lesson: "Take a stance. Contrarian viewpoints earn attention.", source: "Rand Fishkin (2018)" },
+                    { name: "Content as Product", description: "Treat content with user research and iteration.", lesson: "Survey audience, analyze comments, iterate on data.", source: "Lenny Rachitsky (2023)" }
+                ],
+                prompts: [
+                    { id: 1, goal: "Content Pillar Development", prompt: "Define 5 content pillars for {{BRAND}} in {{INDUSTRY}}. Each pillar needs: core theme, 3 sub-topics, formats, and tie to business goals. Include example titles. Context: {{CHALLENGE}}", whyFits: "Content pillars create strategic focus.", howUsed: "Organize content calendar around pillars." },
+                    { id: 2, goal: "Repurposing Workflow Design", prompt: "Create a repurposing workflow for {{BRAND}}'s content. Map one pillar piece to 10+ derivatives: social posts, email snippets, video clips, infographics. Business goal: {{CHALLENGE}}", whyFits: "Repurposing multiplies content ROI.", howUsed: "Add to content SOP." },
+                    { id: 3, goal: "Distribution Channel Strategy", prompt: "Build a distribution strategy for {{BRAND}}'s content. List 15 channels (owned, earned, paid) with specific actions, formats, reach, and timing. Prioritize by impact. Challenge: {{CHALLENGE}}", whyFits: "Distribution determines content success.", howUsed: "Execute as post-publish checklist." },
+                    { id: 4, goal: "Thought Leadership Topics", prompt: "Generate 20 thought leadership content ideas for {{BRAND}} in {{INDUSTRY}}. Include: 5 contrarian takes, 5 lessons learned, 5 predictions, 5 tactical guides. Context: {{CHALLENGE}}", whyFits: "Thought leadership requires fresh angles.", howUsed: "Feed into content calendar." },
+                    { id: 5, goal: "Content Audit & Optimization", prompt: "Audit {{BRAND}}'s existing content ({{WEBSITE}}). Evaluate: headline strength, hook quality, structure, CTAs, SEO elements. Score each 1-10 and provide improvements. Goal: {{CHALLENGE}}", whyFits: "Optimization beats creation.", howUsed: "Run on top content quarterly." },
+                    { id: 6, goal: "Newsletter Value Proposition", prompt: "Design a newsletter concept for {{BRAND}}. Include: name options, tagline, content pillars, unique value prop, cadence, growth strategy, sample outline. Context: {{CHALLENGE}}", whyFits: "Newsletters are owned distribution gold.", howUsed: "Launch in Beehiiv/Substack." },
+                    { id: 7, goal: "Content Calendar Framework", prompt: "Build a monthly content calendar for {{BRAND}}. Include: weekly themes, content mix ratios, pillar alignment, repurposing schedule, responsibilities. Business goal: {{CHALLENGE}}", whyFits: "Calendars create consistency.", howUsed: "Implement in Notion/Airtable." },
+                    { id: 8, goal: "Case Study Framework", prompt: "Create a case study framework for {{BRAND}}. Include: customer selection criteria, interview questions, story structure, data points, distribution plan. Context: {{CHALLENGE}}", whyFits: "Case studies are bottom-funnel gold.", howUsed: "Use for all customer stories." },
+                    { id: 9, goal: "Content Performance Analysis", prompt: "Analyze content performance for {{BRAND}}. Identify: top performers and why, underperformers and diagnosis, patterns, recommendations for next quarter. Goal: {{CHALLENGE}}", whyFits: "Data-driven iteration beats guessing.", howUsed: "Run monthly/quarterly." },
+                    { id: 10, goal: "LinkedIn Content Strategy", prompt: "Design a LinkedIn strategy for {{BRAND}}. Include: posting frequency, content mix, engagement tactics, hashtag strategy, growth playbook. Provide 10 post ideas with hooks. Context: {{CHALLENGE}}", whyFits: "LinkedIn is B2B's highest-ROI channel.", howUsed: "Execute daily/weekly." }
+                ]
+            },
+            conversion: {
+                title: "CRO — AI Prompt Library for Marketers",
+                summary: "Elite CRO practitioners think in hypotheses, not hunches. They run rigorous experiments with statistical discipline and obsess over friction reduction and compound gains.",
+                mentalModels: [
+                    { name: "Test Everything, Trust Nothing", description: "Best practices are hypotheses until validated.", lesson: "Run your own tests—never copy blindly.", source: "Peep Laja, CXL (2018)" },
+                    { name: "The 80/20 of Friction", description: "80% of losses come from 20% of friction points.", lesson: "Heatmaps reveal where users struggle.", source: "Hotjar (2020)" },
+                    { name: "Statistical Significance or Nothing", description: "Declare winners only with 95%+ confidence.", lesson: "Calculate sample size before launching.", source: "Evan Miller (2015)" },
+                    { name: "Qualitative Before Quantitative", description: "User research reveals the 'why'.", lesson: "5 interviews surface more than 500K pageviews.", source: "Steve Krug (2014)" },
+                    { name: "Compound Conversion Gains", description: "3% x 3% x 3% = 9.3% total improvement.", lesson: "Consistent small wins compound to massive gains.", source: "Booking.com (2019)" }
+                ],
+                prompts: [
+                    { id: 1, goal: "Hypothesis Generation from Data", prompt: "Generate 10 testable CRO hypotheses for {{BRAND}} ({{WEBSITE}}). Each must include: observation, proposed change, expected impact, success metric. Prioritize by estimated impact. Challenge: {{CHALLENGE}}", whyFits: "Data-driven hypotheses outperform gut feelings.", howUsed: "Add to testing roadmap." },
+                    { id: 2, goal: "Landing Page Teardown", prompt: "Conduct a conversion teardown of {{BRAND}}'s landing page. Evaluate: headline clarity, value prop, social proof, CTA visibility, friction, mobile experience. Score each 1-10. Goal: {{CHALLENGE}}", whyFits: "Systematic teardowns surface hidden issues.", howUsed: "Run on key pages quarterly." },
+                    { id: 3, goal: "A/B Test Design Document", prompt: "Create a test design document for {{BRAND}}. Include: test name, control vs variant, primary/secondary metrics, sample size, duration, success criteria. Context: {{CHALLENGE}}", whyFits: "Proper documentation prevents failed tests.", howUsed: "Use as standard template." },
+                    { id: 4, goal: "Friction Audit", prompt: "Audit {{BRAND}}'s conversion funnel for friction. For each step, identify: cognitive friction, emotional friction, physical friction. Recommend changes and prioritize. Goal: {{CHALLENGE}}", whyFits: "Friction kills conversion.", howUsed: "Combine with session recordings." },
+                    { id: 5, goal: "User Research Questions", prompt: "Generate a user research question set for {{BRAND}} to understand why visitors don't convert. Include: 5 survey questions, 5 interview questions, 3 usability tasks. Context: {{CHALLENGE}}", whyFits: "Research uncovers the 'why'.", howUsed: "Deploy via Hotjar/Qualaroo." },
+                    { id: 6, goal: "Social Proof Optimization", prompt: "Audit social proof on {{BRAND}}'s site ({{WEBSITE}}). Identify gaps and recommend: testimonial formats, placement, specificity improvements, trust signals. Goal: {{CHALLENGE}}", whyFits: "Social proof is highest-leverage.", howUsed: "Brief content team on collection." },
+                    { id: 7, goal: "Form Optimization", prompt: "Analyze {{BRAND}}'s forms for conversion optimization. Evaluate: field necessity, labels, error handling, mobile experience. Recommend streamlined version. Context: {{CHALLENGE}}", whyFits: "Forms are conversion bottlenecks.", howUsed: "A/B test new vs original." },
+                    { id: 8, goal: "Pricing Page Optimization", prompt: "Audit {{BRAND}}'s pricing page. Evaluate: anchoring, feature clarity, CTA prominence, FAQ completeness, psychological pricing. Recommend changes. Goal: {{CHALLENGE}}", whyFits: "Pricing pages are high-stakes.", howUsed: "Measure revenue, not just clicks." },
+                    { id: 9, goal: "Mobile Conversion Audit", prompt: "Audit {{BRAND}}'s site ({{WEBSITE}}) for mobile conversion. Evaluate: tap targets, form inputs, load speed, thumb zones. Recommend mobile-specific fixes. Context: {{CHALLENGE}}", whyFits: "Mobile often converts 2-3x worse.", howUsed: "Test on actual devices." },
+                    { id: 10, goal: "Post-Test Analysis", prompt: "Create a post-test analysis framework for {{BRAND}}. Include: how to determine winners, why results occurred, learnings to apply, next test recommendations. Goal: {{CHALLENGE}}", whyFits: "Learning compounds faster than testing.", howUsed: "Run after every test." }
+                ]
+            }
+        };
+
+        // ===== STATE =====
+        let state = {
+            step: 'brand-input', // 'brand-input', 'discipline-select', 'library-view', 'llm-output'
+            brand: '',
+            website: '',
+            industry: '',
+            challenge: '',
+            discipline: null,
+            library: null,
+            expandedModels: {},
+            expandedPrompts: {},
+            copiedId: null,
+            selectedPrompt: null,
+            llmOutput: '',
+            isLoading: false,
+            apiKey: localStorage.getItem('openai_api_key') || '',
+            llmProvider: localStorage.getItem('llm_provider') || 'openai'
+        };
+
+        // ===== ICONS =====
+        const icons = {
+            sparkles: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
+            brain: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>',
+            zap: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+            copy: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
+            check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+            chevronDown: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+            chevronUp: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
+            play: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+            arrowRight: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+            arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+            settings: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
+            book: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+            target: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            lightbulb: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+            globe: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
+        };
+
+        const disciplines = [
+            { value: 'seo', label: 'SEO', icon: '🔍', desc: 'Search engine optimization' },
+            { value: 'paid', label: 'Paid Media', icon: '💰', desc: 'Ads & performance marketing' },
+            { value: 'lifecycle', label: 'Lifecycle', icon: '🔄', desc: 'Email, retention & automation' },
+            { value: 'content', label: 'Content', icon: '✍️', desc: 'Content marketing & distribution' },
+            { value: 'conversion', label: 'CRO', icon: '📈', desc: 'Conversion rate optimization' }
+        ];
+
+        // ===== HELPERS =====
+        function personalizePrompt(template) {
+            return template
+                .replace(/\{\{BRAND\}\}/g, state.brand || '[Brand]')
+                .replace(/\{\{WEBSITE\}\}/g, state.website || '[Website]')
+                .replace(/\{\{INDUSTRY\}\}/g, state.industry || '[Industry]')
+                .replace(/\{\{CHALLENGE\}\}/g, state.challenge || '[Challenge]');
+        }
+
+        function copyToClipboard(text, id) {
+            navigator.clipboard.writeText(text).then(() => {
+                state.copiedId = id;
+                render();
+                setTimeout(() => { state.copiedId = null; render(); }, 2000);
+            });
+        }
+
+        function simpleMarkdown(text) {
+            return text
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/^\- (.*$)/gim, '<li>$1</li>')
+                .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ===== LLM INTEGRATION =====
+        async function runPromptWithLLM(prompt) {
+            state.isLoading = true;
+            state.llmOutput = '';
+            state.step = 'llm-output';
+            render();
+
+            const personalizedPrompt = personalizePrompt(prompt);
+
+            try {
+                if (state.llmProvider === 'openai' && state.apiKey) {
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${state.apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: 'gpt-4o',
+                            messages: [
+                                { role: 'system', content: 'You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt. Use markdown formatting for clarity.' },
+                                { role: 'user', content: personalizedPrompt }
+                            ],
+                            max_tokens: 4000
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.error) {
+                        state.llmOutput = `Error: ${data.error.message}`;
+                    } else {
+                        state.llmOutput = data.choices[0].message.content;
+                    }
+                } else if (state.llmProvider === 'anthropic' && state.apiKey) {
+                    const response = await fetch('https://api.anthropic.com/v1/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': state.apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-dangerous-direct-browser-access': 'true'
+                        },
+                        body: JSON.stringify({
+                            model: 'claude-sonnet-4-20250514',
+                            max_tokens: 4000,
+                            messages: [
+                                { role: 'user', content: personalizedPrompt }
+                            ],
+                            system: 'You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt. Use markdown formatting for clarity.'
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.error) {
+                        state.llmOutput = `Error: ${data.error.message}`;
+                    } else {
+                        state.llmOutput = data.content[0].text;
+                    }
+                } else {
+                    // No API key - show copy prompt option
+                    state.llmOutput = `__NO_API_KEY__\n\n${personalizedPrompt}`;
+                }
+            } catch (error) {
+                state.llmOutput = `Error: ${error.message}`;
+            }
+
+            state.isLoading = false;
+            render();
+        }
+
+        // ===== RENDER FUNCTIONS =====
+        function renderBrandInput() {
+            return `
+                <div class="max-w-2xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-4">Tell us about your business</h2>
+                        <p class="text-slate-400">We'll personalize every prompt to your specific context</p>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Brand Name *</label>
+                            <input
+                                type="text"
+                                id="brand"
+                                value="${state.brand}"
+                                placeholder="e.g., Acme Inc."
+                                class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Website</label>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500">${icons.globe}</span>
+                                <input
+                                    type="text"
+                                    id="website"
+                                    value="${state.website}"
+                                    placeholder="e.g., acme.com"
+                                    class="flex-1 px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Industry / Niche *</label>
+                            <input
+                                type="text"
+                                id="industry"
+                                value="${state.industry}"
+                                placeholder="e.g., B2B SaaS, E-commerce, Healthcare"
+                                class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Business Challenge *</label>
+                            <textarea
+                                id="challenge"
+                                rows="3"
+                                placeholder="e.g., We need to increase organic traffic by 50% in Q1 to reduce CAC..."
+                                class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                            >${state.challenge}</textarea>
+                            <p class="text-xs text-slate-500 mt-2">Be specific—this context makes the prompts 10x more useful</p>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-700">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">LLM Provider (optional)</label>
+                            <div class="flex gap-3 mb-3">
+                                <button onclick="setProvider('openai')" class="flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'openai' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}">OpenAI</button>
+                                <button onclick="setProvider('anthropic')" class="flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'anthropic' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}">Anthropic</button>
+                                <button onclick="setProvider('none')" class="flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'none' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}">Copy Only</button>
+                            </div>
+                            ${state.llmProvider !== 'none' ? `
+                                <input
+                                    type="password"
+                                    id="apiKey"
+                                    value="${state.apiKey}"
+                                    placeholder="${state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}"
+                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                                />
+                                <p class="text-xs text-slate-500 mt-2">Stored locally in your browser only</p>
+                            ` : '<p class="text-xs text-slate-500">Prompts will be copied to clipboard for use in any LLM</p>'}
+                        </div>
+
+                        <button
+                            onclick="submitBrandInfo()"
+                            class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all"
+                        >
+                            Continue to Prompt Library
+                            ${icons.arrowRight}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDisciplineSelect() {
+            return `
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
+                            <span class="font-medium">${state.brand}</span>
+                            <span class="text-slate-500">•</span>
+                            <span>${state.industry}</span>
+                        </div>
+                        <h2 class="text-3xl font-bold mb-4">Choose Your Marketing Focus</h2>
+                        <p class="text-slate-400">Select a discipline to get personalized prompts for ${state.brand}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${disciplines.map(d => `
+                            <button
+                                onclick="selectDiscipline('${d.value}')"
+                                class="p-6 rounded-xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-700 group"
+                            >
+                                <div class="text-3xl mb-3">${d.icon}</div>
+                                <div class="font-semibold text-lg mb-1 group-hover:text-purple-300">${d.label}</div>
+                                <div class="text-sm text-slate-400">${d.desc}</div>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <button
+                        onclick="goBack('brand-input')"
+                        class="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                    >
+                        ${icons.arrowLeft}
+                        Edit business info
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderMentalModel(model, index) {
+            const isOpen = state.expandedModels[index];
+            return `
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                    <div class="flex items-start justify-between cursor-pointer" onclick="toggleModel(${index})">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center flex-shrink-0 text-purple-400">${icons.brain}</div>
+                            <div>
+                                <h4 class="font-semibold text-white">${model.name}</h4>
+                                <p class="text-sm text-slate-400 mt-1">${model.description}</p>
+                            </div>
+                        </div>
+                        <button class="text-slate-500 hover:text-slate-300">${isOpen ? icons.chevronUp : icons.chevronDown}</button>
+                    </div>
+                    ${isOpen ? `
+                        <div class="mt-4 pt-4 border-t border-slate-700 space-y-3">
+                            <div class="flex items-start gap-2">
+                                <span class="text-yellow-400 mt-1">${icons.lightbulb}</span>
+                                <p class="text-sm text-slate-300">${model.lesson}</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">${icons.book}<span>${model.source}</span></div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderPrompt(prompt, index) {
+            const isExpanded = state.expandedPrompts[index];
+            const isCopied = state.copiedId === prompt.id;
+            const personalizedPrompt = personalizePrompt(prompt.prompt);
+            const displayText = isExpanded ? personalizedPrompt : (personalizedPrompt.length > 180 ? personalizedPrompt.slice(0, 180) + '...' : personalizedPrompt);
+
+            return `
+                <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 font-bold text-white">${prompt.id}</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-medium text-cyan-400 uppercase tracking-wide">Prompt ${prompt.id}</span>
+                                    </div>
+                                    <h4 class="font-semibold text-white mt-1">${prompt.goal}</h4>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    onclick="copyToClipboard(\`${personalizedPrompt.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, ${prompt.id})"
+                                    class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors ${isCopied ? 'text-green-400' : 'text-slate-400'}"
+                                    title="Copy prompt"
+                                >${isCopied ? icons.check : icons.copy}</button>
+                                <button
+                                    onclick="runPrompt(${index})"
+                                    class="px-3 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-sm font-medium flex items-center gap-1 transition-all"
+                                    title="Run with AI"
+                                >${icons.play} Run</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-4 bg-slate-900 rounded-lg">
+                            <p class="text-sm text-slate-300 font-mono leading-relaxed">${displayText}</p>
+                            ${personalizedPrompt.length > 180 ? `
+                                <button onclick="togglePrompt(${index})" class="text-xs text-cyan-400 hover:text-cyan-300 mt-2 flex items-center gap-1">
+                                    ${isExpanded ? 'Show less' : 'Show more'}
+                                    ${isExpanded ? icons.chevronUp : icons.chevronDown}
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-3 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-2 text-xs font-medium text-purple-400 mb-2">${icons.target} Why this fits</div>
+                                <p class="text-xs text-slate-400">${prompt.whyFits}</p>
+                            </div>
+                            <div class="p-3 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-2 text-xs font-medium text-green-400 mb-2">${icons.zap} How to use it</div>
+                                <p class="text-xs text-slate-400">${prompt.howUsed}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLibrary() {
+            const lib = state.library;
+            return `
+                <div class="space-y-8">
+                    <div class="flex items-center justify-between">
+                        <button onclick="goBack('discipline-select')" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                            ${icons.arrowLeft} Back
+                        </button>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                            <span class="font-medium">${state.brand}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-4">${lib.title}</h2>
+                        <p class="text-slate-400 leading-relaxed">${lib.summary}</p>
+                    </div>
+
+                    <section>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center text-purple-400">${icons.brain}</div>
+                            <h3 class="text-xl font-bold">Mental Models</h3>
+                            <span class="text-sm text-slate-500">(${lib.mentalModels.length})</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${lib.mentalModels.map((m, i) => renderMentalModel(m, i)).join('')}
+                        </div>
+                    </section>
+
+                    <section>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-600/20 flex items-center justify-center text-cyan-400">${icons.zap}</div>
+                            <h3 class="text-xl font-bold">Personalized Prompts</h3>
+                            <span class="text-sm text-slate-500">(10)</span>
+                        </div>
+                        <div class="space-y-4">
+                            ${lib.prompts.map((p, i) => renderPrompt(p, i)).join('')}
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function renderLLMOutput() {
+            const isNoApiKey = state.llmOutput.startsWith('__NO_API_KEY__');
+            const content = isNoApiKey ? state.llmOutput.replace('__NO_API_KEY__\n\n', '') : state.llmOutput;
+
+            return `
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="flex items-center justify-between">
+                        <button onclick="goBack('library-view')" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                            ${icons.arrowLeft} Back to Prompts
+                        </button>
+                        <div class="flex gap-2">
+                            <button
+                                onclick="copyToClipboard(\`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 'output')"
+                                class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}"
+                            >
+                                ${state.copiedId === 'output' ? icons.check : icons.copy}
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    ${state.selectedPrompt ? `
+                        <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide mb-2">Prompt Used</div>
+                            <div class="text-sm text-slate-300">${state.selectedPrompt.goal}</div>
+                        </div>
+                    ` : ''}
+
+                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+                        <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                ${icons.sparkles}
+                                <span class="font-medium">${isNoApiKey ? 'Ready to Copy' : 'AI Response'}</span>
+                            </div>
+                            ${state.isLoading ? '<div class="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>' : ''}
+                        </div>
+                        <div class="p-6">
+                            ${state.isLoading ? `
+                                <div class="flex items-center gap-3 text-slate-400">
+                                    <div class="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Generating personalized strategy for ${state.brand}...</span>
+                                </div>
+                            ` : isNoApiKey ? `
+                                <div class="space-y-4">
+                                    <p class="text-slate-400">No API key configured. Copy this personalized prompt and paste it into your preferred LLM:</p>
+                                    <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-slate-300 whitespace-pre-wrap">${content}</div>
+                                    <button
+                                        onclick="copyToClipboard(\`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 'prompt-copy')"
+                                        class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold flex items-center justify-center gap-2"
+                                    >
+                                        ${state.copiedId === 'prompt-copy' ? icons.check : icons.copy}
+                                        ${state.copiedId === 'prompt-copy' ? 'Copied!' : 'Copy Prompt'}
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="markdown-output text-slate-300 leading-relaxed">
+                                    ${simpleMarkdown(content)}
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            let content = '';
+
+            switch (state.step) {
+                case 'brand-input': content = renderBrandInput(); break;
+                case 'discipline-select': content = renderDisciplineSelect(); break;
+                case 'library-view': content = renderLibrary(); break;
+                case 'llm-output': content = renderLLMOutput(); break;
+            }
+
+            app.innerHTML = `
+                <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
+                    <div class="max-w-6xl mx-auto px-4 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3 cursor-pointer" onclick="resetAll()">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">${icons.sparkles}</div>
+                                <div>
+                                    <h1 class="font-bold text-lg">Marketing Prompt Engineer</h1>
+                                    <p class="text-xs text-slate-400">Personalized AI prompts for marketers</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <main class="max-w-6xl mx-auto px-4 py-8">${content}</main>
+                <footer class="border-t border-slate-800 mt-12 py-6">
+                    <div class="max-w-6xl mx-auto px-4 text-center text-sm text-slate-500">
+                        Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design
+                    </div>
+                </footer>
+            `;
+        }
+
+        // ===== EVENT HANDLERS =====
+        function setProvider(provider) {
+            state.llmProvider = provider;
+            localStorage.setItem('llm_provider', provider);
+            render();
+        }
+
+        function submitBrandInfo() {
+            state.brand = document.getElementById('brand').value;
+            state.website = document.getElementById('website').value;
+            state.industry = document.getElementById('industry').value;
+            state.challenge = document.getElementById('challenge').value;
+
+            if (state.llmProvider !== 'none') {
+                const apiKeyEl = document.getElementById('apiKey');
+                if (apiKeyEl) {
+                    state.apiKey = apiKeyEl.value;
+                    localStorage.setItem('openai_api_key', state.apiKey);
+                }
+            }
+
+            if (!state.brand || !state.industry || !state.challenge) {
+                alert('Please fill in Brand, Industry, and Challenge fields');
+                return;
+            }
+
+            state.step = 'discipline-select';
+            render();
+        }
+
+        function selectDiscipline(value) {
+            state.discipline = value;
+            state.library = libraries[value];
+            state.expandedModels = {};
+            state.expandedPrompts = {};
+            state.step = 'library-view';
+            render();
+        }
+
+        function toggleModel(index) {
+            state.expandedModels[index] = !state.expandedModels[index];
+            render();
+        }
+
+        function togglePrompt(index) {
+            state.expandedPrompts[index] = !state.expandedPrompts[index];
+            render();
+        }
+
+        function runPrompt(index) {
+            state.selectedPrompt = state.library.prompts[index];
+            runPromptWithLLM(state.selectedPrompt.prompt);
+        }
+
+        function goBack(step) {
+            state.step = step;
+            render();
+        }
+
+        function resetAll() {
+            state.step = 'brand-input';
+            state.discipline = null;
+            state.library = null;
+            state.expandedModels = {};
+            state.expandedPrompts = {};
+            state.llmOutput = '';
+            state.selectedPrompt = null;
+            render();
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
