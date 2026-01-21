@@ -171,7 +171,7 @@
 
         // ===== STATE =====
         let state = {
-            step: 'brand-input', // 'brand-input', 'discipline-select', 'library-view', 'llm-output'
+            step: 'landing', // 'landing', 'brand-input', 'discipline-select', 'library-view', 'llm-output'
             brand: '',
             website: '',
             industry: '',
@@ -635,18 +635,159 @@
             `;
         }
 
+        function renderLanding() {
+            return `
+                <div class="min-h-[80vh] flex flex-col">
+                    <!-- Hero Section -->
+                    <div class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-8">
+                            ${icons.sparkles}
+                            <span>Free AI-powered marketing tool</span>
+                        </div>
+
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 max-w-4xl leading-tight">
+                            Turn any marketing discipline into a
+                            <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">personalized AI prompt library</span>
+                        </h1>
+
+                        <p class="text-xl text-slate-400 max-w-2xl mb-10 leading-relaxed">
+                            Enter your brand, website, and business challenge. Get 10 battle-tested prompts personalized to your context, plus mental models from elite marketers.
+                        </p>
+
+                        <button
+                            onclick="state.step = 'brand-input'; render();"
+                            class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-lg flex items-center gap-3 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+                        >
+                            Get Started — It's Free
+                            ${icons.arrowRight}
+                        </button>
+                    </div>
+
+                    <!-- How It Works -->
+                    <div class="py-16 border-t border-slate-800">
+                        <h2 class="text-2xl font-bold text-center mb-12">How It Works</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                            <div class="text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-purple-500/20">1</div>
+                                <h3 class="font-semibold text-lg mb-2">Add Your Context</h3>
+                                <p class="text-slate-400 text-sm">Enter your brand, website, industry, and current business challenge</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-cyan-500/20">2</div>
+                                <h3 class="font-semibold text-lg mb-2">Pick a Discipline</h3>
+                                <p class="text-slate-400 text-sm">Choose from SEO, Paid Media, Lifecycle, Content, or CRO</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-green-500/20">3</div>
+                                <h3 class="font-semibold text-lg mb-2">Run or Copy</h3>
+                                <p class="text-slate-400 text-sm">Execute prompts with AI instantly, or copy to your favorite tool</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What You Get -->
+                    <div class="py-16 border-t border-slate-800">
+                        <h2 class="text-2xl font-bold text-center mb-12">What You Get</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
+                                <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 text-purple-400">${icons.brain}</div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Mental Models</h3>
+                                    <p class="text-sm text-slate-400">5-7 strategic frameworks from elite marketers at Reforge, CXL, Demand Curve, and more</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
+                                <div class="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0 text-cyan-400">${icons.zap}</div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">10 Personalized Prompts</h3>
+                                    <p class="text-sm text-slate-400">Battle-tested prompts automatically customized with your brand context</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
+                                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0 text-green-400">${icons.play}</div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">One-Click AI Execution</h3>
+                                    <p class="text-sm text-slate-400">Run prompts instantly with Claude or GPT-4, or copy for any LLM</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
+                                <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center flex-shrink-0 text-pink-400">${icons.target}</div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Context-Aware Results</h3>
+                                    <p class="text-sm text-slate-400">Every output is tailored to your specific industry and business challenge</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- How to Activate -->
+                    <div class="py-16 border-t border-slate-800">
+                        <h2 class="text-2xl font-bold text-center mb-4">Get Running in 2 Minutes</h2>
+                        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">Just add your business context and API key to start generating personalized marketing strategies</p>
+                        <div class="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
+                                <div class="text-3xl mb-3">📝</div>
+                                <h3 class="font-semibold mb-2">1. Add Your Context</h3>
+                                <p class="text-sm text-slate-400">Enter your brand name, website, industry, and current business challenge. This personalizes every prompt.</p>
+                            </div>
+                            <div class="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
+                                <div class="text-3xl mb-3">🔑</div>
+                                <h3 class="font-semibold mb-2">2. Add Your API Key</h3>
+                                <p class="text-sm text-slate-400">Bring your own OpenAI or Anthropic API key to run prompts live. Or use "Copy Only" mode to paste into any LLM.</p>
+                            </div>
+                        </div>
+                        <p class="text-center text-slate-500 text-sm mt-6">Your API key is stored locally in your browser—never sent to our servers.</p>
+                    </div>
+
+                    <!-- Disciplines Preview -->
+                    <div class="py-16 border-t border-slate-800">
+                        <h2 class="text-2xl font-bold text-center mb-4">5 Marketing Disciplines</h2>
+                        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">Choose your focus area and get specialized prompts designed by operators who've scaled companies</p>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            ${disciplines.map(d => `
+                                <div class="px-6 py-4 bg-slate-800 rounded-xl border border-slate-700 flex items-center gap-3">
+                                    <span class="text-2xl">${d.icon}</span>
+                                    <div>
+                                        <div class="font-medium">${d.label}</div>
+                                        <div class="text-xs text-slate-400">${d.desc}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="py-16 border-t border-slate-800 text-center">
+                        <h2 class="text-3xl font-bold mb-4">Ready to level up your marketing?</h2>
+                        <p class="text-slate-400 mb-8">No signup required. Start generating personalized prompts in seconds.</p>
+                        <button
+                            onclick="state.step = 'brand-input'; render();"
+                            class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-lg flex items-center gap-3 transition-all mx-auto"
+                        >
+                            Get Started Free
+                            ${icons.arrowRight}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         function render() {
             const app = document.getElementById('app');
             let content = '';
 
             switch (state.step) {
+                case 'landing': content = renderLanding(); break;
                 case 'brand-input': content = renderBrandInput(); break;
                 case 'discipline-select': content = renderDisciplineSelect(); break;
                 case 'library-view': content = renderLibrary(); break;
                 case 'llm-output': content = renderLLMOutput(); break;
             }
 
+            const showHeader = state.step !== 'landing';
+
             app.innerHTML = `
+                ${showHeader ? `
                 <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
                     <div class="max-w-6xl mx-auto px-4 py-4">
                         <div class="flex items-center justify-between">
@@ -660,12 +801,15 @@
                         </div>
                     </div>
                 </header>
-                <main class="max-w-6xl mx-auto px-4 py-8">${content}</main>
+                ` : ''}
+                <main class="max-w-6xl mx-auto px-4 ${showHeader ? 'py-8' : 'py-4'}">${content}</main>
+                ${state.step !== 'landing' ? `
                 <footer class="border-t border-slate-800 mt-12 py-6">
                     <div class="max-w-6xl mx-auto px-4 text-center text-sm text-slate-500">
                         Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design
                     </div>
                 </footer>
+                ` : ''}
             `;
         }
 
@@ -729,7 +873,7 @@
         }
 
         function resetAll() {
-            state.step = 'brand-input';
+            state.step = 'landing';
             state.discipline = null;
             state.library = null;
             state.expandedModels = {};
