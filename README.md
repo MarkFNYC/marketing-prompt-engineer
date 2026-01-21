@@ -1,6 +1,8 @@
 # Amplify
 
-> Turn any marketing discipline into a personalized AI prompt library—with strategic wisdom from legendary creative minds.
+**AI-powered marketing**
+
+> Your AI marketing team in a browser — from strategy to send
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
