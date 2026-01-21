@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Prompt Engineer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            500: '#64748b',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+    <div id="app"></div>
+
+    <script>
+        // Marketing Library Data
+        const libraries = {
+            seo: {
+                title: "SEO — AI Prompt Library for Marketers",
+                summary: "Elite SEO marketers think in systems: technical foundations, content-authority loops, and search intent mapping. They obsess over compounding returns—every piece of content builds domain authority. They scale through programmatic content, internal linking architecture, and SERP feature optimization. Results come from patience, data fluency, and understanding Google's quality signals.",
+                mentalModels: [
+                    {
+                        name: "Content-Search Intent Fit",
+                        description: "Match content format to the user's stage in the search journey.",
+                        lesson: "A 'best X' query needs comparison content, not a product page. Map every keyword to intent before writing.",
+                        source: "Eli Schwartz, Product-Led SEO (2021)"
+                    },
+                    {
+                        name: "Topical Authority Clusters",
+                        description: "Build interconnected content hubs that signal expertise to Google.",
+                        lesson: "One pillar page + 15-20 supporting articles outperforms 50 disconnected posts.",
+                        source: "HubSpot Topic Cluster Model (2017)"
+                    },
+                    {
+                        name: "The Compounding Content Effect",
+                        description: "Invest in content that grows traffic over time, not spikes.",
+                        lesson: "10% of blog posts drive 90% of traffic. Identify and double down on compounding posts.",
+                        source: "Tomasz Tunguz, Redpoint (2019)"
+                    },
+                    {
+                        name: "Technical SEO as Foundation",
+                        description: "No amount of content fixes crawlability and indexation issues.",
+                        lesson: "Audit site speed, crawl budget, and Core Web Vitals before scaling content.",
+                        source: "Aleyda Solis, Crawling Mondays (2020)"
+                    },
+                    {
+                        name: "SERP Real Estate Thinking",
+                        description: "Optimize for featured snippets, PAA boxes, and rich results—not just #1.",
+                        lesson: "Position zero can drive more clicks than position one. Structure content for extraction.",
+                        source: "Cyrus Shepard, Moz (2019)"
+                    },
+                    {
+                        name: "Link Earning vs Link Building",
+                        description: "Create assets worth linking to instead of chasing placements.",
+                        lesson: "Original research, tools, and data studies earn links passively at scale.",
+                        source: "Brian Dean, Backlinko Skyscraper Technique (2016)"
+                    },
+                    {
+                        name: "Programmatic SEO at Scale",
+                        description: "Use templates + data to generate thousands of targeted pages.",
+                        lesson: "Zapier, Wise, and Canva scaled to millions of pages with templatized, data-driven content.",
+                        source: "Kevin Indig, Growth Memo (2022)"
+                    }
+                ],
+                prompts: [
+                    {
+                        id: 1,
+                        goal: "Keyword Clustering & Intent Mapping",
+                        prompt: "I have a list of [X] keywords for [topic]. Group them into clusters based on search intent (informational, navigational, commercial, transactional). For each cluster, recommend the ideal content format (guide, comparison, landing page, tool) and suggest a primary keyword to target. Output as a table.",
+                        whyFits: "Mirrors how elite SEOs prioritize—intent-first clustering prevents content cannibalization and guides format decisions.",
+                        howUsed: "Run after initial keyword research in Ahrefs/Semrush. Use output to build content calendar in Notion or Asana."
+                    },
+                    {
+                        id: 2,
+                        goal: "Content Brief Generation",
+                        prompt: "Create a comprehensive SEO content brief for the keyword '[keyword]'. Include: target word count, H2/H3 structure based on top-ranking pages, semantic keywords to include, questions to answer (from PAA), internal linking opportunities, and a unique angle to differentiate from competitors.",
+                        whyFits: "Replicates the briefing process of top content agencies—structured briefs improve writer output and ranking probability.",
+                        howUsed: "Generate before assigning to writers. Pair with Clearscope or Surfer SEO for optimization targets."
+                    },
+                    {
+                        id: 3,
+                        goal: "Technical SEO Audit Prioritization",
+                        prompt: "Given this list of technical SEO issues [paste Screaming Frog/Sitebulb export], prioritize them by: 1) Impact on crawlability, 2) Impact on user experience, 3) Ease of fix. Create a 30-60-90 day remediation roadmap with owner assignments.",
+                        whyFits: "Technical debt kills rankings. Elite SEOs triage ruthlessly—this prompt enforces impact-based prioritization.",
+                        howUsed: "Run monthly after crawl audits. Share roadmap with dev team in Jira or Linear."
+                    },
+                    {
+                        id: 4,
+                        goal: "Featured Snippet Optimization",
+                        prompt: "Analyze the current featured snippet for '[keyword]'. Reverse-engineer its format (paragraph, list, table). Rewrite my existing content section to win this snippet—keep it under 50 words for paragraphs, use clear formatting for lists. Include the exact question as an H2.",
+                        whyFits: "Position zero requires surgical precision. This prompt applies the extraction patterns Google favors.",
+                        howUsed: "Target pages ranking #2-5 with snippet potential. A/B test new copy in Google Search Console."
+                    },
+                    {
+                        id: 5,
+                        goal: "Internal Linking Architecture",
+                        prompt: "Given this list of my site's URLs and their target keywords [paste], create an internal linking strategy. Identify: 1) Orphan pages needing links, 2) High-authority pages that should distribute link equity, 3) Specific anchor text recommendations. Output as an implementation checklist.",
+                        whyFits: "Internal linking is the most underrated SEO lever. Top operators treat it as information architecture.",
+                        howUsed: "Run quarterly. Implement via Screaming Frog's link visualization or manual CMS updates."
+                    },
+                    {
+                        id: 6,
+                        goal: "Content Refresh & Decay Analysis",
+                        prompt: "Analyze this traffic data for [URL] over the past 12 months. Identify if it's decaying, stable, or growing. If decaying, recommend specific updates: new sections to add, outdated information to remove, fresh statistics to include, and SERP changes to respond to.",
+                        whyFits: "Content decay is silent traffic killer. Elite SEOs systematize refresh cycles—this prompt diagnoses and prescribes.",
+                        howUsed: "Flag decaying content in GA4. Run prompt quarterly on top 20% traffic drivers."
+                    },
+                    {
+                        id: 7,
+                        goal: "Programmatic SEO Template Design",
+                        prompt: "I want to create programmatic pages for [use case, e.g., '[City] + [Service]' pages]. Design a page template that includes: dynamic title tag formula, H1 variation logic, modular content blocks, unique value-add per page (to avoid thin content), and internal linking rules. Include schema markup recommendations.",
+                        whyFits: "Programmatic SEO is how modern companies scale to millions of pages. This prompt prevents the 'thin content' trap.",
+                        howUsed: "Use output to brief engineering team. Validate template with 10-page pilot before full rollout."
+                    },
+                    {
+                        id: 8,
+                        goal: "Competitor Content Gap Analysis",
+                        prompt: "Compare my site [URL] against these 3 competitors [URLs]. Identify: 1) Keywords they rank for that I don't, 2) Content formats they use that I'm missing, 3) Topical areas where they have depth and I have gaps. Prioritize opportunities by search volume and difficulty.",
+                        whyFits: "Competitive intelligence drives strategy. This prompt systematizes gap analysis beyond basic keyword tools.",
+                        howUsed: "Run in Ahrefs Content Gap tool, then use this prompt to synthesize and prioritize findings."
+                    },
+                    {
+                        id: 9,
+                        goal: "Link-Worthy Asset Ideation",
+                        prompt: "Generate 5 link-worthy content asset ideas for [industry/niche]. Each should be: 1) Based on original data or research, 2) Useful enough to bookmark, 3) Visually shareable. For each idea, list 10 specific sites/journalists who would likely link to it and why.",
+                        whyFits: "Links come from value, not outreach volume. Top link builders create assets journalists want to cite.",
+                        howUsed: "Use to brief content team on quarterly 'link magnet' projects. Track earned links in Ahrefs."
+                    },
+                    {
+                        id: 10,
+                        goal: "EEAT Signal Enhancement",
+                        prompt: "Audit this page [URL] for Experience, Expertise, Authoritativeness, and Trustworthiness signals. Identify gaps and provide specific recommendations: author bio improvements, credential displays, source citations, trust badges, and content updates that demonstrate first-hand experience.",
+                        whyFits: "Google's EEAT framework is now critical for YMYL and competitive niches. This prompt operationalizes the guidelines.",
+                        howUsed: "Run on money pages and YMYL content. Implement changes with content and UX teams."
+                    }
+                ]
+            },
+            paid: {
+                title: "Paid Media — AI Prompt Library for Marketers",
+                summary: "Elite paid media operators think in systems of creative velocity, audience segmentation, and margin math. They know that 80% of performance comes from creative, not targeting. They scale through rigorous testing frameworks, cross-platform attribution, and relentless iteration. Winners obsess over unit economics and creative fatigue curves.",
+                mentalModels: [
+                    {
+                        name: "Creative is the New Targeting",
+                        description: "Algorithm-driven platforms mean creative quality determines reach and efficiency.",
+                        lesson: "Invest 70% of effort in creative production and testing, not audience micro-targeting.",
+                        source: "Alex Garcia, Marketing Examined (2023)"
+                    },
+                    {
+                        name: "The 3-3-3 Creative Testing Framework",
+                        description: "Test 3 hooks, 3 bodies, 3 CTAs systematically to find winners.",
+                        lesson: "Modular creative testing isolates variables and scales winners faster than gut-based iteration.",
+                        source: "Barry Hott, Paid Media Pro (2022)"
+                    },
+                    {
+                        name: "Contribution Margin Thinking",
+                        description: "Optimize for profit, not ROAS—factor in COGS, shipping, and LTV.",
+                        lesson: "A 3x ROAS on a 20% margin product loses money. Always calculate contribution margin.",
+                        source: "Taylor Holiday, Common Thread Collective (2021)"
+                    },
+                    {
+                        name: "Creative Fatigue Curves",
+                        description: "Every ad has a decay curve—plan for refresh cycles before performance drops.",
+                        lesson: "Track frequency and CTR weekly. Refresh creative at 3x frequency or 30% CTR decline.",
+                        source: "Sarah Sal, Facebook Ads Expert (2020)"
+                    },
+                    {
+                        name: "Platform-Native Creative",
+                        description: "Ads that look like content outperform ads that look like ads.",
+                        lesson: "UGC-style, lo-fi creative often beats polished brand ads on social platforms.",
+                        source: "Nick Shackelford, Structured Social (2021)"
+                    },
+                    {
+                        name: "The Awareness-Conversion Spectrum",
+                        description: "Match message to funnel stage—awareness ads educate, conversion ads close.",
+                        lesson: "Running conversion campaigns to cold audiences burns budget. Warm audiences first.",
+                        source: "Andrew Foxwell, Foxwell Digital (2022)"
+                    },
+                    {
+                        name: "Incrementality Over Attribution",
+                        description: "Platform-reported ROAS is inflated. Measure true lift with holdout tests.",
+                        lesson: "Run geo-holdout or conversion lift studies quarterly to validate real performance.",
+                        source: "Michael Taylor, Ladder.io (2023)"
+                    }
+                ],
+                prompts: [
+                    {
+                        id: 1,
+                        goal: "Ad Creative Hook Generation",
+                        prompt: "Generate 15 scroll-stopping hooks for [product/service] targeting [audience]. Include: 3 curiosity-based hooks, 3 pain-point hooks, 3 social proof hooks, 3 contrarian hooks, and 3 benefit-led hooks. Each hook must be under 10 words and work for the first 3 seconds of video or first line of static.",
+                        whyFits: "The hook determines 80% of ad performance. Elite media buyers test hooks relentlessly—this prompt systematizes ideation.",
+                        howUsed: "Generate hooks weekly. A/B test top performers in Meta Ads Manager or TikTok Ads."
+                    },
+                    {
+                        id: 2,
+                        goal: "Audience Segmentation Strategy",
+                        prompt: "For [product] with [price point] and [core value prop], create a tiered audience strategy: 1) High-intent audiences (warm), 2) Interest-based audiences (tepid), 3) Broad/algorithmic audiences (cold). For each tier, recommend budget allocation %, creative approach, and expected CPAs.",
+                        whyFits: "Audience architecture drives efficiency. This prompt mirrors how top agencies structure campaigns for scale.",
+                        howUsed: "Use during campaign buildout. Implement tiers as separate ad sets with distinct budgets."
+                    },
+                    {
+                        id: 3,
+                        goal: "Creative Testing Roadmap",
+                        prompt: "Build a 4-week creative testing plan for [product]. Week 1: Test [variable]. Week 2: Test [variable]. Structure as: hypothesis, variants to test, success metric, sample size needed, and decision criteria. Include backup tests if initial hypotheses fail.",
+                        whyFits: "Systematic testing beats random iteration. Elite operators run structured experiments—this enforces discipline.",
+                        howUsed: "Execute in Meta's A/B testing framework. Log results in a creative testing tracker (Notion/Sheets)."
+                    },
+                    {
+                        id: 4,
+                        goal: "Landing Page-Ad Message Match Audit",
+                        prompt: "Compare this ad copy [paste] with this landing page [describe/paste]. Score message match on: headline alignment, value prop consistency, visual continuity, and CTA clarity. Recommend specific changes to improve conversion rate and Quality Score.",
+                        whyFits: "Message mismatch kills conversion rates. Top performers obsess over the ad-to-landing page journey.",
+                        howUsed: "Run before launching new campaigns. Brief design team on alignment fixes."
+                    },
+                    {
+                        id: 5,
+                        goal: "Competitor Ad Intelligence Analysis",
+                        prompt: "Analyze these competitor ads from [Facebook Ad Library/TikTok Creative Center screenshots]. Identify: 1) Common hooks and angles, 2) Offer structures (discounts, bundles, urgency), 3) Creative formats (UGC, product demo, founder story), 4) Gaps I can exploit. Output as a competitive creative brief.",
+                        whyFits: "Competitive intelligence informs differentiation. This prompt turns ad library research into actionable strategy.",
+                        howUsed: "Run monthly on top 5 competitors. Use gaps to brief creative team on unique angles."
+                    },
+                    {
+                        id: 6,
+                        goal: "UGC Creator Brief Generation",
+                        prompt: "Create a UGC video brief for [product] targeting [audience]. Include: video structure (hook-problem-solution-CTA), key talking points, phrases to include/avoid, b-roll shot list, ideal creator profile, and example reference videos. Keep total video length under 30 seconds.",
+                        whyFits: "Clear briefs produce better UGC. Elite brands standardize creator communication—this prompt professionalizes the process.",
+                        howUsed: "Send to UGC creators via Billo, Insense, or direct outreach. Attach to creator contracts."
+                    },
+                    {
+                        id: 7,
+                        goal: "Budget Allocation Optimization",
+                        prompt: "Given these channel performance metrics [paste: spend, revenue, CPA, ROAS by channel], recommend budget reallocation to maximize [goal: profit/revenue/new customers]. Factor in: diminishing returns curves, attribution windows, and platform minimums. Output as a revised budget split with rationale.",
+                        whyFits: "Capital allocation is strategy. Top media buyers constantly rebalance based on marginal returns.",
+                        howUsed: "Run weekly during scaling phases. Implement changes in platform budgets or MMM tools."
+                    },
+                    {
+                        id: 8,
+                        goal: "Retargeting Sequence Design",
+                        prompt: "Design a 14-day retargeting sequence for [product]. Include: Day 1-3 (reminder), Day 4-7 (objection handling), Day 8-14 (urgency/offer). For each phase, specify: message angle, creative format, frequency cap, and exclusion rules to prevent fatigue.",
+                        whyFits: "Retargeting without sequence strategy wastes budget. This prompt applies the nurture logic elite operators use.",
+                        howUsed: "Build as custom audiences in Meta/Google. Set frequency caps in ad set settings."
+                    },
+                    {
+                        id: 9,
+                        goal: "Post-iOS14 Measurement Framework",
+                        prompt: "Design a measurement framework for [business] given iOS14 signal loss. Include: 1) First-party data strategy, 2) Server-side tracking setup, 3) MMM or incrementality testing approach, 4) Metrics to trust vs. ignore. Recommend specific tools for each component.",
+                        whyFits: "Attribution is broken. Elite operators build triangulated measurement systems—this prompt architects the solution.",
+                        howUsed: "Brief data/engineering team on implementation. Review with finance for reporting alignment."
+                    },
+                    {
+                        id: 10,
+                        goal: "Creative Fatigue Diagnosis",
+                        prompt: "Analyze this ad performance data over 30 days [paste: impressions, CTR, CPM, CPA by day]. Diagnose creative fatigue: when did it start, what metrics signaled it, and what's the estimated remaining useful life. Recommend: refresh, iterate, or retire—with specific next steps.",
+                        whyFits: "Knowing when to kill ads is as important as finding winners. This prompt applies the decay analysis top buyers use.",
+                        howUsed: "Run weekly on top-spending ads. Flag fatigued creative in asset management system."
+                    }
+                ]
+            },
+            lifecycle: {
+                title: "Lifecycle Marketing — AI Prompt Library for Marketers",
+                summary: "Elite lifecycle marketers think in journeys, not campaigns. They architect automated experiences that guide customers from acquisition to advocacy. They obsess over activation moments, retention curves, and reactivation windows. Results come from deep behavioral segmentation, trigger-based automation, and relentless experimentation on timing and messaging.",
+                mentalModels: [
+                    {
+                        name: "The Aha Moment Framework",
+                        description: "Identify the action that correlates with long-term retention, then accelerate users to it.",
+                        lesson: "Facebook: 7 friends in 10 days. Slack: 2,000 messages. Find your activation metric and optimize onboarding for it.",
+                        source: "Chamath Palihapitiya, Facebook Growth (2013)"
+                    },
+                    {
+                        name: "Retention is the New Growth",
+                        description: "Acquisition means nothing without retention—focus on keeping customers before acquiring more.",
+                        lesson: "Improving retention by 5% can increase profits by 25-95%. Fix leaky buckets before pouring more water.",
+                        source: "Brian Balfour, Reforge (2017)"
+                    },
+                    {
+                        name: "Behavioral Cohort Segmentation",
+                        description: "Segment by actions taken, not just demographics—behavior predicts behavior.",
+                        lesson: "Users who complete action X within 48 hours retain 3x better. Segment and message by behavioral milestones.",
+                        source: "Amplitude Product Analytics (2020)"
+                    },
+                    {
+                        name: "The 90-Day Retention Curve",
+                        description: "Most churn happens in the first 90 days—front-load your retention efforts.",
+                        lesson: "If the 90-day retention curve flattens, you have product-market fit. If it drops to zero, fix onboarding first.",
+                        source: "Andrew Chen, Reforge (2018)"
+                    },
+                    {
+                        name: "Trigger-Based > Time-Based",
+                        description: "Send messages based on user actions, not arbitrary schedules.",
+                        lesson: "Behavioral triggers (cart abandonment, feature discovery) outperform calendar-based sends by 5-10x.",
+                        source: "Iterable State of Marketing Report (2022)"
+                    },
+                    {
+                        name: "The Reactivation Window",
+                        description: "There's an optimal window to win back churned users—after that, they're gone.",
+                        lesson: "Win-back campaigns perform best 7-30 days post-churn. After 90 days, focus on new acquisition.",
+                        source: "Klaviyo Benchmark Report (2023)"
+                    },
+                    {
+                        name: "Channel Orchestration",
+                        description: "Coordinate email, SMS, push, and in-app—don't blast the same message everywhere.",
+                        lesson: "Email for content, SMS for urgency, push for real-time. Orchestrate by channel strength, not convenience.",
+                        source: "Braze Customer Engagement Review (2022)"
+                    }
+                ],
+                prompts: [
+                    {
+                        id: 1,
+                        goal: "Onboarding Sequence Architecture",
+                        prompt: "Design a 14-day onboarding email/SMS sequence for [product]. Map to these milestones: signup → first value action → activation → habit formation. For each email: specify trigger, delay, subject line, core message, CTA, and success metric. Include conditional branching for users who complete/skip steps.",
+                        whyFits: "Onboarding is where retention is won or lost. This prompt applies the milestone-based sequencing elite teams use.",
+                        howUsed: "Build in Klaviyo, Customer.io, or Braze. Set up conditional flows based on event triggers."
+                    },
+                    {
+                        id: 2,
+                        goal: "Activation Metric Identification",
+                        prompt: "Given this user behavior data [describe: actions tracked, retention outcomes], help me identify the 'aha moment' for [product]. Analyze which early actions correlate most strongly with 30/60/90 day retention. Output: the activation metric, the time window, and the statistical confidence level.",
+                        whyFits: "The activation metric is the north star of lifecycle marketing. This prompt applies the correlation analysis growth teams run.",
+                        howUsed: "Run analysis in Amplitude/Mixpanel. Use output to redesign onboarding around the activation event."
+                    },
+                    {
+                        id: 3,
+                        goal: "Churn Prediction & Prevention",
+                        prompt: "Based on these engagement signals [describe: login frequency, feature usage, support tickets], build a churn risk scoring model. Define: high/medium/low risk criteria, early warning signals, and automated intervention triggers. For each risk level, recommend a specific save campaign.",
+                        whyFits: "Predicting churn before it happens is the lifecycle marketer's superpower. This prompt operationalizes prevention.",
+                        howUsed: "Implement scoring in CDP (Segment, mParticle). Trigger campaigns in marketing automation platform."
+                    },
+                    {
+                        id: 4,
+                        goal: "Win-Back Campaign Strategy",
+                        prompt: "Design a win-back campaign for [product] targeting users who churned [X days] ago. Include: 3-email sequence with specific angles (reminder, incentive, FOMO), subject lines, optimal send timing, offer recommendations, and suppression rules. Define success metrics and when to stop trying.",
+                        whyFits: "Win-back campaigns recover revenue efficiently—when timed right. This prompt applies reactivation best practices.",
+                        howUsed: "Build as automated flow triggered by churn event. Set suppression after 3 non-opens."
+                    },
+                    {
+                        id: 5,
+                        goal: "Behavioral Segmentation Framework",
+                        prompt: "Create a behavioral segmentation framework for [product]. Define 5-7 segments based on engagement level and lifecycle stage (e.g., Power Users, At-Risk, Dormant). For each segment: define the behavioral criteria, recommended messaging approach, and automation triggers.",
+                        whyFits: "One-size-fits-all messaging fails. Elite lifecycle marketers segment by behavior—this prompt builds the framework.",
+                        howUsed: "Implement segments in CDP or email platform. Build segment-specific journeys in Braze/Iterable."
+                    },
+                    {
+                        id: 6,
+                        goal: "Email Subject Line A/B Testing Plan",
+                        prompt: "Generate a 4-week subject line testing plan for [email type: welcome, promotional, etc.]. Each week test one variable: personalization, urgency, curiosity, emoji usage, length. Include: 2 variants per test, hypothesis, sample size needed, and statistical significance threshold.",
+                        whyFits: "Subject line optimization compounds—2% lift per test adds up. This prompt enforces systematic improvement.",
+                        howUsed: "Run A/B tests in email platform. Log results in testing tracker. Apply learnings to future campaigns."
+                    },
+                    {
+                        id: 7,
+                        goal: "Cross-Channel Journey Mapping",
+                        prompt: "Map the ideal customer journey for [product] from awareness to advocacy. For each stage, specify: primary channel, message theme, automation trigger, success metric, and handoff to next stage. Identify gaps where customers drop off and recommend interventions.",
+                        whyFits: "Journey mapping reveals the gaps. Elite operators design end-to-end experiences—this prompt architectures the system.",
+                        howUsed: "Visualize in Miro or Figma. Brief product and marketing teams on gap-closing initiatives."
+                    },
+                    {
+                        id: 8,
+                        goal: "Loyalty & Referral Program Design",
+                        prompt: "Design a loyalty/referral program for [product]. Include: reward structure (points, tiers, referral incentives), earning mechanics, redemption options, and gamification elements. Estimate program economics: cost per referral, expected lift in LTV, and breakeven timeline.",
+                        whyFits: "Referral programs scale acquisition efficiently. This prompt applies the program design frameworks top operators use.",
+                        howUsed: "Brief product team on mechanics. Implement in ReferralCandy, Friendbuy, or custom build."
+                    },
+                    {
+                        id: 9,
+                        goal: "Sunset Policy & List Hygiene",
+                        prompt: "Create a sunset policy for [company's] email list. Define: engagement thresholds (opens, clicks, purchases over time), re-engagement sequence before suppression, final suppression criteria, and win-back exclusion rules. Estimate deliverability impact.",
+                        whyFits: "List hygiene protects deliverability. Elite email marketers prune aggressively—this prompt defines the rules.",
+                        howUsed: "Implement as automated segment in ESP. Run re-engagement sequence before suppressing."
+                    },
+                    {
+                        id: 10,
+                        goal: "NPS-Triggered Automation",
+                        prompt: "Design automation flows triggered by NPS responses for [product]. For Promoters (9-10): referral request sequence. For Passives (7-8): feedback collection + improvement follow-up. For Detractors (0-6): immediate escalation + recovery sequence. Include timing, channel, and message for each.",
+                        whyFits: "NPS is a goldmine for automation. Top operators turn feedback into action—this prompt closes the loop.",
+                        howUsed: "Integrate NPS tool (Delighted, Typeform) with email platform. Trigger flows based on score submission."
+                    }
+                ]
+            },
+            content: {
+                title: "Content Marketing — AI Prompt Library for Marketers",
+                summary: "Elite content marketers think in distribution, not just creation. They build content engines that compound—every piece serves multiple purposes across multiple channels. They obsess over content-audience fit, repurposing systems, and measurable business outcomes. Winners create less content that works harder.",
+                mentalModels: [
+                    {
+                        name: "Distribution > Creation",
+                        description: "Great content fails without distribution—spend 20% creating, 80% distributing.",
+                        lesson: "Before writing anything, have a distribution plan with 10+ channels. No plan = no publish.",
+                        source: "Ross Simmonds, Foundation Marketing (2021)"
+                    },
+                    {
+                        name: "Content-Audience Fit",
+                        description: "Match content format to where your audience actually consumes information.",
+                        lesson: "LinkedIn carousel for B2B, TikTok for Gen Z, newsletters for executives. Format follows audience.",
+                        source: "Amanda Natividad, SparkToro (2022)"
+                    },
+                    {
+                        name: "The Repurposing Pyramid",
+                        description: "Create one pillar piece, atomize into 10+ derivative assets.",
+                        lesson: "A single podcast episode becomes: clips, quotes, blogs, threads, carousels, newsletters. Build the system.",
+                        source: "Gary Vaynerchuk, Content Model (2019)"
+                    },
+                    {
+                        name: "Search + Social = Compounding",
+                        description: "Search content compounds over years, social drives immediate traffic—you need both.",
+                        lesson: "SEO-optimized blogs feed evergreen traffic. Social validates ideas and drives initial distribution.",
+                        source: "Demand Curve Growth Playbook (2022)"
+                    },
+                    {
+                        name: "POV-Driven Content",
+                        description: "Unique perspectives beat regurgitated information every time.",
+                        lesson: "Don't summarize what exists—take a stance. Contrarian, specific viewpoints earn attention and shares.",
+                        source: "Rand Fishkin, Lost and Founder (2018)"
+                    },
+                    {
+                        name: "Content as Product",
+                        description: "Treat content like a product—with user research, iteration, and measurable outcomes.",
+                        lesson: "Survey your audience, analyze comments, iterate based on data. Content should ship, not just publish.",
+                        source: "Lenny Rachitsky, Newsletter Playbook (2023)"
+                    }
+                ],
+                prompts: [
+                    {
+                        id: 1,
+                        goal: "Content Pillar Development",
+                        prompt: "Define 5 content pillars for [brand] targeting [audience]. Each pillar needs: a core theme, 3 sub-topics, content formats that fit, and how it ties to business goals. Include example titles for each pillar and explain why this pillar earns attention in [industry].",
+                        whyFits: "Content pillars create strategic focus. Elite content ops organize around themes—this prompt builds the framework.",
+                        howUsed: "Use output to organize content calendar. Assign pillars to team members or content days."
+                    },
+                    {
+                        id: 2,
+                        goal: "Repurposing Workflow Design",
+                        prompt: "Create a repurposing workflow for [content type: podcast, webinar, long-form article]. Map the original piece to 10+ derivative formats: social posts, email snippets, video clips, infographics, etc. Include specific extraction points and platform-specific adaptations.",
+                        whyFits: "Repurposing multiplies ROI on content investment. This prompt systematizes what top content teams do.",
+                        howUsed: "Add to content SOP. Assign derivative creation to team members or contractors."
+                    },
+                    {
+                        id: 3,
+                        goal: "Distribution Channel Strategy",
+                        prompt: "Build a distribution strategy for [content piece]. List 15 distribution channels (owned, earned, paid). For each: specific action to take, optimal posting format, expected reach, and timing. Prioritize by effort-to-impact ratio.",
+                        whyFits: "Distribution determines content success. This prompt enforces the 80% distribution focus elite marketers follow.",
+                        howUsed: "Execute as checklist post-publish. Track channel performance in attribution dashboard."
+                    },
+                    {
+                        id: 4,
+                        goal: "Thought Leadership Topic Generation",
+                        prompt: "Generate 20 thought leadership content ideas for [executive/brand] in [industry]. Include: 5 contrarian takes on industry trends, 5 'lessons learned' frameworks, 5 prediction pieces, and 5 tactical how-to guides. Each idea needs a hook and target audience.",
+                        whyFits: "Thought leadership requires fresh angles. This prompt surfaces ideas that differentiate from commodity content.",
+                        howUsed: "Review with executive for voice fit. Feed into content calendar or LinkedIn ghostwriting queue."
+                    },
+                    {
+                        id: 5,
+                        goal: "Content Audit & Optimization",
+                        prompt: "Audit this content piece [paste or describe]. Evaluate: headline strength, hook quality, structure/scannability, CTAs, SEO elements, and shareability factors. Score each 1-10 and provide specific improvements. Rewrite the headline and intro using your recommendations.",
+                        whyFits: "Optimization beats creation. Elite content marketers improve existing assets—this prompt runs the audit.",
+                        howUsed: "Run on top-performing content quarterly. Implement changes and track performance lift."
+                    },
+                    {
+                        id: 6,
+                        goal: "Newsletter Value Proposition Design",
+                        prompt: "Design a newsletter concept for [brand/creator] targeting [audience]. Include: name options, tagline, content pillars, unique value proposition, publishing cadence, growth strategy, and sample issue outline. Explain why subscribers would open this consistently.",
+                        whyFits: "Newsletters are owned distribution gold. This prompt applies the strategy frameworks behind successful newsletters.",
+                        howUsed: "Use to launch newsletter in Beehiiv, Substack, or ConvertKit. Test name with audience poll."
+                    },
+                    {
+                        id: 7,
+                        goal: "Content Calendar Framework",
+                        prompt: "Build a monthly content calendar framework for [brand]. Include: weekly themes, content mix (educational/entertaining/promotional ratios), pillar alignment, repurposing schedule, and team responsibilities. Format as a template that can be repeated monthly.",
+                        whyFits: "Calendars create consistency. Elite content teams operate on systems—this prompt builds the operating rhythm.",
+                        howUsed: "Implement in Notion, Airtable, or CoSchedule. Review weekly with content team."
+                    },
+                    {
+                        id: 8,
+                        goal: "Case Study Framework",
+                        prompt: "Create a case study framework for [company]. Include: ideal customer selection criteria, interview questions to ask, story structure (challenge-solution-results), data points to capture, and distribution plan. Write a sample outline for a [industry] customer.",
+                        whyFits: "Case studies are bottom-funnel gold. This prompt standardizes production like agencies do.",
+                        howUsed: "Use framework for all customer success stories. Brief writers and video teams with template."
+                    },
+                    {
+                        id: 9,
+                        goal: "Content Performance Analysis",
+                        prompt: "Analyze this content performance data [paste metrics: views, engagement, conversions by piece]. Identify: top performers and why, underperformers and diagnosis, patterns in winning content, and recommendations for next quarter's content mix. Output as an executive summary.",
+                        whyFits: "Data-driven iteration beats guessing. This prompt turns analytics into actionable content strategy.",
+                        howUsed: "Run monthly or quarterly. Present findings to stakeholders and adjust content strategy."
+                    },
+                    {
+                        id: 10,
+                        goal: "LinkedIn Content Strategy",
+                        prompt: "Design a LinkedIn content strategy for [person/brand]. Include: posting frequency, content mix (text posts, carousels, videos, documents), engagement tactics, hashtag strategy, and growth playbook. Provide 10 post ideas with hooks optimized for LinkedIn's algorithm.",
+                        whyFits: "LinkedIn is B2B's highest-ROI organic channel. This prompt applies the tactics of top LinkedIn creators.",
+                        howUsed: "Execute daily/weekly. Schedule in native LinkedIn or Buffer. Track impressions and engagement rate."
+                    }
+                ]
+            },
+            conversion: {
+                title: "Conversion Rate Optimization — AI Prompt Library for Marketers",
+                summary: "Elite CRO practitioners think in hypotheses, not hunches. They run rigorous experiments with statistical discipline and let data kill bad ideas fast. They obsess over friction reduction, psychological triggers, and the compound effect of small wins. Results come from testing velocity, user research depth, and prioritization frameworks.",
+                mentalModels: [
+                    {
+                        name: "Test Everything, Trust Nothing",
+                        description: "Best practices are hypotheses until validated on your traffic.",
+                        lesson: "What works for one site fails for another. Run your own tests—never copy blindly.",
+                        source: "Peep Laja, CXL Institute (2018)"
+                    },
+                    {
+                        name: "The 80/20 of Friction",
+                        description: "80% of conversion losses come from 20% of friction points—find and fix those first.",
+                        lesson: "Heatmaps and session recordings reveal where users struggle. Fix obvious friction before clever tests.",
+                        source: "Hotjar User Research (2020)"
+                    },
+                    {
+                        name: "Statistical Significance or Nothing",
+                        description: "Declare winners only with 95%+ confidence—anything less is noise.",
+                        lesson: "Underpowered tests lead to false positives. Calculate sample size before launching.",
+                        source: "Evan Miller, Sample Size Calculator (2015)"
+                    },
+                    {
+                        name: "Qualitative Before Quantitative",
+                        description: "User research reveals the 'why' that A/B tests can't explain.",
+                        lesson: "5 user interviews surface more insights than 500,000 pageviews of analytics.",
+                        source: "Steve Krug, Don't Make Me Think (2014)"
+                    },
+                    {
+                        name: "The PIE Prioritization Framework",
+                        description: "Score tests by Potential, Importance, and Ease to focus on high-impact experiments.",
+                        lesson: "A 2% lift on checkout beats a 20% lift on the About page. Prioritize by revenue impact.",
+                        source: "WiderFunnel, CRO Agency (2017)"
+                    },
+                    {
+                        name: "Compound Conversion Gains",
+                        description: "3% lift x 3% lift x 3% lift = 9.3% total improvement. Small wins compound.",
+                        lesson: "Don't wait for home runs. Consistent 2-5% wins per test compound to massive annual gains.",
+                        source: "Booking.com Testing Culture (2019)"
+                    }
+                ],
+                prompts: [
+                    {
+                        id: 1,
+                        goal: "Hypothesis Generation from Data",
+                        prompt: "Given this analytics data for [page: funnel metrics, bounce rates, exit rates], generate 10 testable hypotheses for improving conversion rate. Each hypothesis must include: observation, proposed change, expected impact, and how to measure success. Prioritize by estimated impact.",
+                        whyFits: "Data-driven hypotheses outperform gut feelings. This prompt applies the structured hypothesis format top CROs use.",
+                        howUsed: "Run after analyzing GA4/Amplitude data. Add hypotheses to testing roadmap in Notion or Airtable."
+                    },
+                    {
+                        id: 2,
+                        goal: "Landing Page Teardown",
+                        prompt: "Conduct a conversion teardown of this landing page [describe or paste URL observations]. Evaluate: headline clarity, value proposition strength, social proof placement, CTA visibility, friction points, and mobile experience. Score each element 1-10 and provide specific improvement recommendations.",
+                        whyFits: "Systematic teardowns surface hidden issues. This prompt applies the evaluation framework of CRO agencies.",
+                        howUsed: "Run on key landing pages quarterly. Brief design team on recommended changes."
+                    },
+                    {
+                        id: 3,
+                        goal: "A/B Test Design Document",
+                        prompt: "Create a test design document for [hypothesis]. Include: test name, page/element, control vs variant description, primary metric, secondary metrics, segment targeting, sample size calculation, test duration estimate, and success criteria. Flag any risks or implementation dependencies.",
+                        whyFits: "Proper test documentation prevents failed experiments. This prompt enforces the rigor top teams require.",
+                        howUsed: "Use as standard template for all tests. Review with team before launching in Optimizely/VWO."
+                    },
+                    {
+                        id: 4,
+                        goal: "Friction Audit",
+                        prompt: "Audit this conversion funnel [describe steps] for friction points. For each step, identify: cognitive friction (confusion), emotional friction (fear/uncertainty), and physical friction (effort required). Recommend specific changes to reduce each friction type. Prioritize by severity.",
+                        whyFits: "Friction kills conversion. This prompt applies the friction taxonomy elite CROs use to diagnose funnels.",
+                        howUsed: "Combine with session recording analysis. Brief UX team on friction-reducing changes."
+                    },
+                    {
+                        id: 5,
+                        goal: "User Research Question Set",
+                        prompt: "Generate a user research question set for understanding why visitors don't convert on [page/funnel]. Include: 5 survey questions for on-site feedback, 5 interview questions for qualitative research, and 3 usability test tasks. Questions should reveal barriers, motivations, and anxieties.",
+                        whyFits: "Research uncovers the 'why' behind conversion problems. This prompt builds the question set CRO researchers use.",
+                        howUsed: "Deploy surveys via Hotjar or Qualaroo. Run interviews with UserTesting or recruited participants."
+                    },
+                    {
+                        id: 6,
+                        goal: "Social Proof Optimization",
+                        prompt: "Audit the social proof elements on [page]. Identify gaps and recommend: testimonial formats (video/text/logo), placement optimization, specificity improvements (add metrics/results), and trust signal additions (reviews, certifications, media mentions). Provide copy examples for improved testimonials.",
+                        whyFits: "Social proof is the highest-leverage conversion element. This prompt applies best practices for proof optimization.",
+                        howUsed: "Brief content team on testimonial collection. Work with design on placement testing."
+                    },
+                    {
+                        id: 7,
+                        goal: "Form Optimization Analysis",
+                        prompt: "Analyze this form [describe: fields, length, layout] for conversion optimization. Evaluate: field necessity, label clarity, error handling, mobile experience, and progressive disclosure opportunities. Recommend a streamlined version and estimate the conversion lift.",
+                        whyFits: "Forms are conversion bottlenecks. This prompt applies the form optimization principles that reduce abandonment.",
+                        howUsed: "Redesign form based on recommendations. A/B test new form against original."
+                    },
+                    {
+                        id: 8,
+                        goal: "Pricing Page Optimization",
+                        prompt: "Audit this pricing page [describe: tiers, features, layout]. Evaluate: anchoring effectiveness, feature comparison clarity, CTA prominence, FAQ completeness, and psychological pricing elements. Recommend changes and provide alternative copy for the most popular plan.",
+                        whyFits: "Pricing pages are high-stakes conversion moments. This prompt applies the psychology of pricing page optimization.",
+                        howUsed: "Test pricing page changes carefully—measure revenue, not just clicks."
+                    },
+                    {
+                        id: 9,
+                        goal: "Mobile Conversion Audit",
+                        prompt: "Audit [page/funnel] for mobile conversion specifically. Evaluate: tap target sizes, form input experience, page load speed, thumb-zone optimization, and mobile-specific friction. Recommend mobile-specific improvements separate from desktop.",
+                        whyFits: "Mobile traffic often converts 2-3x worse than desktop. This prompt surfaces mobile-specific issues.",
+                        howUsed: "Test on actual devices. Prioritize mobile fixes if mobile traffic share is significant."
+                    },
+                    {
+                        id: 10,
+                        goal: "Post-Test Analysis & Learnings",
+                        prompt: "Analyze these A/B test results [paste: variant metrics, statistical significance, segments]. Determine: clear winner or inconclusive, why the result occurred, learnings to apply elsewhere, and recommended next test. Document for the team's testing knowledge base.",
+                        whyFits: "Learning compounds faster than testing. This prompt extracts maximum value from every experiment.",
+                        howUsed: "Run after every test concludes. Add to testing archive and share learnings in team standup."
+                    }
+                ]
+            }
+        };
+
+        // State
+        let currentLibrary = null;
+        let copiedId = null;
+        let expandedModels = {};
+        let expandedPrompts = {};
+
+        // Icons as SVG strings
+        const icons = {
+            sparkles: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
+            brain: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>',
+            zap: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+            copy: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
+            check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+            chevronDown: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+            chevronUp: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
+            book: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+            target: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            lightbulb: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>'
+        };
+
+        const disciplines = [
+            { value: 'seo', label: 'SEO', icon: '🔍' },
+            { value: 'paid', label: 'Paid Media', icon: '💰' },
+            { value: 'lifecycle', label: 'Lifecycle', icon: '🔄' },
+            { value: 'content', label: 'Content', icon: '✍️' },
+            { value: 'conversion', label: 'CRO', icon: '📈' }
+        ];
+
+        function copyToClipboard(text, id) {
+            navigator.clipboard.writeText(text).then(() => {
+                copiedId = id;
+                render();
+                setTimeout(() => {
+                    copiedId = null;
+                    render();
+                }, 2000);
+            });
+        }
+
+        function toggleModel(index) {
+            expandedModels[index] = !expandedModels[index];
+            render();
+        }
+
+        function togglePrompt(index) {
+            expandedPrompts[index] = !expandedPrompts[index];
+            render();
+        }
+
+        function selectDiscipline(value) {
+            currentLibrary = libraries[value];
+            expandedModels = {};
+            expandedPrompts = {};
+            render();
+        }
+
+        function resetSelection() {
+            currentLibrary = null;
+            expandedModels = {};
+            expandedPrompts = {};
+            render();
+        }
+
+        function renderSelectionScreen() {
+            return `
+                <div class="max-w-2xl mx-auto text-center">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold mb-4">Build Your AI Prompt Library</h2>
+                        <p class="text-slate-400">
+                            Select a marketing discipline to generate a complete prompt library
+                            with elite mental models and 10 actionable prompts.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
+                        ${disciplines.map(d => `
+                            <button
+                                onclick="selectDiscipline('${d.value}')"
+                                class="p-4 rounded-xl border-2 transition-all border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-700"
+                            >
+                                <div class="text-2xl mb-2">${d.icon}</div>
+                                <div class="font-medium text-sm">${d.label}</div>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class="mt-12 p-6 bg-slate-800/50 rounded-xl border border-slate-700">
+                        <h3 class="font-semibold mb-2">What you'll get:</h3>
+                        <ul class="text-sm text-slate-400 space-y-2 text-left">
+                            <li>• 5-7 mental models from elite marketers with sources</li>
+                            <li>• 10 actionable prompts with context and usage instructions</li>
+                            <li>• Copy-to-clipboard functionality for each prompt</li>
+                            <li>• Works with any AI model (Claude, GPT-4, etc.)</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMentalModel(model, index) {
+            const isOpen = expandedModels[index];
+            return `
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                    <div class="flex items-start justify-between cursor-pointer" onclick="toggleModel(${index})">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center flex-shrink-0 text-purple-400">
+                                ${icons.brain}
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">${model.name}</h4>
+                                <p class="text-sm text-slate-400 mt-1">${model.description}</p>
+                            </div>
+                        </div>
+                        <button class="text-slate-500 hover:text-slate-300 transition-colors">
+                            ${isOpen ? icons.chevronUp : icons.chevronDown}
+                        </button>
+                    </div>
+                    ${isOpen ? `
+                        <div class="mt-4 pt-4 border-t border-slate-700 space-y-3">
+                            <div class="flex items-start gap-2">
+                                <span class="text-yellow-400 mt-1 flex-shrink-0">${icons.lightbulb}</span>
+                                <p class="text-sm text-slate-300">${model.lesson}</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                ${icons.book}
+                                <span>${model.source}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderPrompt(prompt, index) {
+            const isExpanded = expandedPrompts[index];
+            const isCopied = copiedId === prompt.id;
+            const promptText = prompt.prompt;
+            const displayText = isExpanded ? promptText : (promptText.length > 200 ? promptText.slice(0, 200) + '...' : promptText);
+
+            return `
+                <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                    <div class="p-4">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 font-bold text-white">
+                                    ${prompt.id}
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-medium text-cyan-400 uppercase tracking-wide">Prompt ${prompt.id}</span>
+                                        <span class="text-slate-600">•</span>
+                                        <span class="text-xs text-slate-400">${prompt.goal}</span>
+                                    </div>
+                                    <h4 class="font-semibold text-white mt-1">${prompt.goal}</h4>
+                                </div>
+                            </div>
+                            <button
+                                onclick="copyToClipboard(\`${promptText.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, ${prompt.id})"
+                                class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors ${isCopied ? 'text-green-400' : 'text-slate-400'}"
+                                title="Copy prompt"
+                            >
+                                ${isCopied ? icons.check : icons.copy}
+                            </button>
+                        </div>
+
+                        <div class="mt-4 p-4 bg-slate-900 rounded-lg">
+                            <p class="text-sm text-slate-300 font-mono leading-relaxed">${displayText}</p>
+                            ${promptText.length > 200 ? `
+                                <button
+                                    onclick="togglePrompt(${index})"
+                                    class="text-xs text-cyan-400 hover:text-cyan-300 mt-2 flex items-center gap-1"
+                                >
+                                    ${isExpanded ? 'Show less' : 'Show more'}
+                                    ${isExpanded ? icons.chevronUp : icons.chevronDown}
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-3 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-2 text-xs font-medium text-purple-400 mb-2">
+                                    ${icons.target}
+                                    Why this fits
+                                </div>
+                                <p class="text-xs text-slate-400">${prompt.whyFits}</p>
+                            </div>
+                            <div class="p-3 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-2 text-xs font-medium text-green-400 mb-2">
+                                    ${icons.zap}
+                                    How they'd use it
+                                </div>
+                                <p class="text-xs text-slate-400">${prompt.howUsed}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLibrary() {
+            const lib = currentLibrary;
+            return `
+                <div class="space-y-8">
+                    <!-- Title & Summary -->
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-4">${lib.title}</h2>
+                        <p class="text-slate-400 leading-relaxed">${lib.summary}</p>
+                    </div>
+
+                    <!-- Mental Models Section -->
+                    <section>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center text-purple-400">
+                                ${icons.brain}
+                            </div>
+                            <h3 class="text-xl font-bold">Winning Mental Models</h3>
+                            <span class="text-sm text-slate-500">(${lib.mentalModels.length})</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${lib.mentalModels.map((model, index) => renderMentalModel(model, index)).join('')}
+                        </div>
+                    </section>
+
+                    <!-- Prompts Section -->
+                    <section>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-600/20 flex items-center justify-center text-cyan-400">
+                                ${icons.zap}
+                            </div>
+                            <h3 class="text-xl font-bold">Prompt Library</h3>
+                            <span class="text-sm text-slate-500">(10 prompts)</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            ${lib.prompts.map((prompt, index) => renderPrompt(prompt, index)).join('')}
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <!-- Header -->
+                <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
+                    <div class="max-w-6xl mx-auto px-4 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                                    ${icons.sparkles}
+                                </div>
+                                <div>
+                                    <h1 class="font-bold text-lg">Marketing Prompt Engineer</h1>
+                                    <p class="text-xs text-slate-400">Elite strategies + AI automation</p>
+                                </div>
+                            </div>
+                            ${currentLibrary ? `
+                                <button
+                                    onclick="resetSelection()"
+                                    class="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                                >
+                                    ← New Library
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </header>
+
+                <main class="max-w-6xl mx-auto px-4 py-8">
+                    ${currentLibrary ? renderLibrary() : renderSelectionScreen()}
+                </main>
+
+                <!-- Footer -->
+                <footer class="border-t border-slate-800 mt-12 py-6">
+                    <div class="max-w-6xl mx-auto px-4 text-center text-sm text-slate-500">
+                        Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design
+                    </div>
+                </footer>
+            `;
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>

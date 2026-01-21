@@ -166,109 +166,12 @@
                     { id: 9, goal: "Mobile Conversion Audit", prompt: "Audit {{BRAND}}'s site ({{WEBSITE}}) for mobile conversion. Evaluate: tap targets, form inputs, load speed, thumb zones. Recommend mobile-specific fixes. Context: {{CHALLENGE}}", whyFits: "Mobile often converts 2-3x worse.", howUsed: "Test on actual devices." },
                     { id: 10, goal: "Post-Test Analysis", prompt: "Create a post-test analysis framework for {{BRAND}}. Include: how to determine winners, why results occurred, learnings to apply, next test recommendations. Goal: {{CHALLENGE}}", whyFits: "Learning compounds faster than testing.", howUsed: "Run after every test." }
                 ]
-            },
-            linkedin: {
-                title: "LinkedIn — AI Prompt Library for Marketers",
-                summary: "Elite LinkedIn creators treat the platform as a distribution engine, not a resume. They write for the algorithm first, humans second—understanding that hooks, formatting, and engagement patterns determine reach. Winners post consistently, lead with value, and build in public.",
-                mentalModels: [
-                    { name: "The Hook is Everything", description: "First 2 lines determine if anyone reads the rest.", lesson: "Write 10 hooks, pick the best one. If the hook fails, the post fails.", source: "Justin Welsh, The Saturday Solopreneur (2023)" },
-                    { name: "Write for Skimmers", description: "Short sentences. Line breaks. White space.", lesson: "LinkedIn is mobile-first. Walls of text get scrolled past.", source: "Jasmin Alic, LinkedIn Creator (2022)" },
-                    { name: "The 1-9-90 Rule", description: "1% create, 9% engage, 90% lurk.", lesson: "Your audience is bigger than your engagement suggests. Lurkers become customers.", source: "Sahil Bloom (2023)" },
-                    { name: "Dwell Time > Likes", description: "The algorithm rewards time spent on post, not just reactions.", lesson: "Carousels and long posts with hooks keep people reading longer.", source: "Richard van der Blom, Algorithm Research (2023)" },
-                    { name: "Personal + Professional", description: "People follow people, not brands.", lesson: "Share failures, lessons, behind-the-scenes. Vulnerability builds trust.", source: "Chris Walker, Refine Labs (2022)" },
-                    { name: "Comment > Post", description: "Strategic commenting builds reach faster than posting alone.", lesson: "10 thoughtful comments on big accounts = more visibility than 1 post.", source: "Lara Acosta, LinkedIn Growth (2023)" }
-                ],
-                prompts: [
-                    { id: 1, goal: "Hook Generator", prompt: "Generate 15 scroll-stopping hooks for {{BRAND}} LinkedIn posts in {{INDUSTRY}}. Include: 3 controversial/contrarian hooks, 3 curiosity gap hooks, 3 'mistake I made' hooks, 3 data-driven hooks, 3 story-based hooks. Each must work in under 10 words. Business context: {{CHALLENGE}}", whyFits: "The hook determines 80% of post performance.", howUsed: "Save hooks in a swipe file. Test one per post." },
-                    { id: 2, goal: "Content Pillar Framework", prompt: "Create 5 LinkedIn content pillars for {{BRAND}} in {{INDUSTRY}}. For each pillar: theme, 5 post topics, ideal format (text/carousel/video), posting frequency. Ensure pillars tie to: {{CHALLENGE}}", whyFits: "Pillars prevent random posting and build authority.", howUsed: "Map each week to a pillar rotation." },
-                    { id: 3, goal: "Carousel Post Creator", prompt: "Create a 10-slide LinkedIn carousel for {{BRAND}} on a topic relevant to {{INDUSTRY}}. Include: attention-grabbing cover slide, clear takeaways per slide, visual hierarchy notes, strong CTA on final slide. Business goal: {{CHALLENGE}}", whyFits: "Carousels get 3x the reach of text posts.", howUsed: "Design in Canva, post Tuesday-Thursday." },
-                    { id: 4, goal: "Thought Leadership Post", prompt: "Write a LinkedIn thought leadership post for {{BRAND}}'s founder/executive. Topic should challenge conventional wisdom in {{INDUSTRY}}. Include: hook, personal story, contrarian insight, actionable takeaway. Context: {{CHALLENGE}}", whyFits: "Contrarian takes earn attention and shares.", howUsed: "Post from personal profile, not company page." },
-                    { id: 5, goal: "Story-Based Post", prompt: "Write a story-based LinkedIn post for {{BRAND}} using the format: Hook → Struggle → Turning point → Lesson → CTA. The story should relate to {{INDUSTRY}} and address: {{CHALLENGE}}", whyFits: "Stories create emotional connection and memorability.", howUsed: "Use for milestone moments or lessons learned." },
-                    { id: 6, goal: "Engagement Bait (Ethical)", prompt: "Create 5 LinkedIn posts for {{BRAND}} designed to drive comments. Include: polls, 'hot take' posts, 'which would you choose' posts, fill-in-the-blank posts. All should relate to {{INDUSTRY}}. Goal: {{CHALLENGE}}", whyFits: "Comments boost algorithmic reach more than likes.", howUsed: "Post 1-2x per week to boost overall engagement." },
-                    { id: 7, goal: "Company Announcement Post", prompt: "Transform this {{BRAND}} company news into an engaging LinkedIn post: {{CHALLENGE}}. Avoid corporate speak. Lead with why it matters to the reader. Include: hook, the news, what it means for customers, human element.", whyFits: "Company news needs a human angle to perform.", howUsed: "Post from founder + reshare from company page." },
-                    { id: 8, goal: "Weekly Content Calendar", prompt: "Create a 4-week LinkedIn content calendar for {{BRAND}}. Include: 3 posts per week, mix of formats (text, carousel, poll), content pillars, optimal posting times, engagement strategy. Business focus: {{CHALLENGE}}", whyFits: "Consistency beats sporadic viral attempts.", howUsed: "Schedule in Buffer or native LinkedIn." },
-                    { id: 9, goal: "Comment Strategy", prompt: "Create a LinkedIn comment strategy for {{BRAND}} in {{INDUSTRY}}. Identify: 10 accounts to engage with daily, types of comments that add value, comment templates that start conversations, time investment required. Goal: {{CHALLENGE}}", whyFits: "Strategic commenting builds network faster than posting.", howUsed: "Spend 15 min before and after posting." },
-                    { id: 10, goal: "Profile Optimization", prompt: "Audit and optimize the LinkedIn profile for {{BRAND}}'s key spokesperson. Include: headline formula, about section rewrite, featured section strategy, experience descriptions that sell, and CTA placement. Business context: {{CHALLENGE}}", whyFits: "Profile is your landing page—every post visitor sees it.", howUsed: "Update quarterly as positioning evolves." }
-                ]
-            },
-            blog: {
-                title: "Blog & Long-form — AI Prompt Library for Marketers",
-                summary: "Elite content creators treat blogs as compounding assets, not one-off posts. They optimize for search intent, structure for skimmers, and build content moats that drive organic traffic for years. Every piece serves multiple purposes across the funnel.",
-                mentalModels: [
-                    { name: "The Skyscraper Technique", description: "Find what ranks, make something 10x better.", lesson: "Don't create—improve. Find top content, then add more depth, data, and design.", source: "Brian Dean, Backlinko (2015)" },
-                    { name: "Search Intent Matching", description: "Google rewards content that matches what users actually want.", lesson: "A 'how to' query needs a tutorial, not a product page. Match format to intent.", source: "Ahrefs (2021)" },
-                    { name: "The Inverted Pyramid", description: "Lead with the answer, then provide context.", lesson: "Put the most important information first. Most readers never reach the bottom.", source: "Journalism Standard (1900s)" },
-                    { name: "Content-Led Growth Loops", description: "Each piece of content should generate more content opportunities.", lesson: "One pillar post → 10 spin-off articles → 50 social posts → backlinks → more traffic.", source: "Demand Curve (2022)" },
-                    { name: "The 80/20 of Headlines", description: "8 out of 10 people read the headline, only 2 read the rest.", lesson: "Spend 50% of writing time on the headline. Test multiple versions.", source: "David Ogilvy (1963)" },
-                    { name: "Compound Content", description: "Some content grows traffic over time, most decays.", lesson: "Identify evergreen topics that compound. Update them quarterly to maintain rankings.", source: "Tomasz Tunguz, Redpoint (2019)" }
-                ],
-                prompts: [
-                    { id: 1, goal: "Blog Post Outline Generator", prompt: "Create a comprehensive blog post outline for {{BRAND}} on a topic relevant to {{INDUSTRY}}. Include: SEO-optimized H1, meta description, H2/H3 structure, key points per section, internal linking opportunities, and CTA placement. Target keyword intent: {{CHALLENGE}}", whyFits: "Structured outlines produce better content faster.", howUsed: "Generate before writing. Share with writers as brief." },
-                    { id: 2, goal: "Headline & Hook Generator", prompt: "Generate 15 headline options for a {{BRAND}} blog post about {{CHALLENGE}} in the {{INDUSTRY}} space. Include: 3 'How to' headlines, 3 numbered list headlines, 3 question headlines, 3 controversial/contrarian headlines, 3 benefit-driven headlines. Rate each for SEO potential and click-worthiness.", whyFits: "Headlines determine 80% of whether content gets read.", howUsed: "A/B test top 2 options. Use losers for social promotion." },
-                    { id: 3, goal: "Introduction Hook Writer", prompt: "Write 5 compelling blog post introductions for {{BRAND}} targeting {{INDUSTRY}} readers. Use these formats: 1) Story-based, 2) Statistic-led, 3) Contrarian statement, 4) Question hook, 5) Problem-agitation. Topic/goal: {{CHALLENGE}}", whyFits: "The intro determines if readers stay or bounce.", howUsed: "Test different hooks for different content types." },
-                    { id: 4, goal: "Pillar Page Architecture", prompt: "Design a pillar page strategy for {{BRAND}} in {{INDUSTRY}}. Create: main pillar topic, 10-15 cluster article topics, internal linking structure, content hierarchy, and keyword targeting for each piece. Business goal: {{CHALLENGE}}", whyFits: "Pillar pages build topical authority and rank for competitive terms.", howUsed: "Plan quarterly pillar initiatives." },
-                    { id: 5, goal: "Content Brief Template", prompt: "Create a detailed content brief for {{BRAND}}'s writing team. Include: target keyword, search intent, competitor analysis, required sections, word count, tone guidelines, SEO requirements, internal/external linking strategy, and success metrics. Topic: {{CHALLENGE}}", whyFits: "Detailed briefs produce consistent, high-quality content.", howUsed: "Use as template for all content assignments." },
-                    { id: 6, goal: "Blog Post Refresher", prompt: "Create a framework for refreshing {{BRAND}}'s existing blog content. Include: criteria for selecting posts to update, checklist of elements to improve (stats, examples, structure, CTAs), SEO optimization steps, and republishing strategy. Context: {{CHALLENGE}}", whyFits: "Updating old content is often higher ROI than new content.", howUsed: "Run quarterly on top 20 traffic drivers." },
-                    { id: 7, goal: "Thought Leadership Article", prompt: "Outline a thought leadership article for {{BRAND}}'s CEO/founder on a contrarian topic in {{INDUSTRY}}. Include: provocative thesis, supporting arguments with data, counter-arguments addressed, personal anecdotes, and call-to-action. Goal: {{CHALLENGE}}", whyFits: "Thought leadership builds authority and earns backlinks.", howUsed: "Publish monthly from executive byline." },
-                    { id: 8, goal: "Listicle Framework", prompt: "Create a high-performing listicle structure for {{BRAND}} in {{INDUSTRY}}. Topic should address: {{CHALLENGE}}. Include: attention-grabbing title, intro hook, 10-15 list items with descriptions, visual/example suggestions per item, and strong conclusion with CTA.", whyFits: "Listicles are highly shareable and rank well for 'best' queries.", howUsed: "Use for comparison and resource content." },
-                    { id: 9, goal: "Case Study Template", prompt: "Design a case study template for {{BRAND}} to showcase customer success. Include: headline formula, challenge-solution-results structure, specific metrics to capture, quote placement, visual requirements, and distribution plan. Business context: {{CHALLENGE}}", whyFits: "Case studies are bottom-funnel conversion gold.", howUsed: "Publish 1-2 per month. Gate for lead gen." },
-                    { id: 10, goal: "Content Calendar Builder", prompt: "Build a 3-month blog content calendar for {{BRAND}} in {{INDUSTRY}}. Include: weekly publishing schedule, content mix (pillar/cluster/promotional), seasonal hooks, keyword targets per piece, and resource requirements. Strategic goal: {{CHALLENGE}}", whyFits: "Consistent publishing builds authority and traffic.", howUsed: "Plan quarterly. Review monthly." }
-                ]
-            },
-            email: {
-                title: "Email Campaigns — AI Prompt Library for Marketers",
-                summary: "Elite email marketers think in sequences, not blasts. They architect automated journeys that nurture, convert, and retain—obsessing over subject lines, segmentation, and the metrics that actually matter: revenue per email, not open rates.",
-                mentalModels: [
-                    { name: "The 40/40/20 Rule", description: "40% list quality, 40% offer, 20% creative.", lesson: "Don't obsess over copy if your list is bad or offer is weak. Fix fundamentals first.", source: "Ed Mayer, Direct Mail Legend (1961)" },
-                    { name: "One Email, One Goal", description: "Every email should have a single, clear objective.", lesson: "Multiple CTAs confuse readers. Pick one action and optimize everything for it.", source: "Joanna Wiebe, Copyhackers (2018)" },
-                    { name: "The Preview Text Hack", description: "Preview text is your second headline—use it.", lesson: "Preview text appears in inbox. Treat it as headline extension, not throwaway.", source: "Litmus (2020)" },
-                    { name: "Send Time Optimization", description: "When you send matters as much as what you send.", lesson: "Test send times by segment. B2B peaks Tuesday-Thursday 10am. B2C varies.", source: "Mailchimp Research (2022)" },
-                    { name: "The Value-Ask Ratio", description: "Give value 3-4 times before making an ask.", lesson: "Subscribers tolerate promotion if you've earned trust with value first.", source: "Pat Flynn, Smart Passive Income (2019)" },
-                    { name: "Behavior > Demographics", description: "Segment by actions, not just attributes.", lesson: "Someone who clicked 3 emails is warmer than someone who matches your ICP on paper.", source: "Klaviyo (2023)" }
-                ],
-                prompts: [
-                    { id: 1, goal: "Welcome Sequence", prompt: "Create a 5-email welcome sequence for {{BRAND}} new subscribers in {{INDUSTRY}}. For each email: subject line, preview text, body copy, CTA, and send timing. Goals: introduce brand, deliver value, build trust, soft pitch. Business context: {{CHALLENGE}}", whyFits: "Welcome emails get 4x higher open rates—first impressions matter.", howUsed: "Set up as automated flow. Trigger on signup." },
-                    { id: 2, goal: "Subject Line Generator", prompt: "Generate 20 subject lines for {{BRAND}}'s email campaign about {{CHALLENGE}}. Include: 4 curiosity-driven, 4 benefit-focused, 4 urgency/scarcity, 4 personalized, 4 question-based. Keep under 50 characters. Rate each for open potential.", whyFits: "Subject line determines if email gets opened at all.", howUsed: "A/B test top 2. Track winners in swipe file." },
-                    { id: 3, goal: "Promotional Email", prompt: "Write a promotional email for {{BRAND}} announcing {{CHALLENGE}}. Include: attention-grabbing subject line, preview text, hero section, 3 key benefits, social proof element, urgency driver, and clear CTA. Target audience: {{INDUSTRY}} professionals.", whyFits: "Promotional emails drive direct revenue when done well.", howUsed: "Send to engaged segment. Follow up with non-openers." },
-                    { id: 4, goal: "Re-engagement Campaign", prompt: "Create a 3-email re-engagement sequence for {{BRAND}}'s inactive subscribers (no opens in 90 days). Include: 'We miss you' angle, value reminder, final 'stay or go' email with clear choice. Goal: {{CHALLENGE}}", whyFits: "Win-back campaigns recover revenue and clean lists.", howUsed: "Automate for subscribers hitting inactivity threshold." },
-                    { id: 5, goal: "Newsletter Template", prompt: "Design a weekly newsletter template for {{BRAND}} in {{INDUSTRY}}. Include: recurring sections, content mix ratios, subject line formula, personalization opportunities, and engagement hooks. Newsletter should support: {{CHALLENGE}}", whyFits: "Consistent newsletters build habit and trust.", howUsed: "Use template weekly. Rotate content types." },
-                    { id: 6, goal: "Cart Abandonment Sequence", prompt: "Create a 3-email cart abandonment sequence for {{BRAND}}. Include: Email 1 (1hr - reminder), Email 2 (24hr - handle objections), Email 3 (72hr - urgency/incentive). Each needs subject, preview, body, and CTA. Context: {{CHALLENGE}}", whyFits: "Cart abandonment emails recover 5-15% of lost revenue.", howUsed: "Automate in e-commerce platform." },
-                    { id: 7, goal: "Product Launch Sequence", prompt: "Design a 5-email product launch sequence for {{BRAND}} launching to {{INDUSTRY}} audience. Include: teaser, announcement, social proof, objection handling, last chance. Each email: timing, subject, key message, CTA. Launch goal: {{CHALLENGE}}", whyFits: "Sequenced launches outperform single-send announcements.", howUsed: "Schedule around launch date. Coordinate with other channels." },
-                    { id: 8, goal: "Nurture Sequence", prompt: "Create a 7-email nurture sequence for {{BRAND}} leads in {{INDUSTRY}}. Map to buyer journey: awareness → consideration → decision. Each email: subject, value delivered, soft/hard CTA, timing. Goal: {{CHALLENGE}}", whyFits: "Nurtured leads produce 50% more sales at 33% lower cost.", howUsed: "Trigger on lead magnet download or form fill." },
-                    { id: 9, goal: "Event/Webinar Promotion", prompt: "Create an email sequence promoting {{BRAND}}'s upcoming event/webinar. Include: announcement (2 weeks), reminder (1 week), last chance (1 day), day-of reminder, follow-up with replay. Target: {{INDUSTRY}} audience. Event topic: {{CHALLENGE}}", whyFits: "Multi-touch promotion dramatically increases registration.", howUsed: "Automate based on event date." },
-                    { id: 10, goal: "Feedback Request Email", prompt: "Write 3 versions of a feedback/survey request email for {{BRAND}}. Include: subject line, why their input matters, what's in it for them, clear CTA to survey. Keep under 150 words. Context: {{CHALLENGE}}", whyFits: "Customer feedback drives product and content decisions.", howUsed: "Send post-purchase or post-milestone." }
-                ]
-            },
-            social: {
-                title: "Social Media — AI Prompt Library for Marketers",
-                summary: "Elite social media marketers think platform-native, not cross-post. They understand each algorithm's rewards, create for mobile-first consumption, and build engaged communities—not just follower counts. Consistency and authenticity beat polish.",
-                mentalModels: [
-                    { name: "Platform-Native Content", description: "What works on LinkedIn fails on TikTok and vice versa.", lesson: "Create for each platform's culture and format. Repurpose the idea, not the asset.", source: "Gary Vaynerchuk (2020)" },
-                    { name: "The 3-Second Rule", description: "You have 3 seconds to stop the scroll.", lesson: "Lead with movement, contrast, or pattern interrupt. Hook fast or lose them.", source: "TikTok Creator Playbook (2022)" },
-                    { name: "Community > Audience", description: "Audiences consume, communities participate.", lesson: "Reply to every comment. Create inside jokes. Make followers feel like insiders.", source: "David Spinks, CMX (2021)" },
-                    { name: "The Pareto of Posting", description: "80% of results come from 20% of content types.", lesson: "Find your winning formats and double down. Kill what doesn't work.", source: "Buffer Research (2023)" },
-                    { name: "Algorithm = Engagement Velocity", description: "How fast you get engagement determines reach.", lesson: "Post when your audience is active. Engage in first 30 minutes.", source: "Later (2023)" },
-                    { name: "The Authenticity Premium", description: "Raw and real outperforms polished and produced.", lesson: "Behind-the-scenes, fails, and unfiltered moments build trust faster than ads.", source: "Hootsuite (2023)" }
-                ],
-                prompts: [
-                    { id: 1, goal: "Twitter/X Thread Creator", prompt: "Create a viral Twitter/X thread for {{BRAND}} on a topic relevant to {{INDUSTRY}}. Include: hook tweet (under 280 chars), 8-10 value tweets, engagement tweet asking for replies, and CTA tweet. Topic should address: {{CHALLENGE}}", whyFits: "Threads get 10x the engagement of single tweets.", howUsed: "Post threads 2-3x per week. Best times: Tue-Thu 9am." },
-                    { id: 2, goal: "Instagram Caption Generator", prompt: "Write 10 Instagram captions for {{BRAND}} in {{INDUSTRY}}. Include: mix of storytelling, educational, behind-the-scenes, and promotional. Each caption: hook, body, CTA, and 5 relevant hashtags. Theme: {{CHALLENGE}}", whyFits: "Captions drive comments which drive reach.", howUsed: "Batch create weekly. Save hashtag sets." },
-                    { id: 3, goal: "TikTok/Reels Script", prompt: "Create 5 short-form video scripts (15-60 sec) for {{BRAND}} targeting {{INDUSTRY}} audience. Include: hook (first 3 sec), main content, CTA, and trending audio suggestions. Videos should address: {{CHALLENGE}}", whyFits: "Short-form video is highest-reach format in 2024.", howUsed: "Film in batches. Post 1-2x daily during testing." },
-                    { id: 4, goal: "Content Pillar Strategy", prompt: "Create a social media content pillar strategy for {{BRAND}} across platforms. Define 5 pillars, each with: theme, content formats, posting frequency, example posts, and how it ties to {{CHALLENGE}}", whyFits: "Pillars ensure variety while building recognizable themes.", howUsed: "Rotate pillars throughout the week." },
-                    { id: 5, goal: "Engagement Post Templates", prompt: "Create 10 high-engagement social media posts for {{BRAND}}. Include: polls, 'this or that', controversial opinions, fill-in-the-blank, questions, and challenges. All should relate to {{INDUSTRY}}. Goal: {{CHALLENGE}}", whyFits: "Engagement posts train the algorithm to show your content.", howUsed: "Post 2-3 engagement posts per week." },
-                    { id: 6, goal: "Social Media Calendar", prompt: "Build a 2-week social media calendar for {{BRAND}} across Twitter, Instagram, and LinkedIn. Include: daily posts, content types, best posting times per platform, and engagement windows. Theme: {{CHALLENGE}}", whyFits: "Consistency beats sporadic posting every time.", howUsed: "Schedule in Buffer/Hootsuite. Batch create content." },
-                    { id: 7, goal: "Brand Voice Guidelines", prompt: "Create social media brand voice guidelines for {{BRAND}} in {{INDUSTRY}}. Define: tone attributes, words to use/avoid, emoji usage, response templates, and examples of on-brand vs off-brand posts. Context: {{CHALLENGE}}", whyFits: "Consistent voice builds recognition and trust.", howUsed: "Share with all team members who post." },
-                    { id: 8, goal: "Hashtag Strategy", prompt: "Develop a hashtag strategy for {{BRAND}} on Instagram and Twitter. Include: 10 niche hashtags, 10 medium-competition hashtags, 5 broad hashtags, branded hashtag options, and hashtag groupings by content type. Industry: {{INDUSTRY}}", whyFits: "Strategic hashtags increase discoverability.", howUsed: "Save hashtag sets. Rotate to avoid shadowban." },
-                    { id: 9, goal: "User-Generated Content Campaign", prompt: "Design a UGC campaign for {{BRAND}} to encourage customer content creation. Include: campaign concept, hashtag, incentive structure, submission guidelines, and promotion plan. Goal: {{CHALLENGE}}", whyFits: "UGC provides social proof and free content.", howUsed: "Launch quarterly. Feature best submissions." },
-                    { id: 10, goal: "Crisis Response Templates", prompt: "Create social media crisis response templates for {{BRAND}}. Include: templates for negative feedback, product issues, PR situations, and tone guidelines for sensitive topics. Context: {{INDUSTRY}}", whyFits: "Prepared responses prevent panic decisions.", howUsed: "Keep in team handbook. Update as situations arise." }
-                ]
             }
         };
 
         // ===== STATE =====
         let state = {
-            step: 'landing', // 'landing', 'brand-input', 'discipline-select', 'library-view', 'llm-output'
-            mode: 'strategy', // 'strategy' or 'execution'
+            step: 'brand-input', // 'brand-input', 'discipline-select', 'library-view', 'llm-output'
             brand: '',
             website: '',
             industry: '',
@@ -307,13 +210,9 @@
         const disciplines = [
             { value: 'seo', label: 'SEO', icon: '🔍', desc: 'Search engine optimization' },
             { value: 'paid', label: 'Paid Media', icon: '💰', desc: 'Ads & performance marketing' },
-            { value: 'lifecycle', label: 'Lifecycle', icon: '🔄', desc: 'Retention & automation' },
+            { value: 'lifecycle', label: 'Lifecycle', icon: '🔄', desc: 'Email, retention & automation' },
             { value: 'content', label: 'Content', icon: '✍️', desc: 'Content marketing & distribution' },
-            { value: 'conversion', label: 'CRO', icon: '📈', desc: 'Conversion rate optimization' },
-            { value: 'linkedin', label: 'LinkedIn', icon: '💼', desc: 'Posts, carousels & engagement' },
-            { value: 'blog', label: 'Blog', icon: '📝', desc: 'Long-form articles & SEO content' },
-            { value: 'email', label: 'Email', icon: '📧', desc: 'Campaigns, sequences & newsletters' },
-            { value: 'social', label: 'Social', icon: '📱', desc: 'Twitter, Instagram, TikTok & more' }
+            { value: 'conversion', label: 'CRO', icon: '📈', desc: 'Conversion rate optimization' }
         ];
 
         // ===== HELPERS =====
@@ -333,12 +232,6 @@
             });
         }
 
-        function copyLLMOutput(id) {
-            const isNoApiKey = state.llmOutput.startsWith('__NO_API_KEY__');
-            const content = isNoApiKey ? state.llmOutput.replace('__NO_API_KEY__\n\n', '') : state.llmOutput;
-            copyToClipboard(content, id);
-        }
-
         function simpleMarkdown(text) {
             return text
                 .replace(/^### (.*$)/gim, '<h3>$1</h3>')
@@ -355,32 +248,6 @@
         }
 
         // ===== LLM INTEGRATION =====
-        function getSystemPrompt() {
-            if (state.mode === 'execution') {
-                return `You are an elite marketing executor. Your job is to CREATE ready-to-use content, not explain strategy.
-
-IMPORTANT RULES FOR EXECUTION MODE:
-- Output ACTUAL content that can be copied and used immediately
-- No explanations, frameworks, or "here's how to think about it"
-- No bullet points of tips—give the ACTUAL deliverable
-- For posts: Write the full post, ready to copy-paste
-- For emails: Write the full email copy
-- For hooks: Just the hooks, no explanations
-- For calendars: Actual dates, actual post copy
-- Use markdown formatting for clarity
-- Be specific to the brand and context provided`;
-            } else {
-                return `You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt.
-
-IMPORTANT RULES FOR STRATEGY MODE:
-- Explain the thinking and frameworks behind your recommendations
-- Provide examples and templates they can adapt
-- Include best practices and mental models
-- Help them understand WHY, not just WHAT
-- Use markdown formatting for clarity`;
-            }
-        }
-
         async function runPromptWithLLM(prompt) {
             state.isLoading = true;
             state.llmOutput = '';
@@ -388,7 +255,6 @@ IMPORTANT RULES FOR STRATEGY MODE:
             render();
 
             const personalizedPrompt = personalizePrompt(prompt);
-            const systemPrompt = getSystemPrompt();
 
             try {
                 if (state.llmProvider === 'openai' && state.apiKey) {
@@ -401,7 +267,7 @@ IMPORTANT RULES FOR STRATEGY MODE:
                         body: JSON.stringify({
                             model: 'gpt-4o',
                             messages: [
-                                { role: 'system', content: systemPrompt },
+                                { role: 'system', content: 'You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt. Use markdown formatting for clarity.' },
                                 { role: 'user', content: personalizedPrompt }
                             ],
                             max_tokens: 4000
@@ -429,7 +295,7 @@ IMPORTANT RULES FOR STRATEGY MODE:
                             messages: [
                                 { role: 'user', content: personalizedPrompt }
                             ],
-                            system: systemPrompt
+                            system: 'You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt. Use markdown formatting for clarity.'
                         })
                     });
 
@@ -674,29 +540,6 @@ IMPORTANT RULES FOR STRATEGY MODE:
                         </div>
                     </div>
 
-                    <!-- Mode Toggle -->
-                    <div class="flex justify-center">
-                        <div class="inline-flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
-                            <button
-                                onclick="setMode('strategy')"
-                                class="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}"
-                            >
-                                📋 Strategy
-                            </button>
-                            <button
-                                onclick="setMode('execution')"
-                                class="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}"
-                            >
-                                ⚡ Execution
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-center text-sm text-slate-500">
-                        ${state.mode === 'strategy'
-                            ? 'Get frameworks, analysis, and strategic recommendations'
-                            : 'Get ready-to-use content you can copy and publish immediately'}
-                    </p>
-
                     <div class="text-center max-w-3xl mx-auto">
                         <h2 class="text-2xl md:text-3xl font-bold mb-4">${lib.title}</h2>
                         <p class="text-slate-400 leading-relaxed">${lib.summary}</p>
@@ -739,7 +582,7 @@ IMPORTANT RULES FOR STRATEGY MODE:
                         </button>
                         <div class="flex gap-2">
                             <button
-                                onclick="copyLLMOutput('output')"
+                                onclick="copyToClipboard(\`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 'output')"
                                 class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}"
                             >
                                 ${state.copiedId === 'output' ? icons.check : icons.copy}
@@ -750,29 +593,8 @@ IMPORTANT RULES FOR STRATEGY MODE:
 
                     ${state.selectedPrompt ? `
                         <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                            <div class="flex items-center justify-between mb-3">
-                                <div>
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Prompt Used</div>
-                                    <div class="text-sm text-slate-300">${state.selectedPrompt.goal}</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between pt-3 border-t border-slate-700">
-                                <div class="inline-flex items-center bg-slate-900 rounded-lg p-1">
-                                    <button
-                                        onclick="switchModeAndRerun('strategy')"
-                                        class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}"
-                                    >
-                                        📋 Strategy
-                                    </button>
-                                    <button
-                                        onclick="switchModeAndRerun('execution')"
-                                        class="px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}"
-                                    >
-                                        ⚡ Execution
-                                    </button>
-                                </div>
-                                <span class="text-xs text-slate-500">Switch mode to regenerate</span>
-                            </div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wide mb-2">Prompt Used</div>
+                            <div class="text-sm text-slate-300">${state.selectedPrompt.goal}</div>
                         </div>
                     ` : ''}
 
@@ -795,7 +617,7 @@ IMPORTANT RULES FOR STRATEGY MODE:
                                     <p class="text-slate-400">No API key configured. Copy this personalized prompt and paste it into your preferred LLM:</p>
                                     <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-slate-300 whitespace-pre-wrap">${content}</div>
                                     <button
-                                        onclick="copyLLMOutput('prompt-copy')"
+                                        onclick="copyToClipboard(\`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 'prompt-copy')"
                                         class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold flex items-center justify-center gap-2"
                                     >
                                         ${state.copiedId === 'prompt-copy' ? icons.check : icons.copy}
@@ -813,217 +635,18 @@ IMPORTANT RULES FOR STRATEGY MODE:
             `;
         }
 
-        function renderLanding() {
-            return `
-                <div class="min-h-[80vh] flex flex-col">
-                    <!-- Hero Section -->
-                    <div class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
-                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-8">
-                            ${icons.sparkles}
-                            <span>Free AI-powered marketing tool</span>
-                        </div>
-
-                        <h1 class="text-4xl md:text-6xl font-bold mb-6 max-w-4xl leading-tight">
-                            Turn any marketing discipline into a
-                            <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">personalized AI prompt library</span>
-                        </h1>
-
-                        <p class="text-xl text-slate-400 max-w-2xl mb-8 leading-relaxed">
-                            Enter your brand, website, and business challenge. Get 90 battle-tested prompts personalized to your context, plus mental models from elite marketers.
-                        </p>
-
-                        <!-- Strategy/Execution Badge -->
-                        <div class="flex items-center justify-center gap-3 mb-10">
-                            <div class="inline-flex items-center bg-slate-800 rounded-xl p-1.5 border border-slate-700">
-                                <div class="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium flex items-center gap-2">
-                                    📋 Strategy Mode
-                                </div>
-                                <div class="px-4 py-2 rounded-lg text-slate-400 text-sm font-medium flex items-center gap-2">
-                                    ⚡ Execution Mode
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-sm text-slate-500 mb-10 max-w-lg mx-auto">
-                            Toggle between <span class="text-purple-400">Strategy</span> for frameworks & analysis or <span class="text-green-400">Execution</span> for ready-to-use content you can copy and publish immediately
-                        </p>
-
-                        <button
-                            onclick="state.step = 'brand-input'; render();"
-                            class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-lg flex items-center gap-3 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
-                        >
-                            Get Started — It's Free
-                            ${icons.arrowRight}
-                        </button>
-                    </div>
-
-                    <!-- How It Works -->
-                    <div class="py-16 border-t border-slate-800">
-                        <h2 class="text-2xl font-bold text-center mb-12">How It Works</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-                            <div class="text-center">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-purple-500/20">1</div>
-                                <h3 class="font-semibold text-lg mb-2">Add Your Context</h3>
-                                <p class="text-slate-400 text-sm">Enter your brand, website, industry, and business challenge</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-cyan-500/20">2</div>
-                                <h3 class="font-semibold text-lg mb-2">Pick a Discipline</h3>
-                                <p class="text-slate-400 text-sm">Choose from 9 disciplines: SEO, Email, Social, Blog, and more</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-pink-500/20">3</div>
-                                <h3 class="font-semibold text-lg mb-2">Choose Your Mode</h3>
-                                <p class="text-slate-400 text-sm">Strategy for frameworks & planning, or Execution for ready-to-use content</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-green-500/20">4</div>
-                                <h3 class="font-semibold text-lg mb-2">Run or Copy</h3>
-                                <p class="text-slate-400 text-sm">Execute with AI instantly, or copy to your favorite tool</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Strategy vs Execution -->
-                    <div class="py-16 border-t border-slate-800">
-                        <h2 class="text-2xl font-bold text-center mb-4">Two Modes, One Tool</h2>
-                        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">Switch instantly between planning and doing—no more context switching between tools</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                            <div class="p-6 bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-2xl border border-purple-500/20">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-2xl">📋</div>
-                                    <div>
-                                        <h3 class="font-bold text-lg text-purple-300">Strategy Mode</h3>
-                                        <p class="text-sm text-slate-400">Think & Plan</p>
-                                    </div>
-                                </div>
-                                <ul class="space-y-2 text-sm text-slate-300">
-                                    <li class="flex items-start gap-2"><span class="text-purple-400">→</span> Frameworks and mental models</li>
-                                    <li class="flex items-start gap-2"><span class="text-purple-400">→</span> Strategic recommendations</li>
-                                    <li class="flex items-start gap-2"><span class="text-purple-400">→</span> Analysis and insights</li>
-                                    <li class="flex items-start gap-2"><span class="text-purple-400">→</span> Templates you can adapt</li>
-                                </ul>
-                            </div>
-                            <div class="p-6 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl border border-green-500/20">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-12 h-12 rounded-xl bg-green-600 flex items-center justify-center text-2xl">⚡</div>
-                                    <div>
-                                        <h3 class="font-bold text-lg text-green-300">Execution Mode</h3>
-                                        <p class="text-sm text-slate-400">Create & Ship</p>
-                                    </div>
-                                </div>
-                                <ul class="space-y-2 text-sm text-slate-300">
-                                    <li class="flex items-start gap-2"><span class="text-green-400">→</span> Ready-to-publish content</li>
-                                    <li class="flex items-start gap-2"><span class="text-green-400">→</span> Copy-paste deliverables</li>
-                                    <li class="flex items-start gap-2"><span class="text-green-400">→</span> Full emails, posts, scripts</li>
-                                    <li class="flex items-start gap-2"><span class="text-green-400">→</span> No fluff, just output</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- What You Get -->
-                    <div class="py-16 border-t border-slate-800">
-                        <h2 class="text-2xl font-bold text-center mb-12">What You Get</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 text-purple-400">${icons.brain}</div>
-                                <div>
-                                    <h3 class="font-semibold mb-1">50+ Mental Models</h3>
-                                    <p class="text-sm text-slate-400">Strategic frameworks from elite marketers at Reforge, CXL, Demand Curve, and more</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div class="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0 text-cyan-400">${icons.zap}</div>
-                                <div>
-                                    <h3 class="font-semibold mb-1">90 Personalized Prompts</h3>
-                                    <p class="text-sm text-slate-400">Battle-tested prompts automatically customized with your brand context</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0 text-green-400">${icons.play}</div>
-                                <div>
-                                    <h3 class="font-semibold mb-1">One-Click AI Execution</h3>
-                                    <p class="text-sm text-slate-400">Run prompts instantly with Claude or GPT-4, or copy for any LLM</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4 p-5 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center flex-shrink-0 text-pink-400">${icons.target}</div>
-                                <div>
-                                    <h3 class="font-semibold mb-1">Context-Aware Results</h3>
-                                    <p class="text-sm text-slate-400">Every output is tailored to your specific industry and business challenge</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- How to Activate -->
-                    <div class="py-16 border-t border-slate-800">
-                        <h2 class="text-2xl font-bold text-center mb-4">Get Running in 2 Minutes</h2>
-                        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">Just add your business context and API key to start generating personalized marketing strategies</p>
-                        <div class="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div class="text-3xl mb-3">📝</div>
-                                <h3 class="font-semibold mb-2">1. Add Your Context</h3>
-                                <p class="text-sm text-slate-400">Enter your brand name, website, industry, and current business challenge. This personalizes every prompt.</p>
-                            </div>
-                            <div class="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div class="text-3xl mb-3">🔑</div>
-                                <h3 class="font-semibold mb-2">2. Add Your API Key</h3>
-                                <p class="text-sm text-slate-400">Bring your own OpenAI or Anthropic API key to run prompts live. Or use "Copy Only" mode to paste into any LLM.</p>
-                            </div>
-                        </div>
-                        <p class="text-center text-slate-500 text-sm mt-6">Your API key is stored locally in your browser—never sent to our servers.</p>
-                    </div>
-
-                    <!-- Disciplines Preview -->
-                    <div class="py-16 border-t border-slate-800">
-                        <h2 class="text-2xl font-bold text-center mb-4">9 Marketing Disciplines</h2>
-                        <p class="text-slate-400 text-center mb-12 max-w-xl mx-auto">Choose your focus area and get specialized prompts designed by operators who've scaled companies</p>
-                        <div class="flex flex-wrap justify-center gap-4">
-                            ${disciplines.map(d => `
-                                <div class="px-6 py-4 bg-slate-800 rounded-xl border border-slate-700 flex items-center gap-3">
-                                    <span class="text-2xl">${d.icon}</span>
-                                    <div>
-                                        <div class="font-medium">${d.label}</div>
-                                        <div class="text-xs text-slate-400">${d.desc}</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- CTA -->
-                    <div class="py-16 border-t border-slate-800 text-center">
-                        <h2 class="text-3xl font-bold mb-4">Ready to level up your marketing?</h2>
-                        <p class="text-slate-400 mb-8">No signup required. Start generating personalized prompts in seconds.</p>
-                        <button
-                            onclick="state.step = 'brand-input'; render();"
-                            class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-lg flex items-center gap-3 transition-all mx-auto"
-                        >
-                            Get Started Free
-                            ${icons.arrowRight}
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
         function render() {
             const app = document.getElementById('app');
             let content = '';
 
             switch (state.step) {
-                case 'landing': content = renderLanding(); break;
                 case 'brand-input': content = renderBrandInput(); break;
                 case 'discipline-select': content = renderDisciplineSelect(); break;
                 case 'library-view': content = renderLibrary(); break;
                 case 'llm-output': content = renderLLMOutput(); break;
             }
 
-            const showHeader = state.step !== 'landing';
-
             app.innerHTML = `
-                ${showHeader ? `
                 <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
                     <div class="max-w-6xl mx-auto px-4 py-4">
                         <div class="flex items-center justify-between">
@@ -1037,24 +660,16 @@ IMPORTANT RULES FOR STRATEGY MODE:
                         </div>
                     </div>
                 </header>
-                ` : ''}
-                <main class="max-w-6xl mx-auto px-4 ${showHeader ? 'py-8' : 'py-4'}">${content}</main>
-                ${state.step !== 'landing' ? `
+                <main class="max-w-6xl mx-auto px-4 py-8">${content}</main>
                 <footer class="border-t border-slate-800 mt-12 py-6">
                     <div class="max-w-6xl mx-auto px-4 text-center text-sm text-slate-500">
                         Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design
                     </div>
                 </footer>
-                ` : ''}
             `;
         }
 
         // ===== EVENT HANDLERS =====
-        function setMode(mode) {
-            state.mode = mode;
-            render();
-        }
-
         function setProvider(provider) {
             state.llmProvider = provider;
             localStorage.setItem('llm_provider', provider);
@@ -1113,15 +728,8 @@ IMPORTANT RULES FOR STRATEGY MODE:
             render();
         }
 
-        function switchModeAndRerun(newMode) {
-            if (state.mode !== newMode && state.selectedPrompt) {
-                state.mode = newMode;
-                runPromptWithLLM(state.selectedPrompt.prompt);
-            }
-        }
-
         function resetAll() {
-            state.step = 'landing';
+            state.step = 'brand-input';
             state.discipline = null;
             state.library = null;
             state.expandedModels = {};
