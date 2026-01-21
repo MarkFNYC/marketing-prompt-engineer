@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing Prompt Engineer Pro</title>
+    <title>Amplify — AI Marketing Prompt Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -820,13 +820,16 @@ IMPORTANT RULES FOR STRATEGY MODE:
                     <div class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
                         <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-8">
                             ${icons.sparkles}
-                            <span>Free AI-powered marketing tool</span>
+                            <span>By Fabrica Collective</span>
                         </div>
 
-                        <h1 class="text-4xl md:text-6xl font-bold mb-6 max-w-4xl leading-tight">
-                            Turn any marketing discipline into a
-                            <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">personalized AI prompt library</span>
+                        <h1 class="text-5xl md:text-7xl font-bold mb-6 max-w-4xl leading-tight">
+                            <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Amplify</span>
                         </h1>
+                        <p class="text-2xl md:text-3xl font-medium text-slate-300 mb-6 max-w-2xl">
+                            Turn any marketing discipline into a
+                            <span class="text-white">personalized AI prompt library</span>
+                        </p>
 
                         <p class="text-xl text-slate-400 max-w-2xl mb-8 leading-relaxed">
                             Enter your brand, website, and business challenge. Get 90 battle-tested prompts personalized to your context, plus mental models from elite marketers.
@@ -994,7 +997,7 @@ IMPORTANT RULES FOR STRATEGY MODE:
 
                     <!-- CTA -->
                     <div class="py-16 border-t border-slate-800 text-center">
-                        <h2 class="text-3xl font-bold mb-4">Ready to level up your marketing?</h2>
+                        <h2 class="text-3xl font-bold mb-4">Ready to amplify your marketing?</h2>
                         <p class="text-slate-400 mb-8">No signup required. Start generating personalized prompts in seconds.</p>
                         <button
                             onclick="state.step = 'brand-input'; render();"
@@ -1003,6 +1006,12 @@ IMPORTANT RULES FOR STRATEGY MODE:
                             Get Started Free
                             ${icons.arrowRight}
                         </button>
+                    </div>
+
+                    <!-- Landing Footer -->
+                    <div class="py-8 border-t border-slate-800 text-center">
+                        <p class="text-sm text-slate-400 mb-2">Powered by <a href="https://fabricacollective.com" target="_blank" class="text-purple-400 hover:text-purple-300 transition-colors">Fabrica Collective</a></p>
+                        <p class="text-xs text-slate-600">Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design</p>
                     </div>
                 </div>
             `;
@@ -1030,8 +1039,8 @@ IMPORTANT RULES FOR STRATEGY MODE:
                             <div class="flex items-center gap-3 cursor-pointer" onclick="resetAll()">
                                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">${icons.sparkles}</div>
                                 <div>
-                                    <h1 class="font-bold text-lg">Marketing Prompt Engineer</h1>
-                                    <p class="text-xs text-slate-400">Personalized AI prompts for marketers</p>
+                                    <h1 class="font-bold text-lg">Amplify</h1>
+                                    <p class="text-xs text-slate-400">AI-powered marketing prompts</p>
                                 </div>
                             </div>
                         </div>
@@ -1041,8 +1050,9 @@ IMPORTANT RULES FOR STRATEGY MODE:
                 <main class="max-w-6xl mx-auto px-4 ${showHeader ? 'py-8' : 'py-4'}">${content}</main>
                 ${state.step !== 'landing' ? `
                 <footer class="border-t border-slate-800 mt-12 py-6">
-                    <div class="max-w-6xl mx-auto px-4 text-center text-sm text-slate-500">
-                        Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design
+                    <div class="max-w-6xl mx-auto px-4 text-center">
+                        <p class="text-sm text-slate-400 mb-2">Powered by <a href="https://fabricacollective.com" target="_blank" class="text-purple-400 hover:text-purple-300 transition-colors">Fabrica Collective</a></p>
+                        <p class="text-xs text-slate-600">Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design</p>
                     </div>
                 </footer>
                 ` : ''}
