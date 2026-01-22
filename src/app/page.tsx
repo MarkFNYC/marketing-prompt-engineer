@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 type Step = 'landing' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output';
 type Mode = 'strategy' | 'execution';
@@ -70,33 +70,39 @@ export default function Home() {
 
   // Check auth and load state on mount
   useEffect(() => {
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setState(prev => ({
-          ...prev,
-          user: { id: session.user.id, email: session.user.email || '' },
-        }));
-        loadUserUsage(session.user.id);
-      }
-    });
+    let subscription: { unsubscribe: () => void } | null = null;
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setState(prev => ({
-          ...prev,
-          user: { id: session.user.id, email: session.user.email || '' },
-        }));
-        loadUserUsage(session.user.id);
-      } else {
-        setState(prev => ({
-          ...prev,
-          user: null,
-          freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
-        }));
-      }
-    });
+    // Only setup Supabase auth if configured
+    if (supabase && isSupabaseConfigured()) {
+      // Check for existing session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          setState(prev => ({
+            ...prev,
+            user: { id: session.user.id, email: session.user.email || '' },
+          }));
+          loadUserUsage(session.user.id);
+        }
+      });
+
+      // Listen for auth changes
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+          setState(prev => ({
+            ...prev,
+            user: { id: session.user.id, email: session.user.email || '' },
+          }));
+          loadUserUsage(session.user.id);
+        } else {
+          setState(prev => ({
+            ...prev,
+            user: null,
+            freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
+          }));
+        }
+      });
+      subscription = data.subscription;
+    }
 
     // Load local state
     const savedApiKey = localStorage.getItem('amplify_api_key') || '';
@@ -110,7 +116,9 @@ export default function Home() {
       freePromptsUsed: prev.user ? prev.freePromptsUsed : savedPromptsUsed,
     }));
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
   }, []);
 
   const loadUserUsage = async (userId: string) => {
@@ -148,7 +156,7 @@ export default function Home() {
         return;
       }
 
-      if (data.session) {
+      if (data.session && supabase) {
         await supabase.auth.setSession(data.session);
       }
 
@@ -174,7 +182,7 @@ export default function Home() {
         return;
       }
 
-      if (data.session) {
+      if (data.session && supabase) {
         await supabase.auth.setSession(data.session);
       }
 
@@ -185,7 +193,7 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (supabase) await supabase.auth.signOut();
     updateState({
       user: null,
       freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
