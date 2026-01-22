@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -208,5 +208,34 @@ export default function AuthCallback() {
         )}
       </div>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold mb-2">Amplify</h1>
+        <div className="mt-6">
+          <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main export wrapped in Suspense
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
