@@ -8,7 +8,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 type Step = 'landing' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output';
 type Mode = 'strategy' | 'execution';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
-type AuthModal = 'none' | 'login' | 'signup';
+type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
 
 interface User {
   id: string;
@@ -38,6 +38,7 @@ interface State {
   authModal: AuthModal;
   authLoading: boolean;
   authError: string | null;
+  signupEmail: string;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -66,6 +67,7 @@ export default function Home() {
     authModal: 'none',
     authLoading: false,
     authError: null,
+    signupEmail: '',
   });
 
   // Check auth and load state on mount
@@ -160,8 +162,29 @@ export default function Home() {
         await supabase.auth.setSession(data.session);
       }
 
-      updateState({ authModal: 'none', authLoading: false });
-      alert('Check your email to confirm your account!');
+      // Show success screen instead of alert
+      updateState({ authModal: 'signup-success', authLoading: false, signupEmail: email });
+    } catch (error: any) {
+      updateState({ authError: error.message, authLoading: false });
+    }
+  };
+
+  const handleForgotPassword = async (email: string) => {
+    updateState({ authLoading: true, authError: null });
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        updateState({ authError: data.error, authLoading: false });
+        return;
+      }
+
+      updateState({ authModal: 'reset-sent', authLoading: false, signupEmail: email });
     } catch (error: any) {
       updateState({ authError: error.message, authLoading: false });
     }
@@ -369,12 +392,14 @@ export default function Home() {
       {state.authModal !== 'none' && (
         <AuthModal
           mode={state.authModal}
-          onClose={() => updateState({ authModal: 'none', authError: null })}
+          onClose={() => updateState({ authModal: 'none', authError: null, signupEmail: '' })}
           onLogin={handleLogin}
           onSignup={handleSignup}
+          onForgotPassword={handleForgotPassword}
           onSwitchMode={(mode) => updateState({ authModal: mode, authError: null })}
           isLoading={state.authLoading}
           error={state.authError}
+          signupEmail={state.signupEmail}
         />
       )}
 
@@ -478,85 +503,317 @@ function AuthModal({
   onClose,
   onLogin,
   onSignup,
+  onForgotPassword,
   onSwitchMode,
   isLoading,
   error,
+  signupEmail,
 }: {
-  mode: 'login' | 'signup';
+  mode: AuthModal;
   onClose: () => void;
   onLogin: (email: string, password: string) => void;
   onSignup: (email: string, password: string) => void;
-  onSwitchMode: (mode: 'login' | 'signup') => void;
+  onForgotPassword: (email: string) => void;
+  onSwitchMode: (mode: AuthModal) => void;
   isLoading: boolean;
   error: string | null;
+  signupEmail: string;
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === 'login') {
       onLogin(email, password);
-    } else {
+    } else if (mode === 'signup') {
       onSignup(email, password);
+    } else if (mode === 'forgot-password') {
+      onForgotPassword(email);
     }
   };
 
+  // Success screens
+  if (mode === 'signup-success') {
+    return (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+          {/* Success Icon */}
+          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+
+          <h2 className="text-2xl font-bold mb-2">Check your email</h2>
+          <p className="text-slate-400 mb-6">
+            We sent a confirmation link to<br />
+            <span className="text-white font-medium">{signupEmail}</span>
+          </p>
+
+          <div className="bg-slate-900/50 rounded-xl p-4 mb-6 text-left">
+            <p className="text-sm text-slate-400">
+              <span className="text-purple-400 font-medium">Next steps:</span>
+            </p>
+            <ol className="text-sm text-slate-400 mt-2 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span>Open the email from Amplify</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span>Click the confirmation link</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span>You'll be automatically signed in</span>
+              </li>
+            </ol>
+          </div>
+
+          <p className="text-xs text-slate-500 mb-4">
+            Didn't receive the email? Check your spam folder or{' '}
+            <button onClick={() => onSwitchMode('signup')} className="text-purple-400 hover:text-purple-300">
+              try again
+            </button>
+          </p>
+
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all"
+          >
+            Got it
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === 'reset-sent') {
+    return (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+          {/* Email Icon */}
+          <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+
+          <h2 className="text-2xl font-bold mb-2">Check your email</h2>
+          <p className="text-slate-400 mb-6">
+            We sent a password reset link to<br />
+            <span className="text-white font-medium">{signupEmail}</span>
+          </p>
+
+          <p className="text-xs text-slate-500 mb-4">
+            Didn't receive the email? Check your spam folder or{' '}
+            <button onClick={() => onSwitchMode('forgot-password')} className="text-purple-400 hover:text-purple-300">
+              try again
+            </button>
+          </p>
+
+          <button
+            onClick={() => onSwitchMode('login')}
+            className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all"
+          >
+            Back to login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Forgot Password Form
+  if (mode === 'forgot-password') {
+    return (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold">Reset password</h2>
+              <p className="text-sm text-slate-400 mt-1">We'll send you a reset link</p>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-start gap-2">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                required
+                autoFocus
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                'Send reset link'
+              )}
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-slate-400 mt-4">
+            Remember your password?{' '}
+            <button onClick={() => onSwitchMode('login')} className="text-purple-400 hover:text-purple-300 font-medium">
+              Log in
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login / Signup Forms
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">{mode === 'login' ? 'Welcome back' : 'Create account'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <div>
+            <h2 className="text-xl font-bold">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
+            <p className="text-sm text-slate-400 mt-1">
+              {mode === 'login' ? 'Sign in to continue to Amplify' : 'Start creating amazing marketing content'}
+            </p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">{error}</div>
+            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-start gap-2">
+              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
               required
+              autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-              required
-              minLength={6}
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-slate-300">Password</label>
+              {mode === 'login' && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchMode('forgot-password')}
+                  className="text-xs text-purple-400 hover:text-purple-300"
+                >
+                  Forgot password?
+                </button>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pr-12"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+            {mode === 'signup' && (
+              <p className="text-xs text-slate-500 mt-2">Must be at least 6 characters</p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50"
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Loading...' : mode === 'login' ? 'Log in' : 'Sign up'}
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {mode === 'login' ? 'Signing in...' : 'Creating account...'}
+              </>
+            ) : (
+              mode === 'login' ? 'Sign in' : 'Create account'
+            )}
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-400 mt-4">
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-700"></div>
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-slate-800 px-2 text-slate-500">or</span>
+          </div>
+        </div>
+
+        <p className="text-center text-sm text-slate-400">
           {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-          <button onClick={() => onSwitchMode(mode === 'login' ? 'signup' : 'login')} className="text-purple-400 hover:text-purple-300">
-            {mode === 'login' ? 'Sign up' : 'Log in'}
+          <button
+            onClick={() => onSwitchMode(mode === 'login' ? 'signup' : 'login')}
+            className="text-purple-400 hover:text-purple-300 font-medium"
+          >
+            {mode === 'login' ? 'Sign up for free' : 'Sign in'}
           </button>
         </p>
+
+        {mode === 'signup' && (
+          <p className="text-center text-xs text-slate-500 mt-4">
+            By creating an account, you agree to our Terms of Service
+          </p>
+        )}
       </div>
     </div>
   );
