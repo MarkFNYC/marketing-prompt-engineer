@@ -74,6 +74,38 @@ export default function Home() {
   useEffect(() => {
     checkAuth();
     loadSavedState();
+
+    // Listen for auth state changes (for magic link, OAuth, etc.)
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setState(prev => ({
+          ...prev,
+          user: { id: session.user.id, email: session.user.email || '' },
+        }));
+        // Fetch usage after sign in
+        fetch('/api/usage').then(res => res.json()).then(usage => {
+          setState(prev => ({
+            ...prev,
+            freePromptsUsed: usage.prompts_used || 0,
+            promptsLimit: usage.prompts_limit || FREE_PROMPT_LIMIT,
+            tier: usage.tier || 'free',
+          }));
+        });
+      } else if (event === 'SIGNED_OUT') {
+        setState(prev => ({
+          ...prev,
+          user: null,
+          freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
+          promptsLimit: FREE_PROMPT_LIMIT,
+          tier: 'free',
+        }));
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const checkAuth = async () => {
