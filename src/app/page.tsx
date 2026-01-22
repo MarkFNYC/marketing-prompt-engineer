@@ -3,17 +3,10 @@
 import { useState, useEffect } from 'react';
 import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
-import { createClient } from '@/lib/supabase';
 
 type Step = 'landing' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output';
 type Mode = 'strategy' | 'execution';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
-type AuthModal = 'none' | 'login' | 'signup';
-
-interface User {
-  id: string;
-  email: string;
-}
 
 interface State {
   step: Step;
@@ -33,12 +26,6 @@ interface State {
   apiKey: string;
   llmProvider: Provider;
   freePromptsUsed: number;
-  promptsLimit: number;
-  user: User | null;
-  authModal: AuthModal;
-  authLoading: boolean;
-  authError: string | null;
-  tier: 'free' | 'premium';
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -62,161 +49,24 @@ export default function Home() {
     apiKey: '',
     llmProvider: 'gemini',
     freePromptsUsed: 0,
-    promptsLimit: FREE_PROMPT_LIMIT,
-    user: null,
-    authModal: 'none',
-    authLoading: false,
-    authError: null,
-    tier: 'free',
   });
 
-  // Check auth status and load usage on mount
+  // Load saved state from localStorage
   useEffect(() => {
-    checkAuth();
-    loadSavedState();
-
-    // Listen for auth state changes (for magic link, OAuth, etc.)
-    const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        setState(prev => ({
-          ...prev,
-          user: { id: session.user.id, email: session.user.email || '' },
-        }));
-        // Fetch usage after sign in
-        fetch('/api/usage').then(res => res.json()).then(usage => {
-          setState(prev => ({
-            ...prev,
-            freePromptsUsed: usage.prompts_used || 0,
-            promptsLimit: usage.prompts_limit || FREE_PROMPT_LIMIT,
-            tier: usage.tier || 'free',
-          }));
-        });
-      } else if (event === 'SIGNED_OUT') {
-        setState(prev => ({
-          ...prev,
-          user: null,
-          freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
-          promptsLimit: FREE_PROMPT_LIMIT,
-          tier: 'free',
-        }));
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (user) {
-        // Fetch usage from server
-        const response = await fetch('/api/usage');
-        const usage = await response.json();
-
-        setState(prev => ({
-          ...prev,
-          user: { id: user.id, email: user.email || '' },
-          freePromptsUsed: usage.prompts_used || 0,
-          promptsLimit: usage.prompts_limit || FREE_PROMPT_LIMIT,
-          tier: usage.tier || 'free',
-        }));
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-    }
-  };
-
-  const loadSavedState = () => {
     const savedApiKey = localStorage.getItem('amplify_api_key') || '';
     const savedProvider = (localStorage.getItem('amplify_provider') as Provider) || 'gemini';
-    // Only use localStorage for non-authenticated users
     const savedPromptsUsed = parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10);
 
     setState(prev => ({
       ...prev,
       apiKey: savedApiKey,
       llmProvider: savedProvider,
-      freePromptsUsed: prev.user ? prev.freePromptsUsed : savedPromptsUsed,
+      freePromptsUsed: savedPromptsUsed,
     }));
-  };
+  }, []);
 
   const updateState = (updates: Partial<State>) => {
     setState(prev => ({ ...prev, ...updates }));
-  };
-
-  const handleLogin = async (email: string, password: string) => {
-    updateState({ authLoading: true, authError: null });
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        updateState({ authError: data.error, authLoading: false });
-        return;
-      }
-
-      // Refresh auth state
-      await checkAuth();
-      updateState({ authModal: 'none', authLoading: false });
-    } catch (error: any) {
-      updateState({ authError: error.message, authLoading: false });
-    }
-  };
-
-  const handleSignup = async (email: string, password: string) => {
-    updateState({ authLoading: true, authError: null });
-
-    try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        updateState({ authError: data.error, authLoading: false });
-        return;
-      }
-
-      updateState({
-        authError: null,
-        authLoading: false,
-        authModal: 'none',
-      });
-      alert('Check your email to confirm your account!');
-    } catch (error: any) {
-      updateState({ authError: error.message, authLoading: false });
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      const supabase = createClient();
-      await supabase.auth.signOut();
-
-      updateState({
-        user: null,
-        freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
-        promptsLimit: FREE_PROMPT_LIMIT,
-        tier: 'free',
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
   };
 
   const copyToClipboard = (text: string, id: number | string) => {
@@ -243,10 +93,10 @@ export default function Home() {
 
   const runPromptWithLLM = async (prompt: string) => {
     // Check free tier limit if using Gemini (server key)
-    if (state.llmProvider === 'gemini' && state.freePromptsUsed >= state.promptsLimit && state.tier !== 'premium') {
+    if (state.llmProvider === 'gemini' && state.freePromptsUsed >= FREE_PROMPT_LIMIT) {
       updateState({
         step: 'llm-output',
-        llmOutput: `__LIMIT_REACHED__\n\nYou've used all ${state.promptsLimit} free prompts this month.\n\nTo continue:\n1. Add your own API key (OpenAI or Anthropic)\n2. Upgrade to Premium for unlimited prompts\n3. Sign up/login to track your usage across devices`,
+        llmOutput: `__LIMIT_REACHED__\n\nYou've used all ${FREE_PROMPT_LIMIT} free prompts this month.\n\nTo continue:\n1. Add your own API key (OpenAI or Anthropic)\n2. Upgrade to Premium for unlimited prompts`,
         isLoading: false,
       });
       return;
@@ -273,19 +123,11 @@ export default function Home() {
       if (data.error) {
         updateState({ llmOutput: `Error: ${data.error}`, isLoading: false });
       } else {
-        // Track usage
+        // Track free tier usage
         if (state.llmProvider === 'gemini') {
-          if (state.user) {
-            // Update server-side usage for logged-in users
-            const usageResponse = await fetch('/api/usage', { method: 'POST' });
-            const usageData = await usageResponse.json();
-            updateState({ freePromptsUsed: usageData.prompts_used });
-          } else {
-            // Update localStorage for anonymous users
-            const newCount = state.freePromptsUsed + 1;
-            localStorage.setItem('amplify_free_prompts_used', newCount.toString());
-            updateState({ freePromptsUsed: newCount });
-          }
+          const newCount = state.freePromptsUsed + 1;
+          localStorage.setItem('amplify_free_prompts_used', newCount.toString());
+          updateState({ freePromptsUsed: newCount });
         }
         updateState({ llmOutput: data.result, isLoading: false });
       }
@@ -380,19 +222,6 @@ export default function Home() {
   // Render components based on step
   return (
     <>
-      {/* Auth Modal */}
-      {state.authModal !== 'none' && (
-        <AuthModal
-          mode={state.authModal}
-          onClose={() => updateState({ authModal: 'none', authError: null })}
-          onLogin={handleLogin}
-          onSignup={handleSignup}
-          onSwitchMode={(mode) => updateState({ authModal: mode, authError: null })}
-          isLoading={state.authLoading}
-          error={state.authError}
-        />
-      )}
-
       {state.step !== 'landing' && (
         <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 py-4">
@@ -406,46 +235,18 @@ export default function Home() {
                   <p className="text-xs text-slate-400">AI-powered marketing</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                {state.llmProvider === 'gemini' && (
-                  <div className="text-xs text-slate-500">
-                    {state.freePromptsUsed}/{state.promptsLimit} free prompts
-                  </div>
-                )}
-                {state.user ? (
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-slate-400">{state.user.email}</span>
-                    <button
-                      onClick={handleLogout}
-                      className="text-xs text-slate-500 hover:text-white transition-colors"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => updateState({ authModal: 'login' })}
-                    className="text-sm text-purple-400 hover:text-purple-300 transition-colors"
-                  >
-                    Login
-                  </button>
-                )}
-              </div>
+              {state.llmProvider === 'gemini' && (
+                <div className="text-xs text-slate-500">
+                  {state.freePromptsUsed}/{FREE_PROMPT_LIMIT} free prompts
+                </div>
+              )}
             </div>
           </div>
         </header>
       )}
 
       <main className={`max-w-6xl mx-auto px-4 ${state.step !== 'landing' ? 'py-8' : 'py-4'}`}>
-        {state.step === 'landing' && (
-          <LandingPage
-            onStart={() => updateState({ step: 'brand-input' })}
-            onLogin={() => updateState({ authModal: 'login' })}
-            onSignup={() => updateState({ authModal: 'signup' })}
-            user={state.user}
-            onLogout={handleLogout}
-          />
-        )}
+        {state.step === 'landing' && <LandingPage onStart={() => updateState({ step: 'brand-input' })} />}
         {state.step === 'brand-input' && (
           <BrandInput
             state={state}
@@ -498,147 +299,10 @@ export default function Home() {
   );
 }
 
-// Auth Modal Component
-function AuthModal({
-  mode,
-  onClose,
-  onLogin,
-  onSignup,
-  onSwitchMode,
-  isLoading,
-  error,
-}: {
-  mode: 'login' | 'signup';
-  onClose: () => void;
-  onLogin: (email: string, password: string) => void;
-  onSignup: (email: string, password: string) => void;
-  onSwitchMode: (mode: 'login' | 'signup') => void;
-  isLoading: boolean;
-  error: string | null;
-}) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mode === 'login') {
-      onLogin(email, password);
-    } else {
-      onSignup(email, password);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">{mode === 'login' ? 'Welcome back' : 'Create account'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-              required
-              minLength={6}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50"
-          >
-            {isLoading ? 'Loading...' : mode === 'login' ? 'Log in' : 'Sign up'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-slate-400 mt-4">
-          {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
-          <button
-            onClick={() => onSwitchMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-purple-400 hover:text-purple-300"
-          >
-            {mode === 'login' ? 'Sign up' : 'Log in'}
-          </button>
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // Landing Page Component
-function LandingPage({
-  onStart,
-  onLogin,
-  onSignup,
-  user,
-  onLogout,
-}: {
-  onStart: () => void;
-  onLogin: () => void;
-  onSignup: () => void;
-  user: User | null;
-  onLogout: () => void;
-}) {
+function LandingPage({ onStart }: { onStart: () => void }) {
   return (
     <div className="min-h-[80vh] flex flex-col">
-      {/* Top right auth buttons */}
-      <div className="flex justify-end py-4">
-        {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-400">{user.email}</span>
-            <button
-              onClick={onLogout}
-              className="text-sm text-slate-500 hover:text-white transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onLogin}
-              className="text-sm text-slate-400 hover:text-white transition-colors"
-            >
-              Log in
-            </button>
-            <button
-              onClick={onSignup}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-medium transition-colors"
-            >
-              Sign up
-            </button>
-          </div>
-        )}
-      </div>
-
       <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-8">
           <span dangerouslySetInnerHTML={{ __html: icons.sparkles }} />
@@ -681,7 +345,7 @@ function LandingPage({
           <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
         </button>
 
-        <p className="text-xs text-slate-600 mt-4">15 free prompts/month • Sign up to save your work</p>
+        <p className="text-xs text-slate-600 mt-4">15 free prompts/month • No signup required</p>
       </div>
 
       {/* How It Works */}
@@ -826,7 +490,7 @@ function BrandInput({
             </button>
           </div>
           {state.llmProvider === 'gemini' ? (
-            <p className="text-xs text-green-400">✓ {state.promptsLimit - state.freePromptsUsed} free prompts remaining this month</p>
+            <p className="text-xs text-green-400">✓ {FREE_PROMPT_LIMIT - state.freePromptsUsed} free prompts remaining this month</p>
           ) : (
             <>
               <input
