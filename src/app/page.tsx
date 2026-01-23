@@ -1513,6 +1513,8 @@ function BrandInput({
 
     if (state.llmProvider !== 'gemini' && state.llmProvider !== 'none') {
       localStorage.setItem('amplify_api_key', apiKeyInput);
+      // Also update state immediately so the API key is available for calls
+      updateState({ apiKey: apiKeyInput });
     }
 
     // If logged in, save as project
@@ -1540,6 +1542,8 @@ function BrandInput({
           return;
         }
       }
+      // Also call submitBrandInfo to update the main state (including API key)
+      submitBrandInfo();
     } else {
       // Not logged in, just continue with the flow
       submitBrandInfo();
