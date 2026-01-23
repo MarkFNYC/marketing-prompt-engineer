@@ -6,6 +6,23 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
+    // Basic protection: Check origin/referer
+    const origin = request.headers.get('origin');
+    const referer = request.headers.get('referer');
+    const allowedOrigins = ['https://amplify.fabricacollective.com', 'http://localhost:3000'];
+
+    if (!origin && !referer) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const isAllowed = allowedOrigins.some(allowed =>
+      origin?.startsWith(allowed) || referer?.startsWith(allowed)
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { prompt, mode, provider, userApiKey } = await request.json();
 
     // Validate input
