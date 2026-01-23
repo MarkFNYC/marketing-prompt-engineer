@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { getCreativePersonas, getStrategyPersonas, type Persona } from '@/lib/personas';
 
 type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library';
 type Mode = 'strategy' | 'execution';
@@ -68,6 +69,11 @@ interface State {
   currentProject: Project | null;
   projectsLoading: boolean;
   editingProject: Project | null;
+  // Remix
+  showRemixModal: boolean;
+  remixLoading: boolean;
+  remixedOutput: string | null;
+  remixPersona: { id: string; name: string; tagline: string; colors: [string, string]; quote: string } | null;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -105,6 +111,11 @@ export default function Home() {
     currentProject: null,
     projectsLoading: false,
     editingProject: null,
+    // Remix
+    showRemixModal: false,
+    remixLoading: false,
+    remixedOutput: null,
+    remixPersona: null,
   });
 
   // Check auth and load state on mount
@@ -473,6 +484,55 @@ export default function Home() {
     updateState({ step: 'projects' });
   };
 
+  // Remix functions
+  const openRemixModal = () => {
+    updateState({ showRemixModal: true, remixedOutput: null, remixPersona: null });
+  };
+
+  const closeRemixModal = () => {
+    updateState({ showRemixModal: false });
+  };
+
+  const runRemix = async (personaId: string) => {
+    updateState({ remixLoading: true, remixedOutput: null });
+    try {
+      const response = await fetch('/api/remix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originalContent: state.llmOutput,
+          personaId,
+          mode: state.mode,
+          brandContext: {
+            brand: state.brand,
+            industry: state.industry,
+            challenge: state.challenge,
+          },
+        }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        updateState({ remixLoading: false });
+        alert('Failed to generate remix: ' + data.error);
+      } else {
+        updateState({
+          remixLoading: false,
+          remixedOutput: data.result,
+          remixPersona: data.persona,
+          showRemixModal: false,
+        });
+      }
+    } catch (error: any) {
+      console.error('Remix failed:', error);
+      updateState({ remixLoading: false });
+      alert('Failed to generate remix');
+    }
+  };
+
+  const clearRemix = () => {
+    updateState({ remixedOutput: null, remixPersona: null });
+  };
+
   const copyToClipboard = (text: string, id: number | string) => {
     navigator.clipboard.writeText(text).then(() => {
       updateState({ copiedId: id });
@@ -777,6 +837,16 @@ export default function Home() {
             switchModeAndRerun={switchModeAndRerun}
             goBack={() => goBack('library-view')}
             onSave={saveToLibrary}
+            onRemix={openRemixModal}
+            onClearRemix={clearRemix}
+          />
+        )}
+        {state.showRemixModal && (
+          <RemixModal
+            mode={state.mode}
+            isLoading={state.remixLoading}
+            onSelect={runRemix}
+            onClose={closeRemixModal}
           />
         )}
         {state.step === 'my-library' && (
@@ -1742,9 +1812,26 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
   );
 }
 
-function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack, onSave }: { state: State; copyLLMOutput: (id: string) => void; switchModeAndRerun: (m: Mode) => void; goBack: () => void; onSave: () => void }) {
+function LLMOutput({
+  state,
+  copyLLMOutput,
+  switchModeAndRerun,
+  goBack,
+  onSave,
+  onRemix,
+  onClearRemix,
+}: {
+  state: State;
+  copyLLMOutput: (id: string) => void;
+  switchModeAndRerun: (m: Mode) => void;
+  goBack: () => void;
+  onSave: () => void;
+  onRemix: () => void;
+  onClearRemix: () => void;
+}) {
   const isLimitReached = state.llmOutput.startsWith('__LIMIT_REACHED__');
   const content = isLimitReached ? state.llmOutput.replace('__LIMIT_REACHED__\n\n', '') : state.llmOutput;
+  const hasRemix = !!state.remixedOutput;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -1754,40 +1841,51 @@ function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack, onSave }:
         </button>
         <div className="flex items-center gap-2">
           {!isLimitReached && !state.isLoading && (
-            <button
-              onClick={onSave}
-              disabled={state.saveStatus === 'saving'}
-              className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
-                state.saveStatus === 'saved'
-                  ? 'bg-green-600 text-white'
-                  : state.saveStatus === 'error'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-purple-600 hover:bg-purple-500 text-white'
-              }`}
-            >
-              {state.saveStatus === 'saving' ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Saving...
-                </>
-              ) : state.saveStatus === 'saved' ? (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Saved!
-                </>
-              ) : state.saveStatus === 'error' ? (
-                'Error'
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                  </svg>
-                  Save to Library
-                </>
-              )}
-            </button>
+            <>
+              <button
+                onClick={onRemix}
+                className="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 rounded-lg text-sm flex items-center gap-2 transition-colors text-white"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {state.mode === 'strategy' ? 'Strategy' : 'Creative'} Remix
+              </button>
+              <button
+                onClick={onSave}
+                disabled={state.saveStatus === 'saving'}
+                className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                  state.saveStatus === 'saved'
+                    ? 'bg-green-600 text-white'
+                    : state.saveStatus === 'error'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-purple-600 hover:bg-purple-500 text-white'
+                }`}
+              >
+                {state.saveStatus === 'saving' ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving...
+                  </>
+                ) : state.saveStatus === 'saved' ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Saved!
+                  </>
+                ) : state.saveStatus === 'error' ? (
+                  'Error'
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    Save to Library
+                  </>
+                )}
+              </button>
+            </>
           )}
           <button onClick={() => copyLLMOutput('output')} className={`px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}`}>
             <span dangerouslySetInnerHTML={{ __html: state.copiedId === 'output' ? icons.check : icons.copy }} />
@@ -1810,6 +1908,7 @@ function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack, onSave }:
         </div>
       )}
 
+      {/* Original Output */}
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
         <div className="p-4 border-b border-slate-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -1834,7 +1933,198 @@ function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack, onSave }:
           )}
         </div>
       </div>
+
+      {/* Remixed Output */}
+      {hasRemix && state.remixPersona && (
+        <div
+          className="rounded-2xl border-2 overflow-hidden"
+          style={{
+            borderColor: state.remixPersona.colors[0],
+            background: `linear-gradient(135deg, ${state.remixPersona.colors[0]}15, ${state.remixPersona.colors[1]}10)`,
+          }}
+        >
+          <div
+            className="p-4 border-b flex items-center justify-between"
+            style={{ borderColor: state.remixPersona.colors[0] + '40' }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                style={{ backgroundColor: state.remixPersona.colors[0] }}
+              >
+                {state.remixPersona.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div>
+                <div className="font-semibold text-white flex items-center gap-2">
+                  {state.remixPersona.name}
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: state.remixPersona.colors[0] + '30', color: state.remixPersona.colors[0] }}
+                  >
+                    {state.remixPersona.tagline}
+                  </span>
+                </div>
+                <div className="text-xs text-slate-400 italic">{state.remixPersona.quote}</div>
+              </div>
+            </div>
+            <button
+              onClick={onClearRemix}
+              className="text-slate-400 hover:text-white p-1"
+              title="Clear remix"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="p-6">
+            <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+// Remix Modal Component
+function RemixModal({
+  mode,
+  isLoading,
+  onSelect,
+  onClose,
+}: {
+  mode: Mode;
+  isLoading: boolean;
+  onSelect: (personaId: string) => void;
+  onClose: () => void;
+}) {
+  const personas = mode === 'strategy' ? getStrategyPersonas() : getCreativePersonas();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const handleSelect = (id: string) => {
+    setSelectedId(id);
+    onSelect(id);
+  };
+
+  // Group personas by category
+  const hybrids = personas.filter(p => p.category === 'hybrid');
+  const others = personas.filter(p => p.category !== 'hybrid');
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-3">
+              <span className="text-3xl">{mode === 'strategy' ? '🧠' : '🎨'}</span>
+              {mode === 'strategy' ? 'Strategy' : 'Creative'} Remix
+            </h2>
+            <p className="text-slate-400 mt-1">
+              Reimagine your output through the lens of a legendary {mode === 'strategy' ? 'strategist' : 'creative'}
+            </p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white p-2" disabled={isLoading}>
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex-1 flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-12 h-12 border-3 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-lg text-slate-300">
+                {selectedId && personas.find(p => p.id === selectedId)?.fullName} is reimagining your content...
+              </p>
+              <p className="text-sm text-slate-500 mt-2">This usually takes 10-20 seconds</p>
+            </div>
+          </div>
+        )}
+
+        {/* Persona Grid */}
+        {!isLoading && (
+          <div className="flex-1 overflow-y-auto p-6">
+            {/* Pure Strategists/Creatives */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                {mode === 'strategy' ? 'Pure Strategists' : 'Pure Creatives'}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {others.map((persona) => (
+                  <PersonaCard key={persona.id} persona={persona} onSelect={handleSelect} />
+                ))}
+              </div>
+            </div>
+
+            {/* Hybrids */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                Creative–Strategy Hybrids
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {hybrids.map((persona) => (
+                  <PersonaCard key={persona.id} persona={persona} onSelect={handleSelect} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Persona Card Component
+function PersonaCard({
+  persona,
+  onSelect,
+}: {
+  persona: Persona;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <button
+      onClick={() => onSelect(persona.id)}
+      className="text-left p-4 rounded-xl border-2 border-slate-700 hover:border-opacity-100 transition-all group bg-slate-900/50 hover:bg-slate-900"
+      style={{
+        '--hover-border': persona.colors[0],
+      } as React.CSSProperties}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = persona.colors[0];
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = '';
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+          style={{ backgroundColor: persona.colors[0] }}
+        >
+          {persona.name.slice(0, 2).toUpperCase()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-white group-hover:text-opacity-100">
+            {persona.fullName}
+          </div>
+          <div
+            className="text-xs font-medium mt-0.5"
+            style={{ color: persona.colors[0] }}
+          >
+            {persona.tagline}
+          </div>
+          <div className="text-xs text-slate-500 mt-1 line-clamp-2">
+            {persona.style}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 text-xs text-slate-400 italic line-clamp-2">
+        {persona.quote}
+      </div>
+    </button>
   );
 }
 
