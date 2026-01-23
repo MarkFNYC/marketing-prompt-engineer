@@ -298,13 +298,20 @@ export default function Home() {
     }
   };
 
-  const saveToLibrary = async () => {
+  const saveToLibrary = async (saveRemix: boolean = false) => {
     if (!state.user || !state.llmOutput || !state.selectedPrompt) {
       if (!state.user) {
         updateState({ authModal: 'login' });
       }
       return;
     }
+
+    const contentToSave = saveRemix ? state.remixedOutput : state.llmOutput;
+    if (!contentToSave) return;
+
+    const titleSuffix = saveRemix && state.remixPersona
+      ? ` (${state.remixPersona.name} Remix)`
+      : '';
 
     updateState({ saveStatus: 'saving' });
     try {
@@ -314,11 +321,12 @@ export default function Home() {
         body: JSON.stringify({
           userId: state.user.id,
           projectId: state.currentProject?.id || null,
-          title: `${state.brand} - ${state.selectedPrompt.goal}`,
+          title: `${state.brand} - ${state.selectedPrompt.goal}${titleSuffix}`,
           discipline: state.discipline,
           mode: state.mode,
           promptGoal: state.selectedPrompt.goal,
-          content: state.llmOutput,
+          content: contentToSave,
+          remixPersona: saveRemix ? state.remixPersona?.name : null,
         }),
       });
       const data = await response.json();
@@ -837,7 +845,8 @@ export default function Home() {
             copyLLMOutput={copyLLMOutput}
             switchModeAndRerun={switchModeAndRerun}
             goBack={() => goBack('library-view')}
-            onSave={saveToLibrary}
+            onSaveOriginal={() => saveToLibrary(false)}
+            onSaveRemix={() => saveToLibrary(true)}
             onRemix={openRemixModal}
             onClearRemix={clearRemix}
           />
@@ -1831,7 +1840,8 @@ function LLMOutput({
   copyLLMOutput,
   switchModeAndRerun,
   goBack,
-  onSave,
+  onSaveOriginal,
+  onSaveRemix,
   onRemix,
   onClearRemix,
 }: {
@@ -1839,7 +1849,8 @@ function LLMOutput({
   copyLLMOutput: (id: string) => void;
   switchModeAndRerun: (m: Mode) => void;
   goBack: () => void;
-  onSave: () => void;
+  onSaveOriginal: () => void;
+  onSaveRemix: () => void;
   onRemix: () => void;
   onClearRemix: () => void;
 }) {
@@ -1865,40 +1876,89 @@ function LLMOutput({
                 </svg>
                 {state.mode === 'strategy' ? 'Strategy' : 'Creative'} Remix
               </button>
-              <button
-                onClick={onSave}
-                disabled={state.saveStatus === 'saving'}
-                className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
-                  state.saveStatus === 'saved'
-                    ? 'bg-green-600 text-white'
-                    : state.saveStatus === 'error'
-                    ? 'bg-red-600 text-white'
-                    : 'bg-purple-600 hover:bg-purple-500 text-white'
-                }`}
-              >
-                {state.saveStatus === 'saving' ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Saving...
-                  </>
-                ) : state.saveStatus === 'saved' ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Saved!
-                  </>
-                ) : state.saveStatus === 'error' ? (
-                  'Error'
-                ) : (
-                  <>
+{hasRemix ? (
+                <>
+                  <button
+                    onClick={onSaveOriginal}
+                    disabled={state.saveStatus === 'saving'}
+                    className="px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors bg-slate-600 hover:bg-slate-500 text-white"
+                  >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
-                    Save to Library
-                  </>
-                )}
-              </button>
+                    Save Original
+                  </button>
+                  <button
+                    onClick={onSaveRemix}
+                    disabled={state.saveStatus === 'saving'}
+                    className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                      state.saveStatus === 'saved'
+                        ? 'bg-green-600 text-white'
+                        : state.saveStatus === 'error'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-purple-600 hover:bg-purple-500 text-white'
+                    }`}
+                  >
+                    {state.saveStatus === 'saving' ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Saving...
+                      </>
+                    ) : state.saveStatus === 'saved' ? (
+                      <>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Saved!
+                      </>
+                    ) : state.saveStatus === 'error' ? (
+                      'Error'
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                        Save Remix
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={onSaveOriginal}
+                  disabled={state.saveStatus === 'saving'}
+                  className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                    state.saveStatus === 'saved'
+                      ? 'bg-green-600 text-white'
+                      : state.saveStatus === 'error'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-purple-600 hover:bg-purple-500 text-white'
+                  }`}
+                >
+                  {state.saveStatus === 'saving' ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Saving...
+                    </>
+                  ) : state.saveStatus === 'saved' ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Saved!
+                    </>
+                  ) : state.saveStatus === 'error' ? (
+                    'Error'
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      Save to Library
+                    </>
+                  )}
+                </button>
+              )}
             </>
           )}
           <button onClick={() => copyLLMOutput('output')} className={`px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}`}>
@@ -1981,15 +2041,31 @@ function LLMOutput({
                 <div className="text-xs text-slate-400 italic">{state.remixPersona.quote}</div>
               </div>
             </div>
-            <button
-              onClick={onClearRemix}
-              className="text-slate-400 hover:text-white p-1"
-              title="Clear remix"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onRemix}
+                className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 transition-colors"
+                style={{
+                  backgroundColor: state.remixPersona.colors[0] + '20',
+                  color: state.remixPersona.colors[0],
+                }}
+                title="Try another creative"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Try Another
+              </button>
+              <button
+                onClick={onClearRemix}
+                className="text-slate-400 hover:text-white p-1"
+                title="Clear remix"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+                </svg>
+              </button>
+            </div>
           </div>
           <div className="p-6">
             <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
