@@ -5,7 +5,7 @@ import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-type Step = 'landing' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library';
+type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library';
 type Mode = 'strategy' | 'execution';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
 type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
@@ -23,6 +23,17 @@ interface SavedItem {
   prompt_goal: string;
   content: string;
   created_at: string;
+  project_id?: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  website: string;
+  industry: string;
+  challenge: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface State {
@@ -52,6 +63,11 @@ interface State {
   savedItems: SavedItem[];
   libraryLoading: boolean;
   saveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  // Projects
+  projects: Project[];
+  currentProject: Project | null;
+  projectsLoading: boolean;
+  editingProject: Project | null;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -84,6 +100,11 @@ export default function Home() {
     savedItems: [],
     libraryLoading: false,
     saveStatus: 'idle',
+    // Projects
+    projects: [],
+    currentProject: null,
+    projectsLoading: false,
+    editingProject: null,
   });
 
   // Check auth and load state on mount
@@ -115,6 +136,8 @@ export default function Home() {
           setState(prev => ({
             ...prev,
             user: null,
+            projects: [],
+            currentProject: null,
             freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
           }));
         }
@@ -235,17 +258,23 @@ export default function Home() {
     if (supabase) await supabase.auth.signOut();
     updateState({
       user: null,
+      projects: [],
+      currentProject: null,
       freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
       promptsLimit: FREE_PROMPT_LIMIT,
     });
   };
 
   // Library functions
-  const loadSavedItems = async () => {
+  const loadSavedItems = async (projectId?: string) => {
     if (!state.user) return;
     updateState({ libraryLoading: true });
     try {
-      const response = await fetch(`/api/library?userId=${state.user.id}`);
+      let url = `/api/library?userId=${state.user.id}`;
+      if (projectId) {
+        url += `&projectId=${projectId}`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
       if (!data.error) {
         updateState({ savedItems: data.items || [], libraryLoading: false });
@@ -273,6 +302,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: state.user.id,
+          projectId: state.currentProject?.id || null,
           title: `${state.brand} - ${state.selectedPrompt.goal}`,
           discipline: state.discipline,
           mode: state.mode,
@@ -315,6 +345,132 @@ export default function Home() {
   const openMyLibrary = () => {
     loadSavedItems();
     updateState({ step: 'my-library' });
+  };
+
+  // Project functions
+  const loadProjects = async () => {
+    if (!state.user) return;
+    updateState({ projectsLoading: true });
+    try {
+      const response = await fetch(`/api/projects?userId=${state.user.id}`);
+      const data = await response.json();
+      if (!data.error) {
+        updateState({ projects: data.projects || [], projectsLoading: false });
+      } else {
+        updateState({ projectsLoading: false });
+      }
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      updateState({ projectsLoading: false });
+    }
+  };
+
+  const createProject = async (name: string, website: string, industry: string, challenge: string) => {
+    if (!state.user) return null;
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: state.user.id,
+          name,
+          website,
+          industry,
+          challenge,
+        }),
+      });
+      const data = await response.json();
+      if (!data.error && data.project) {
+        updateState({
+          projects: [data.project, ...state.projects],
+          currentProject: data.project,
+          brand: data.project.name,
+          website: data.project.website,
+          industry: data.project.industry,
+          challenge: data.project.challenge,
+          step: 'discipline-select',
+        });
+        return data.project;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      return null;
+    }
+  };
+
+  const updateProject = async (project: Project) => {
+    if (!state.user) return false;
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: project.id,
+          userId: state.user.id,
+          name: project.name,
+          website: project.website,
+          industry: project.industry,
+          challenge: project.challenge,
+        }),
+      });
+      const data = await response.json();
+      if (!data.error && data.project) {
+        updateState({
+          projects: state.projects.map(p => p.id === project.id ? data.project : p),
+          currentProject: data.project,
+          brand: data.project.name,
+          website: data.project.website,
+          industry: data.project.industry,
+          challenge: data.project.challenge,
+          editingProject: null,
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      return false;
+    }
+  };
+
+  const deleteProject = async (projectId: string) => {
+    if (!state.user) return false;
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: projectId, userId: state.user.id }),
+      });
+      const data = await response.json();
+      if (!data.error) {
+        updateState({
+          projects: state.projects.filter(p => p.id !== projectId),
+          currentProject: state.currentProject?.id === projectId ? null : state.currentProject,
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      return false;
+    }
+  };
+
+  const selectProject = (project: Project) => {
+    updateState({
+      currentProject: project,
+      brand: project.name,
+      website: project.website,
+      industry: project.industry,
+      challenge: project.challenge,
+      step: 'discipline-select',
+    });
+  };
+
+  const openProjects = () => {
+    loadProjects();
+    updateState({ step: 'projects' });
   };
 
   const copyToClipboard = (text: string, id: number | string) => {
@@ -510,21 +666,37 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
+                {state.currentProject && (
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                    <span className="font-medium">{state.currentProject.name}</span>
+                  </div>
+                )}
                 {state.llmProvider === 'gemini' && (
                   <div className="text-xs text-slate-500">
                     {state.freePromptsUsed}/{state.promptsLimit} free prompts
                   </div>
                 )}
                 {state.user && (
-                  <button
-                    onClick={openMyLibrary}
-                    className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                    My Library
-                  </button>
+                  <>
+                    <button
+                      onClick={openProjects}
+                      className="text-sm text-slate-400 hover:text-purple-300 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      Projects
+                    </button>
+                    <button
+                      onClick={openMyLibrary}
+                      className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      My Library
+                    </button>
+                  </>
                 )}
                 {state.user ? (
                   <div className="flex items-center gap-3">
@@ -550,18 +722,42 @@ export default function Home() {
       <main className={`max-w-6xl mx-auto px-4 ${state.step !== 'landing' ? 'py-8' : 'py-4'}`}>
         {state.step === 'landing' && (
           <LandingPage
-            onStart={() => updateState({ step: 'brand-input' })}
+            onStart={() => {
+              if (state.user) {
+                loadProjects();
+                updateState({ step: 'projects' });
+              } else {
+                updateState({ step: 'brand-input' });
+              }
+            }}
             onLogin={() => updateState({ authModal: 'login' })}
             onSignup={() => updateState({ authModal: 'signup' })}
             user={state.user}
             onLogout={handleLogout}
           />
         )}
+        {state.step === 'projects' && (
+          <ProjectsList
+            state={state}
+            onSelectProject={selectProject}
+            onCreateNew={() => updateState({ step: 'brand-input', currentProject: null, editingProject: null })}
+            onEditProject={(project) => updateState({ step: 'brand-input', editingProject: project, currentProject: project, brand: project.name, website: project.website, industry: project.industry, challenge: project.challenge })}
+            onDeleteProject={deleteProject}
+            goBack={() => updateState({ step: 'landing' })}
+          />
+        )}
         {state.step === 'brand-input' && (
-          <BrandInput state={state} setProvider={setProvider} submitBrandInfo={submitBrandInfo} />
+          <BrandInput
+            state={state}
+            setProvider={setProvider}
+            submitBrandInfo={submitBrandInfo}
+            onCreateProject={createProject}
+            onUpdateProject={updateProject}
+            goBack={() => state.user ? updateState({ step: 'projects', editingProject: null }) : updateState({ step: 'landing' })}
+          />
         )}
         {state.step === 'discipline-select' && (
-          <DisciplineSelect state={state} selectDiscipline={selectDiscipline} goBack={() => goBack('brand-input')} />
+          <DisciplineSelect state={state} selectDiscipline={selectDiscipline} goBack={() => state.user ? goBack('projects') : goBack('brand-input')} />
         )}
         {state.step === 'library-view' && (
           <LibraryView
@@ -587,7 +783,7 @@ export default function Home() {
           <MyLibrary
             state={state}
             onDelete={deleteFromLibrary}
-            goBack={() => goBack('brand-input')}
+            goBack={() => state.user ? goBack('projects') : goBack('brand-input')}
             copyToClipboard={copyToClipboard}
           />
         )}
@@ -1033,18 +1229,268 @@ function LandingPage({
   );
 }
 
+// Projects List Component
+function ProjectsList({
+  state,
+  onSelectProject,
+  onCreateNew,
+  onEditProject,
+  onDeleteProject,
+  goBack,
+}: {
+  state: State;
+  onSelectProject: (project: Project) => void;
+  onCreateNew: () => void;
+  onEditProject: (project: Project) => void;
+  onDeleteProject: (projectId: string) => Promise<boolean>;
+  goBack: () => void;
+}) {
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const handleDelete = async (projectId: string) => {
+    setIsDeleting(true);
+    await onDeleteProject(projectId);
+    setIsDeleting(false);
+    setDeleteConfirm(null);
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold mb-4">Your Projects</h2>
+        <p className="text-slate-400">Select a project to continue or create a new one</p>
+      </div>
+
+      {state.projectsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Create New Project Button */}
+          <button
+            onClick={onCreateNew}
+            className="w-full p-6 rounded-xl border-2 border-dashed border-slate-600 hover:border-purple-500 bg-slate-800/50 hover:bg-slate-800 transition-all flex items-center justify-center gap-3 group"
+          >
+            <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-600/30">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-lg group-hover:text-purple-300">Create New Project</div>
+              <div className="text-sm text-slate-400">Add a new brand or client</div>
+            </div>
+          </button>
+
+          {/* Existing Projects */}
+          {state.projects.length > 0 ? (
+            state.projects.map((project) => (
+              <div
+                key={project.id}
+                className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden hover:border-slate-600 transition-colors"
+              >
+                <div
+                  className="p-5 cursor-pointer"
+                  onClick={() => onSelectProject(project)}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-2xl border border-purple-500/20">
+                        {project.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-white hover:text-purple-300 transition-colors">
+                          {project.name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
+                          <span>{project.industry}</span>
+                          {project.website && (
+                            <>
+                              <span>•</span>
+                              <span>{project.website}</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500 mt-2 line-clamp-2">{project.challenge}</p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-slate-500 whitespace-nowrap">
+                      {formatDate(project.updated_at)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-5 py-3 border-t border-slate-700 bg-slate-900/50 flex items-center justify-between">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectProject(project);
+                    }}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                  >
+                    <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
+                    Continue
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditProject(project);
+                      }}
+                      className="px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg text-sm transition-colors"
+                    >
+                      Edit
+                    </button>
+                    {deleteConfirm === project.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-400">Delete?</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(project.id);
+                          }}
+                          disabled={isDeleting}
+                          className="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        >
+                          {isDeleting ? '...' : 'Yes'}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirm(null);
+                          }}
+                          className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirm(project.id);
+                        }}
+                        className="px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg text-sm transition-colors"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-slate-500">
+              <p>No projects yet. Create your first one to get started!</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+        Back to Home
+      </button>
+    </div>
+  );
+}
+
 // Brand Input Component
-function BrandInput({ state, setProvider, submitBrandInfo }: { state: State; setProvider: (p: Provider) => void; submitBrandInfo: () => void }) {
+function BrandInput({
+  state,
+  setProvider,
+  submitBrandInfo,
+  onCreateProject,
+  onUpdateProject,
+  goBack,
+}: {
+  state: State;
+  setProvider: (p: Provider) => void;
+  submitBrandInfo: () => void;
+  onCreateProject?: (name: string, website: string, industry: string, challenge: string) => Promise<Project | null>;
+  onUpdateProject?: (project: Project) => Promise<boolean>;
+  goBack?: () => void;
+}) {
+  const [isSaving, setIsSaving] = useState(false);
+  const isEditing = !!state.editingProject;
+  const isLoggedIn = !!state.user;
+
+  const handleSubmit = async () => {
+    const brand = (document.getElementById('brand') as HTMLInputElement)?.value || '';
+    const website = (document.getElementById('website') as HTMLInputElement)?.value || '';
+    const industry = (document.getElementById('industry') as HTMLInputElement)?.value || '';
+    const challenge = (document.getElementById('challenge') as HTMLTextAreaElement)?.value || '';
+    const apiKeyInput = (document.getElementById('apiKey') as HTMLInputElement)?.value || '';
+
+    if (!brand || !industry || !challenge) {
+      alert('Please fill in Brand, Industry, and Challenge fields');
+      return;
+    }
+
+    if (state.llmProvider !== 'gemini' && state.llmProvider !== 'none') {
+      localStorage.setItem('amplify_api_key', apiKeyInput);
+    }
+
+    // If logged in, save as project
+    if (isLoggedIn && onCreateProject && onUpdateProject) {
+      setIsSaving(true);
+      if (isEditing && state.editingProject) {
+        // Update existing project
+        const success = await onUpdateProject({
+          ...state.editingProject,
+          name: brand,
+          website,
+          industry,
+          challenge,
+        });
+        setIsSaving(false);
+        if (success) {
+          // Continue to discipline select after update
+        }
+      } else {
+        // Create new project
+        const project = await onCreateProject(brand, website, industry, challenge);
+        setIsSaving(false);
+        if (!project) {
+          alert('Failed to save project. Please try again.');
+          return;
+        }
+      }
+    } else {
+      // Not logged in, just continue with the flow
+      submitBrandInfo();
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-4">Tell us about your business</h2>
-        <p className="text-slate-400">We'll personalize every prompt to your specific context</p>
+        <h2 className="text-3xl font-bold mb-4">
+          {isEditing ? 'Edit Project' : isLoggedIn ? 'Create New Project' : 'Tell us about your business'}
+        </h2>
+        <p className="text-slate-400">
+          {isLoggedIn
+            ? isEditing
+              ? 'Update your project details'
+              : 'Save this as a project to access it anytime'
+            : "We'll personalize every prompt to your specific context"}
+        </p>
       </div>
 
       <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Brand Name *</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">{isLoggedIn ? 'Project Name *' : 'Brand Name *'}</label>
           <input type="text" id="brand" defaultValue={state.brand} placeholder="e.g., Acme Inc." className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500" />
         </div>
 
@@ -1084,10 +1530,33 @@ function BrandInput({ state, setProvider, submitBrandInfo }: { state: State; set
           )}
         </div>
 
-        <button onClick={submitBrandInfo} className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all">
-          Continue to Prompt Library
-          <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
+        <button
+          onClick={handleSubmit}
+          disabled={isSaving}
+          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+        >
+          {isSaving ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              {isEditing ? 'Save Changes & Continue' : isLoggedIn ? 'Save Project & Continue' : 'Continue to Prompt Library'}
+              <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
+            </>
+          )}
         </button>
+
+        {goBack && (
+          <button
+            onClick={goBack}
+            className="w-full py-3 text-slate-400 hover:text-white flex items-center justify-center gap-2 transition-colors"
+          >
+            <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+            {isLoggedIn ? 'Back to Projects' : 'Back'}
+          </button>
+        )}
       </div>
     </div>
   );

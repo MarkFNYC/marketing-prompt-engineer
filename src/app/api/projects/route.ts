@@ -6,59 +6,49 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// GET - Fetch user's saved content (optionally filtered by project)
+// GET - Fetch user's projects
 export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get('userId');
-    const projectId = request.nextUrl.searchParams.get('projectId');
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
-    let query = supabaseAdmin
-      .from('saved_content')
+    const { data, error } = await supabaseAdmin
+      .from('projects')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    // Filter by project if provided
-    if (projectId) {
-      query = query.eq('project_id', projectId);
-    }
-
-    const { data, error } = await query;
+      .order('updated_at', { ascending: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ items: data });
+    return NextResponse.json({ projects: data });
   } catch (error: any) {
-    console.error('Library GET error:', error);
+    console.error('Projects GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST - Save new content
+// POST - Create new project
 export async function POST(request: NextRequest) {
   try {
-    const { userId, projectId, title, discipline, mode, promptGoal, content } = await request.json();
+    const { userId, name, website, industry, challenge } = await request.json();
 
-    if (!userId || !title || !discipline || !mode || !content) {
+    if (!userId || !name || !industry || !challenge) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const { data, error } = await supabaseAdmin
-      .from('saved_content')
+      .from('projects')
       .insert({
         user_id: userId,
-        project_id: projectId || null,
-        title,
-        discipline,
-        mode,
-        prompt_goal: promptGoal,
-        content,
+        name,
+        website: website || '',
+        industry,
+        challenge,
       })
       .select()
       .single();
@@ -67,14 +57,48 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ item: data });
+    return NextResponse.json({ project: data });
   } catch (error: any) {
-    console.error('Library POST error:', error);
+    console.error('Projects POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// DELETE - Remove saved content
+// PUT - Update project
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, userId, name, website, industry, challenge } = await request.json();
+
+    if (!id || !userId) {
+      return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('projects')
+      .update({
+        name,
+        website: website || '',
+        industry,
+        challenge,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ project: data });
+  } catch (error: any) {
+    console.error('Projects PUT error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// DELETE - Delete project
 export async function DELETE(request: NextRequest) {
   try {
     const { id, userId } = await request.json();
@@ -84,7 +108,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { error } = await supabaseAdmin
-      .from('saved_content')
+      .from('projects')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
@@ -95,7 +119,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Library DELETE error:', error);
+    console.error('Projects DELETE error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
