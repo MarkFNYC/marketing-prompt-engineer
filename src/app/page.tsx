@@ -74,6 +74,9 @@ interface State {
   remixLoading: boolean;
   remixedOutput: string | null;
   remixPersona: { id: string; name: string; tagline: string; colors: [string, string]; quote: string } | null;
+  // Accordion state
+  originalExpanded: boolean;
+  remixExpanded: boolean;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -116,6 +119,9 @@ export default function Home() {
     remixLoading: false,
     remixedOutput: null,
     remixPersona: null,
+    // Accordion state
+    originalExpanded: true,
+    remixExpanded: true,
   });
 
   // Check auth and load state on mount
@@ -849,6 +855,8 @@ export default function Home() {
             onSaveRemix={() => saveToLibrary(true)}
             onRemix={openRemixModal}
             onClearRemix={clearRemix}
+            onToggleOriginal={() => updateState({ originalExpanded: !state.originalExpanded })}
+            onToggleRemix={() => updateState({ remixExpanded: !state.remixExpanded })}
           />
         )}
         {state.showRemixModal && (
@@ -1844,6 +1852,8 @@ function LLMOutput({
   onSaveRemix,
   onRemix,
   onClearRemix,
+  onToggleOriginal,
+  onToggleRemix,
 }: {
   state: State;
   copyLLMOutput: (id: string) => void;
@@ -1853,6 +1863,8 @@ function LLMOutput({
   onSaveRemix: () => void;
   onRemix: () => void;
   onClearRemix: () => void;
+  onToggleOriginal: () => void;
+  onToggleRemix: () => void;
 }) {
   const isLimitReached = state.llmOutput.startsWith('__LIMIT_REACHED__');
   const content = isLimitReached ? state.llmOutput.replace('__LIMIT_REACHED__\n\n', '') : state.llmOutput;
@@ -1982,33 +1994,51 @@ function LLMOutput({
         </div>
       )}
 
-      {/* Original Output */}
+      {/* Original Output - Accordion */}
       <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-        <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+        <button
+          onClick={onToggleOriginal}
+          className="w-full p-4 border-b border-slate-700 flex items-center justify-between hover:bg-slate-700/30 transition-colors"
+        >
           <div className="flex items-center gap-2">
             <span dangerouslySetInnerHTML={{ __html: icons.sparkles }} />
             <span className="font-medium">{isLimitReached ? 'Notice' : 'AI Response'}</span>
+            {!state.originalExpanded && !state.isLoading && (
+              <span className="text-xs text-slate-500 ml-2">(click to expand)</span>
+            )}
           </div>
-          {state.isLoading && <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />}
-        </div>
-        <div className="p-6">
-          {state.isLoading ? (
-            <div className="flex items-center gap-3 text-slate-400">
-              <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-              <span>Generating personalized {state.mode === 'strategy' ? 'strategy' : 'content'} for {state.brand}...</span>
-            </div>
-          ) : isLimitReached ? (
-            <div className="space-y-4 text-center">
-              <p className="text-yellow-400 text-lg">Free limit reached</p>
-              <p className="text-slate-400">{content}</p>
-            </div>
-          ) : (
-            <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(content) }} />
-          )}
-        </div>
+          <div className="flex items-center gap-2">
+            {state.isLoading && <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />}
+            <svg
+              className={`w-5 h-5 text-slate-400 transition-transform ${state.originalExpanded ? 'rotate-180' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </button>
+        {state.originalExpanded && (
+          <div className="p-6">
+            {state.isLoading ? (
+              <div className="flex items-center gap-3 text-slate-400">
+                <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                <span>Generating personalized {state.mode === 'strategy' ? 'strategy' : 'content'} for {state.brand}...</span>
+              </div>
+            ) : isLimitReached ? (
+              <div className="space-y-4 text-center">
+                <p className="text-yellow-400 text-lg">Free limit reached</p>
+                <p className="text-slate-400">{content}</p>
+              </div>
+            ) : (
+              <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(content) }} />
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Remixed Output */}
+      {/* Remixed Output - Accordion */}
       {hasRemix && state.remixPersona && (
         <div
           className="rounded-2xl border-2 overflow-hidden"
@@ -2021,15 +2051,18 @@ function LLMOutput({
             className="p-4 border-b flex items-center justify-between"
             style={{ borderColor: state.remixPersona.colors[0] + '40' }}
           >
-            <div className="flex items-center gap-3">
+            <button
+              onClick={onToggleRemix}
+              className="flex items-center gap-3 flex-1 text-left"
+            >
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
                 style={{ backgroundColor: state.remixPersona.colors[0] }}
               >
                 {state.remixPersona.name.split(' ').map(n => n[0]).join('')}
               </div>
-              <div>
-                <div className="font-semibold text-white flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white flex items-center gap-2 flex-wrap">
                   {state.remixPersona.name}
                   <span
                     className="text-xs px-2 py-0.5 rounded-full"
@@ -2037,11 +2070,22 @@ function LLMOutput({
                   >
                     {state.remixPersona.tagline}
                   </span>
+                  {!state.remixExpanded && (
+                    <span className="text-xs text-slate-500">(click to expand)</span>
+                  )}
                 </div>
-                <div className="text-xs text-slate-400 italic">{state.remixPersona.quote}</div>
+                <div className="text-xs text-slate-400 italic truncate">{state.remixPersona.quote}</div>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
+              <svg
+                className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${state.remixExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2 ml-3">
               <button
                 onClick={onRemix}
                 className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 transition-colors"
@@ -2062,14 +2106,16 @@ function LLMOutput({
                 title="Clear remix"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
           </div>
-          <div className="p-6">
-            <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
-          </div>
+          {state.remixExpanded && (
+            <div className="p-6">
+              <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
+            </div>
+          )}
         </div>
       )}
     </div>
