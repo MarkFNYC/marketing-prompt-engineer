@@ -29,6 +29,8 @@ Each entry includes style, tagline, color palette, and a Quote / Mantra.
 | Jay Chiat | disruptive, bold, client-centric | Disruptive Dynamo | #FF0000,#36454F | Brevity sharpens brilliance |
 | Paula Scher | graphic, expressive, systemic | Visual Systems Thinker | #DC2626,#FFFFFF | Design creates meaning before words do |
 | Alex Bogusky | cultural, activist, disruptive | Cultural Hacker | #111111,#00FFAA | Brands grow through acts, not ads |
+| John Hegarty | emotional, cultural, simple | Storytelling Sage | #1E3A8A,#FFFDD0 | The only space that matters is the space between your audience's ears |
+| Graham Fink | visual, cinematic, emotionally bold | Visual Provocateur | #000000,#FFFFFF | Visual ideas should hit before words arrive |
 
 **Creative OS:**
 Emotion, provocation, craft, cultural impact, memorability.
@@ -78,7 +80,7 @@ Human insight, commercial reality, cultural expression.
 ## Usage in Amplify
 
 ### Creative Remix (Execution Mode)
-Available personas: **Pure Creatives (8) + Hybrids (7) = 15 total**
+Available personas: **Pure Creatives (10) + Hybrids (7) = 17 total**
 
 ### Strategy Remix (Strategy Mode)
 Available personas: **Pure Strategists (9) + Hybrids (7) = 16 total**
