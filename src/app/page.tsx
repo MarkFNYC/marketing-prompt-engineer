@@ -5,7 +5,7 @@ import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-type Step = 'landing' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output';
+type Step = 'landing' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library';
 type Mode = 'strategy' | 'execution';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
 type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
@@ -13,6 +13,16 @@ type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-passwo
 interface User {
   id: string;
   email: string;
+}
+
+interface SavedItem {
+  id: string;
+  title: string;
+  discipline: string;
+  mode: string;
+  prompt_goal: string;
+  content: string;
+  created_at: string;
 }
 
 interface State {
@@ -39,6 +49,9 @@ interface State {
   authLoading: boolean;
   authError: string | null;
   signupEmail: string;
+  savedItems: SavedItem[];
+  libraryLoading: boolean;
+  saveStatus: 'idle' | 'saving' | 'saved' | 'error';
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -68,6 +81,9 @@ export default function Home() {
     authLoading: false,
     authError: null,
     signupEmail: '',
+    savedItems: [],
+    libraryLoading: false,
+    saveStatus: 'idle',
   });
 
   // Check auth and load state on mount
@@ -222,6 +238,83 @@ export default function Home() {
       freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
       promptsLimit: FREE_PROMPT_LIMIT,
     });
+  };
+
+  // Library functions
+  const loadSavedItems = async () => {
+    if (!state.user) return;
+    updateState({ libraryLoading: true });
+    try {
+      const response = await fetch(`/api/library?userId=${state.user.id}`);
+      const data = await response.json();
+      if (!data.error) {
+        updateState({ savedItems: data.items || [], libraryLoading: false });
+      } else {
+        updateState({ libraryLoading: false });
+      }
+    } catch (error) {
+      console.error('Failed to load library:', error);
+      updateState({ libraryLoading: false });
+    }
+  };
+
+  const saveToLibrary = async () => {
+    if (!state.user || !state.llmOutput || !state.selectedPrompt) {
+      if (!state.user) {
+        updateState({ authModal: 'login' });
+      }
+      return;
+    }
+
+    updateState({ saveStatus: 'saving' });
+    try {
+      const response = await fetch('/api/library', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: state.user.id,
+          title: `${state.brand} - ${state.selectedPrompt.goal}`,
+          discipline: state.discipline,
+          mode: state.mode,
+          promptGoal: state.selectedPrompt.goal,
+          content: state.llmOutput,
+        }),
+      });
+      const data = await response.json();
+      if (!data.error) {
+        updateState({ saveStatus: 'saved' });
+        setTimeout(() => updateState({ saveStatus: 'idle' }), 2000);
+      } else {
+        updateState({ saveStatus: 'error' });
+        setTimeout(() => updateState({ saveStatus: 'idle' }), 2000);
+      }
+    } catch (error) {
+      console.error('Failed to save:', error);
+      updateState({ saveStatus: 'error' });
+      setTimeout(() => updateState({ saveStatus: 'idle' }), 2000);
+    }
+  };
+
+  const deleteFromLibrary = async (id: string) => {
+    if (!state.user) return;
+    try {
+      const response = await fetch('/api/library', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, userId: state.user.id }),
+      });
+      const data = await response.json();
+      if (!data.error) {
+        updateState({ savedItems: state.savedItems.filter(item => item.id !== id) });
+      }
+    } catch (error) {
+      console.error('Failed to delete:', error);
+    }
+  };
+
+  const openMyLibrary = () => {
+    loadSavedItems();
+    updateState({ step: 'my-library' });
   };
 
   const copyToClipboard = (text: string, id: number | string) => {
@@ -422,6 +515,17 @@ export default function Home() {
                     {state.freePromptsUsed}/{state.promptsLimit} free prompts
                   </div>
                 )}
+                {state.user && (
+                  <button
+                    onClick={openMyLibrary}
+                    className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    My Library
+                  </button>
+                )}
                 {state.user ? (
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-slate-400">{state.user.email}</span>
@@ -476,6 +580,15 @@ export default function Home() {
             copyLLMOutput={copyLLMOutput}
             switchModeAndRerun={switchModeAndRerun}
             goBack={() => goBack('library-view')}
+            onSave={saveToLibrary}
+          />
+        )}
+        {state.step === 'my-library' && (
+          <MyLibrary
+            state={state}
+            onDelete={deleteFromLibrary}
+            goBack={() => goBack('brand-input')}
+            copyToClipboard={copyToClipboard}
           />
         )}
       </main>
@@ -1160,7 +1273,7 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
   );
 }
 
-function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack }: { state: State; copyLLMOutput: (id: string) => void; switchModeAndRerun: (m: Mode) => void; goBack: () => void }) {
+function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack, onSave }: { state: State; copyLLMOutput: (id: string) => void; switchModeAndRerun: (m: Mode) => void; goBack: () => void; onSave: () => void }) {
   const isLimitReached = state.llmOutput.startsWith('__LIMIT_REACHED__');
   const content = isLimitReached ? state.llmOutput.replace('__LIMIT_REACHED__\n\n', '') : state.llmOutput;
 
@@ -1170,10 +1283,48 @@ function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack }: { state
         <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} /> Back to Prompts
         </button>
-        <button onClick={() => copyLLMOutput('output')} className={`px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}`}>
-          <span dangerouslySetInnerHTML={{ __html: state.copiedId === 'output' ? icons.check : icons.copy }} />
-          Copy
-        </button>
+        <div className="flex items-center gap-2">
+          {!isLimitReached && !state.isLoading && (
+            <button
+              onClick={onSave}
+              disabled={state.saveStatus === 'saving'}
+              className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                state.saveStatus === 'saved'
+                  ? 'bg-green-600 text-white'
+                  : state.saveStatus === 'error'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-purple-600 hover:bg-purple-500 text-white'
+              }`}
+            >
+              {state.saveStatus === 'saving' ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Saving...
+                </>
+              ) : state.saveStatus === 'saved' ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Saved!
+                </>
+              ) : state.saveStatus === 'error' ? (
+                'Error'
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  Save to Library
+                </>
+              )}
+            </button>
+          )}
+          <button onClick={() => copyLLMOutput('output')} className={`px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}`}>
+            <span dangerouslySetInnerHTML={{ __html: state.copiedId === 'output' ? icons.check : icons.copy }} />
+            Copy
+          </button>
+        </div>
       </div>
 
       {state.selectedPrompt && (
@@ -1214,6 +1365,196 @@ function LLMOutput({ state, copyLLMOutput, switchModeAndRerun, goBack }: { state
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// My Library Component
+function MyLibrary({
+  state,
+  onDelete,
+  goBack,
+  copyToClipboard,
+}: {
+  state: State;
+  onDelete: (id: string) => void;
+  goBack: () => void;
+  copyToClipboard: (text: string, id: number | string) => void;
+}) {
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getDisciplineIcon = (discipline: string) => {
+    const icons: Record<string, string> = {
+      seo: '🔍',
+      email: '📧',
+      social: '📱',
+      blog: '✍️',
+      ads: '📣',
+      landing: '🎯',
+      brand: '💎',
+      analytics: '📊',
+      growth: '🚀',
+    };
+    return icons[discipline] || '📄';
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+      </div>
+
+      <div className="text-center">
+        <h2 className="text-3xl font-bold mb-2">My Library</h2>
+        <p className="text-slate-400">Your saved marketing content</p>
+      </div>
+
+      {state.libraryLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : state.savedItems.length === 0 ? (
+        <div className="text-center py-12 bg-slate-800/50 rounded-2xl border border-slate-700">
+          <div className="w-16 h-16 rounded-2xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold mb-2">No saved content yet</h3>
+          <p className="text-slate-400 mb-4">Run a prompt and click "Save to Library" to save it here</p>
+          <button
+            onClick={goBack}
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium transition-colors"
+          >
+            Start Creating
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {state.savedItems.map((item) => (
+            <div key={item.id} className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+              <div
+                className="p-4 cursor-pointer hover:bg-slate-700/50 transition-colors"
+                onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center text-xl">
+                      {getDisciplineIcon(item.discipline)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">{item.title}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${item.mode === 'strategy' ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'}`}>
+                          {item.mode === 'strategy' ? '📋 Strategy' : '⚡ Execution'}
+                        </span>
+                        <span className="text-xs text-slate-500">{formatDate(item.created_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <svg
+                    className={`w-5 h-5 text-slate-400 transition-transform ${expandedItem === item.id ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {expandedItem === item.id && (
+                <div className="border-t border-slate-700">
+                  <div className="p-4 bg-slate-900/50">
+                    <div className="markdown-output text-slate-300 text-sm leading-relaxed max-h-96 overflow-y-auto" dangerouslySetInnerHTML={{ __html: simpleMarkdown(item.content) }} />
+                  </div>
+                  <div className="p-4 border-t border-slate-700 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(item.content, item.id);
+                        }}
+                        className={`px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === item.id ? 'text-green-400' : ''}`}
+                      >
+                        {state.copiedId === item.id ? (
+                          <>
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    {deleteConfirm === item.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-400">Delete?</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(item.id);
+                            setDeleteConfirm(null);
+                          }}
+                          className="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Yes
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirm(null);
+                          }}
+                          className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirm(item.id);
+                        }}
+                        className="px-3 py-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
