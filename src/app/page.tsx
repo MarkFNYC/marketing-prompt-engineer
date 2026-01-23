@@ -814,6 +814,7 @@ export default function Home() {
             onCreateProject={createProject}
             onUpdateProject={updateProject}
             goBack={() => state.user ? updateState({ step: 'projects', editingProject: null }) : updateState({ step: 'landing' })}
+            updateState={updateState}
           />
         )}
         {state.step === 'discipline-select' && (
@@ -1484,6 +1485,7 @@ function BrandInput({
   onCreateProject,
   onUpdateProject,
   goBack,
+  updateState,
 }: {
   state: State;
   setProvider: (p: Provider) => void;
@@ -1491,6 +1493,7 @@ function BrandInput({
   onCreateProject?: (name: string, website: string, industry: string, challenge: string) => Promise<Project | null>;
   onUpdateProject?: (project: Project) => Promise<boolean>;
   goBack?: () => void;
+  updateState: (updates: Partial<State>) => void;
 }) {
   const [isSaving, setIsSaving] = useState(false);
   const isEditing = !!state.editingProject;
@@ -1594,7 +1597,14 @@ function BrandInput({
             <p className="text-xs text-green-400">✓ {state.promptsLimit - state.freePromptsUsed} free prompts remaining this month</p>
           ) : (
             <>
-              <input type="password" id="apiKey" defaultValue={state.apiKey} placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'} className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500" />
+              <input
+                type="password"
+                id="apiKey"
+                value={state.apiKey}
+                onChange={(e) => updateState({ apiKey: e.target.value })}
+                placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+              />
               <p className="text-xs text-slate-500 mt-2">Stored locally in your browser only</p>
             </>
           )}

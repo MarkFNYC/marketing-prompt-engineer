@@ -115,7 +115,15 @@ IMPORTANT RULES FOR STRATEGY MODE:
       result = data.content[0].text;
     }
     else {
-      return NextResponse.json({ error: 'Invalid provider or missing API key' }, { status: 400 });
+      // Better error message for debugging
+      const errorMsg = !provider
+        ? 'No provider specified'
+        : provider === 'anthropic' && !userApiKey
+        ? 'Anthropic selected but no API key provided. Please enter your API key in the Brand Input screen.'
+        : provider === 'openai' && !userApiKey
+        ? 'OpenAI selected but no API key provided. Please enter your API key in the Brand Input screen.'
+        : 'Invalid provider or missing API key';
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
     return NextResponse.json({ result });
