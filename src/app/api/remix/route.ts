@@ -8,18 +8,25 @@ export async function POST(request: Request) {
     // Basic protection: Check origin/referer
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
-    const allowedOrigins = ['https://amplify.fabricacollective.com', 'http://localhost:3000'];
+    const allowedOrigins = [
+      'https://amplify.fabricacollective.com',
+      'http://localhost:3000',
+      'https://marketing-prompter.vercel.app',
+    ];
+
+    // Also allow any vercel.app subdomain for preview deployments
+    const isVercelPreview = origin?.endsWith('.vercel.app') || referer?.includes('.vercel.app');
 
     if (!origin && !referer) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const isAllowed = allowedOrigins.some(allowed =>
+    const isAllowed = isVercelPreview || allowedOrigins.some(allowed =>
       origin?.startsWith(allowed) || referer?.startsWith(allowed)
     );
 
     if (!isAllowed) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
     }
 
     const { originalContent, personaId, mode, brandContext } = await request.json();
