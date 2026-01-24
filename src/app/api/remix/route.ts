@@ -101,15 +101,25 @@ function buildRemixPrompt(
   originalContent: string,
   persona: { fullName: string; systemPrompt: string; tagline: string },
   mode: 'strategy' | 'execution',
-  brandContext?: { brand?: string; industry?: string; challenge?: string }
+  brandContext?: { brand?: string; industry?: string; challenge?: string; targetAudience?: string; brandVoice?: string }
 ): string {
   const modeContext = mode === 'strategy'
     ? 'This is a strategic framework/analysis. Reimagine the strategic thinking and approach.'
     : 'This is execution content (headlines, copy, creative). Reimagine the creative execution.';
 
-  const brandInfo = brandContext
-    ? `\n\nBrand Context:\n- Brand: ${brandContext.brand || 'Not specified'}\n- Industry: ${brandContext.industry || 'Not specified'}\n- Challenge: ${brandContext.challenge || 'Not specified'}`
-    : '';
+  let brandInfo = '';
+  if (brandContext) {
+    const parts = ['\n\nBrand Context:'];
+    if (brandContext.brand) parts.push(`- Brand: ${brandContext.brand}`);
+    if (brandContext.industry) parts.push(`- Industry: ${brandContext.industry}`);
+    if (brandContext.challenge) parts.push(`- Business Challenge: ${brandContext.challenge}`);
+    if (brandContext.targetAudience) parts.push(`- Target Audience: ${brandContext.targetAudience}`);
+    if (brandContext.brandVoice) {
+      parts.push(`- Brand Voice & Tone: ${brandContext.brandVoice}`);
+      parts.push('\nIMPORTANT: While applying your unique perspective, ensure the final tone respects the brand voice described above.');
+    }
+    brandInfo = parts.join('\n');
+  }
 
   return `${persona.systemPrompt}
 
@@ -134,6 +144,7 @@ Important:
 - If this is strategy, rethink the strategic framework
 - If this is creative, reimagine the headlines, copy, and creative direction
 - Be bold - your perspective should noticeably transform the output
+- If a brand voice was specified, blend your style with their voice appropriately
 
 Begin your reimagined version:`;
 }

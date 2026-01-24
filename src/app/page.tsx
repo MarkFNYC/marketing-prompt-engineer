@@ -33,6 +33,8 @@ interface Project {
   website: string;
   industry: string;
   challenge: string;
+  target_audience: string;
+  brand_voice: string;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +46,8 @@ interface State {
   website: string;
   industry: string;
   challenge: string;
+  targetAudience: string;
+  brandVoice: string;
   discipline: string | null;
   library: any | null;
   expandedModels: Record<number, boolean>;
@@ -88,6 +92,8 @@ export default function Home() {
     brand: '',
     website: '',
     industry: '',
+    targetAudience: '',
+    brandVoice: '',
     challenge: '',
     discipline: null,
     library: null,
@@ -390,7 +396,7 @@ export default function Home() {
     }
   };
 
-  const createProject = async (name: string, website: string, industry: string, challenge: string) => {
+  const createProject = async (name: string, website: string, industry: string, challenge: string, targetAudience: string, brandVoice: string) => {
     if (!state.user) return null;
     try {
       const response = await fetch('/api/projects', {
@@ -402,6 +408,8 @@ export default function Home() {
           website,
           industry,
           challenge,
+          targetAudience,
+          brandVoice,
         }),
       });
       const data = await response.json();
@@ -413,6 +421,8 @@ export default function Home() {
           website: data.project.website,
           industry: data.project.industry,
           challenge: data.project.challenge,
+          targetAudience: data.project.target_audience || '',
+          brandVoice: data.project.brand_voice || '',
           step: 'discipline-select',
         });
         return data.project;
@@ -437,6 +447,8 @@ export default function Home() {
           website: project.website,
           industry: project.industry,
           challenge: project.challenge,
+          targetAudience: project.target_audience,
+          brandVoice: project.brand_voice,
         }),
       });
       const data = await response.json();
@@ -448,6 +460,8 @@ export default function Home() {
           website: data.project.website,
           industry: data.project.industry,
           challenge: data.project.challenge,
+          targetAudience: data.project.target_audience || '',
+          brandVoice: data.project.brand_voice || '',
           editingProject: null,
         });
         return true;
@@ -489,6 +503,8 @@ export default function Home() {
       website: project.website,
       industry: project.industry,
       challenge: project.challenge,
+      targetAudience: project.target_audience || '',
+      brandVoice: project.brand_voice || '',
       step: 'discipline-select',
     });
   };
@@ -521,6 +537,8 @@ export default function Home() {
             brand: state.brand,
             industry: state.industry,
             challenge: state.challenge,
+            targetAudience: state.targetAudience,
+            brandVoice: state.brandVoice,
           },
         }),
       });
@@ -593,6 +611,14 @@ export default function Home() {
           mode: state.mode,
           provider: state.llmProvider,
           userApiKey: state.llmProvider !== 'gemini' ? state.apiKey : undefined,
+          brandContext: {
+            brand: state.brand,
+            website: state.website,
+            industry: state.industry,
+            challenge: state.challenge,
+            targetAudience: state.targetAudience,
+            brandVoice: state.brandVoice,
+          },
         }),
       });
 
@@ -638,6 +664,8 @@ export default function Home() {
     const website = (document.getElementById('website') as HTMLInputElement)?.value || '';
     const industry = (document.getElementById('industry') as HTMLInputElement)?.value || '';
     const challenge = (document.getElementById('challenge') as HTMLTextAreaElement)?.value || '';
+    const targetAudience = (document.getElementById('targetAudience') as HTMLTextAreaElement)?.value || '';
+    const brandVoice = (document.getElementById('brandVoice') as HTMLTextAreaElement)?.value || '';
     const apiKeyInput = (document.getElementById('apiKey') as HTMLInputElement)?.value || '';
 
     if (!brand || !industry || !challenge) {
@@ -654,6 +682,8 @@ export default function Home() {
       website,
       industry,
       challenge,
+      targetAudience,
+      brandVoice,
       apiKey: apiKeyInput,
       step: 'discipline-select',
     });
@@ -740,11 +770,30 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                {state.currentProject && (
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
-                    <span className="font-medium">{state.currentProject.name}</span>
-                  </div>
-                )}
+                {state.currentProject && (() => {
+                  const project = state.currentProject!;
+                  return (
+                    <button
+                      onClick={() => updateState({
+                        editingProject: project,
+                        brand: project.name,
+                        website: project.website,
+                        industry: project.industry,
+                        challenge: project.challenge,
+                        targetAudience: project.target_audience || '',
+                        brandVoice: project.brand_voice || '',
+                        step: 'brand-input'
+                      })}
+                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm hover:bg-purple-500/30 transition-colors"
+                      title="Edit brand profile"
+                    >
+                      <span className="font-medium">{project.name}</span>
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  );
+                })()}
                 {state.llmProvider === 'gemini' && (
                   <div className="text-xs text-slate-500">
                     {state.freePromptsUsed}/{state.promptsLimit} free prompts
@@ -815,7 +864,7 @@ export default function Home() {
             state={state}
             onSelectProject={selectProject}
             onCreateNew={() => updateState({ step: 'brand-input', currentProject: null, editingProject: null })}
-            onEditProject={(project) => updateState({ step: 'brand-input', editingProject: project, currentProject: project, brand: project.name, website: project.website, industry: project.industry, challenge: project.challenge })}
+            onEditProject={(project) => updateState({ step: 'brand-input', editingProject: project, currentProject: project, brand: project.name, website: project.website, industry: project.industry, challenge: project.challenge, targetAudience: project.target_audience || '', brandVoice: project.brand_voice || '' })}
             onDeleteProject={deleteProject}
             goBack={() => updateState({ step: 'landing' })}
           />
@@ -1507,20 +1556,38 @@ function BrandInput({
   state: State;
   setProvider: (p: Provider) => void;
   submitBrandInfo: () => void;
-  onCreateProject?: (name: string, website: string, industry: string, challenge: string) => Promise<Project | null>;
+  onCreateProject?: (name: string, website: string, industry: string, challenge: string, targetAudience: string, brandVoice: string) => Promise<Project | null>;
   onUpdateProject?: (project: Project) => Promise<boolean>;
   goBack?: () => void;
   updateState: (updates: Partial<State>) => void;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  // Auto-expand if editing or if there's existing data
+  const hasExistingBrandData = !!(state.targetAudience || state.brandVoice || state.editingProject?.target_audience || state.editingProject?.brand_voice);
+  const [showAdvanced, setShowAdvanced] = useState(hasExistingBrandData);
   const isEditing = !!state.editingProject;
   const isLoggedIn = !!state.user;
+
+  // Calculate profile completion
+  const getProfileCompletion = () => {
+    const fields = [
+      state.brand || (document.getElementById('brand') as HTMLInputElement)?.value,
+      state.industry || (document.getElementById('industry') as HTMLInputElement)?.value,
+      state.challenge || (document.getElementById('challenge') as HTMLTextAreaElement)?.value,
+      state.targetAudience || (document.getElementById('targetAudience') as HTMLTextAreaElement)?.value,
+      state.brandVoice || (document.getElementById('brandVoice') as HTMLTextAreaElement)?.value,
+    ];
+    const filled = fields.filter(Boolean).length;
+    return Math.round((filled / fields.length) * 100);
+  };
 
   const handleSubmit = async () => {
     const brand = (document.getElementById('brand') as HTMLInputElement)?.value || '';
     const website = (document.getElementById('website') as HTMLInputElement)?.value || '';
     const industry = (document.getElementById('industry') as HTMLInputElement)?.value || '';
     const challenge = (document.getElementById('challenge') as HTMLTextAreaElement)?.value || '';
+    const targetAudience = (document.getElementById('targetAudience') as HTMLTextAreaElement)?.value || '';
+    const brandVoice = (document.getElementById('brandVoice') as HTMLTextAreaElement)?.value || '';
     const apiKeyInput = (document.getElementById('apiKey') as HTMLInputElement)?.value || '';
 
     if (!brand || !industry || !challenge) {
@@ -1545,6 +1612,8 @@ function BrandInput({
           website,
           industry,
           challenge,
+          target_audience: targetAudience,
+          brand_voice: brandVoice,
         });
         setIsSaving(false);
         if (success) {
@@ -1552,7 +1621,7 @@ function BrandInput({
         }
       } else {
         // Create new project
-        const project = await onCreateProject(brand, website, industry, challenge);
+        const project = await onCreateProject(brand, website, industry, challenge, targetAudience, brandVoice);
         setIsSaving(false);
         if (!project) {
           alert('Failed to save project. Please try again.');
@@ -1571,16 +1640,33 @@ function BrandInput({
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-4">
-          {isEditing ? 'Edit Project' : isLoggedIn ? 'Create New Project' : 'Tell us about your business'}
+          {isEditing ? 'Edit Brand Profile' : isLoggedIn ? 'Create New Project' : 'Tell us about your business'}
         </h2>
         <p className="text-slate-400">
           {isLoggedIn
             ? isEditing
-              ? 'Update your project details'
+              ? 'Update your brand details for better AI outputs'
               : 'Save this as a project to access it anytime'
             : "We'll personalize every prompt to your specific context"}
         </p>
       </div>
+
+      {/* First-time user tip */}
+      {!isEditing && !isLoggedIn && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl">
+          <div className="flex gap-3">
+            <div className="text-purple-400 mt-0.5">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm text-purple-200 font-medium">The more context you provide, the better your results</p>
+              <p className="text-xs text-slate-400 mt-1">Complete profiles generate up to 3x more relevant marketing content. Expand "Brand Voice & Audience" for best results.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-6">
         <div>
@@ -1605,6 +1691,70 @@ function BrandInput({
           <label className="block text-sm font-medium text-slate-300 mb-2">Business Challenge *</label>
           <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="e.g., We need to increase organic traffic by 50% in Q1..." className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none" />
           <p className="text-xs text-slate-500 mt-2">Be specific—this context makes the prompts 10x more useful</p>
+        </div>
+
+        {/* Brand Voice Section */}
+        <div className="pt-4 border-t border-slate-700">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center justify-between w-full text-left"
+          >
+            <div>
+              <span className="text-sm font-medium text-slate-300">Brand Voice & Audience</span>
+              <span className="text-xs text-slate-500 ml-2">(Recommended for better outputs)</span>
+            </div>
+            <span className={`text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </span>
+          </button>
+
+          {showAdvanced && (
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Target Audience
+                  <span className="text-xs text-purple-400 ml-2">Makes outputs more relevant</span>
+                </label>
+                <textarea
+                  id="targetAudience"
+                  rows={2}
+                  defaultValue={state.targetAudience}
+                  placeholder="e.g., Marketing managers at B2B SaaS companies with 50-500 employees who are overwhelmed by manual reporting..."
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Brand Voice & Tone
+                  <span className="text-xs text-purple-400 ml-2">Shapes the writing style</span>
+                </label>
+                <textarea
+                  id="brandVoice"
+                  rows={2}
+                  defaultValue={state.brandVoice}
+                  placeholder="e.g., Professional but warm. We're experts who don't talk down to people. Clear language, no jargon, occasionally dry humor..."
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                />
+              </div>
+
+              {/* Profile Completion Indicator */}
+              <div className="bg-slate-900/50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-slate-400">Brand Profile Completeness</span>
+                  <span className="text-xs font-medium text-purple-400">{getProfileCompletion()}%</span>
+                </div>
+                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+                    style={{ width: `${getProfileCompletion()}%` }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500 mt-2">Complete profiles generate up to 3x more relevant content</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="pt-4 border-t border-slate-700">

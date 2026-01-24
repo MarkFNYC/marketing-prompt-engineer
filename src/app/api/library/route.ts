@@ -1,10 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { getSupabaseAdmin } from '@/lib/supabase-server';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseAdmin = { from: (table: string) => getSupabaseAdmin().from(table) };
 
 // GET - Fetch user's saved content (optionally filtered by project)
 export async function GET(request: NextRequest) {

@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseAdmin } from '@/lib/supabase-server';
 
 // GET - Fetch user's projects
 export async function GET(request: NextRequest) {
@@ -15,7 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from('projects')
       .select('*')
       .eq('user_id', userId)
@@ -35,13 +30,13 @@ export async function GET(request: NextRequest) {
 // POST - Create new project
 export async function POST(request: NextRequest) {
   try {
-    const { userId, name, website, industry, challenge } = await request.json();
+    const { userId, name, website, industry, challenge, targetAudience, brandVoice } = await request.json();
 
     if (!userId || !name || !industry || !challenge) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from('projects')
       .insert({
         user_id: userId,
@@ -49,6 +44,8 @@ export async function POST(request: NextRequest) {
         website: website || '',
         industry,
         challenge,
+        target_audience: targetAudience || '',
+        brand_voice: brandVoice || '',
       })
       .select()
       .single();
@@ -67,19 +64,21 @@ export async function POST(request: NextRequest) {
 // PUT - Update project
 export async function PUT(request: NextRequest) {
   try {
-    const { id, userId, name, website, industry, challenge } = await request.json();
+    const { id, userId, name, website, industry, challenge, targetAudience, brandVoice } = await request.json();
 
     if (!id || !userId) {
       return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from('projects')
       .update({
         name,
         website: website || '',
         industry,
         challenge,
+        target_audience: targetAudience || '',
+        brand_voice: brandVoice || '',
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -107,7 +106,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
       .from('projects')
       .delete()
       .eq('id', id)

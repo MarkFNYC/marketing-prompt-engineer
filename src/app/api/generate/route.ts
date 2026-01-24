@@ -30,11 +30,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
     }
 
-    const { prompt, mode, provider, userApiKey } = await request.json();
+    const { prompt, mode, provider, userApiKey, brandContext } = await request.json();
 
     // Validate input
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+    }
+
+    // Build brand context string if provided
+    let brandContextString = '';
+    if (brandContext) {
+      const parts: string[] = ['\n\n---\n\nBRAND CONTEXT:'];
+      if (brandContext.brand) parts.push(`Brand: ${brandContext.brand}`);
+      if (brandContext.website) parts.push(`Website: ${brandContext.website}`);
+      if (brandContext.industry) parts.push(`Industry: ${brandContext.industry}`);
+      if (brandContext.challenge) parts.push(`Business Challenge: ${brandContext.challenge}`);
+      if (brandContext.targetAudience) {
+        parts.push(`Target Audience: ${brandContext.targetAudience}`);
+      }
+      if (brandContext.brandVoice) {
+        parts.push(`Brand Voice & Tone: ${brandContext.brandVoice}`);
+        parts.push('');
+        parts.push('IMPORTANT: Adapt your writing style to match the brand voice described above. Maintain this tone consistently throughout your response.');
+      }
+      brandContextString = parts.join('\n');
     }
 
     // Build system prompt based on mode
@@ -50,7 +69,8 @@ IMPORTANT RULES FOR EXECUTION MODE:
 - For hooks: Just the hooks, no explanations
 - For calendars: Actual dates, actual post copy
 - Use markdown formatting for clarity
-- Be specific to the brand and context provided`
+- Be specific to the brand and context provided
+- If brand voice is specified, STRICTLY follow that tone and style${brandContextString}`
       : `You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt.
 
 IMPORTANT RULES FOR STRATEGY MODE:
@@ -58,7 +78,9 @@ IMPORTANT RULES FOR STRATEGY MODE:
 - Provide examples and templates they can adapt
 - Include best practices and mental models
 - Help them understand WHY, not just WHAT
-- Use markdown formatting for clarity`;
+- Use markdown formatting for clarity
+- Tailor advice specifically to the brand context provided
+- If brand voice is specified, consider how to maintain it in recommendations${brandContextString}`;
 
     let result: string;
 
