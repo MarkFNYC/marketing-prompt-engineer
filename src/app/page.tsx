@@ -592,8 +592,8 @@ export default function Home() {
   };
 
   const runPromptWithLLM = async (prompt: string) => {
-    // Check free tier limit if using Gemini (server key)
-    if (state.llmProvider === 'gemini' && state.freePromptsUsed >= state.promptsLimit) {
+    // Check free tier limit if using Gemini (server key) and no API key
+    if (state.llmProvider === 'gemini' && !state.apiKey && state.freePromptsUsed >= state.promptsLimit) {
       updateState({ showLimitModal: true });
       return;
     }
@@ -875,7 +875,7 @@ export default function Home() {
                     </button>
                   );
                 })()}
-                {state.llmProvider === 'gemini' && (
+                {state.llmProvider === 'gemini' && !state.apiKey && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5">
                       <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
