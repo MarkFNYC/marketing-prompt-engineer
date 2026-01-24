@@ -81,6 +81,8 @@ interface State {
   // Accordion state
   originalExpanded: boolean;
   remixExpanded: boolean;
+  // Usage limit modal
+  showLimitModal: boolean;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -128,6 +130,8 @@ export default function Home() {
     // Accordion state
     originalExpanded: true,
     remixExpanded: true,
+    // Usage limit modal
+    showLimitModal: false,
   });
 
   // Check auth and load state on mount
@@ -590,11 +594,7 @@ export default function Home() {
   const runPromptWithLLM = async (prompt: string) => {
     // Check free tier limit if using Gemini (server key)
     if (state.llmProvider === 'gemini' && state.freePromptsUsed >= state.promptsLimit) {
-      updateState({
-        step: 'llm-output',
-        llmOutput: `__LIMIT_REACHED__\n\nYou've used all ${state.promptsLimit} free prompts this month.\n\nTo continue:\n1. Add your own API key (OpenAI or Anthropic)\n2. Upgrade to Premium for unlimited prompts`,
-        isLoading: false,
-      });
+      updateState({ showLimitModal: true });
       return;
     }
 
@@ -756,6 +756,87 @@ export default function Home() {
         />
       )}
 
+      {/* Usage Limit Modal */}
+      {state.showLimitModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center">
+              <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold mb-2">Monthly Limit Reached</h2>
+            <p className="text-slate-400 mb-6">
+              You've used all {state.promptsLimit} free prompts this month. Choose an option below to continue creating.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-purple-300">Premium</span>
+                  <span className="text-sm text-purple-400">$29/month</span>
+                </div>
+                <ul className="text-sm text-slate-400 text-left space-y-1 mb-3">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Unlimited prompts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Priority AI responses
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    All creative personas
+                  </li>
+                </ul>
+                <button
+                  onClick={() => {
+                    updateState({ showLimitModal: false });
+                    // TODO: Implement Stripe checkout
+                    alert('Premium checkout coming soon!');
+                  }}
+                  className="w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium rounded-lg transition-all"
+                >
+                  Upgrade to Premium
+                </button>
+              </div>
+
+              <div className="text-slate-500 text-sm">or</div>
+
+              <div className="p-4 bg-slate-700/50 border border-slate-600 rounded-xl">
+                <p className="text-sm text-slate-300 mb-2 font-medium">Bring Your Own API Key</p>
+                <p className="text-xs text-slate-400 mb-3">Use your OpenAI or Anthropic API key for unlimited access</p>
+                <button
+                  onClick={() => {
+                    updateState({ showLimitModal: false, step: 'brand-input' });
+                    setTimeout(() => {
+                      document.getElementById('apiKeySection')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="w-full py-2 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-all text-sm"
+                >
+                  Add API Key
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => updateState({ showLimitModal: false })}
+              className="text-sm text-slate-500 hover:text-slate-300"
+            >
+              Maybe later
+            </button>
+          </div>
+        </div>
+      )}
+
       {state.step !== 'landing' && (
         <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 py-4">
@@ -795,8 +876,43 @@ export default function Home() {
                   );
                 })()}
                 {state.llmProvider === 'gemini' && (
-                  <div className="text-xs text-slate-500">
-                    {state.freePromptsUsed}/{state.promptsLimit} free prompts
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 rounded-full ${
+                            state.freePromptsUsed >= state.promptsLimit
+                              ? 'bg-red-500'
+                              : state.freePromptsUsed >= state.promptsLimit * 0.8
+                                ? 'bg-amber-500'
+                                : 'bg-emerald-500'
+                          }`}
+                          style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <span className={`text-xs font-medium ${
+                        state.freePromptsUsed >= state.promptsLimit
+                          ? 'text-red-400'
+                          : state.freePromptsUsed >= state.promptsLimit * 0.8
+                            ? 'text-amber-400'
+                            : 'text-slate-400'
+                      }`}>
+                        {state.freePromptsUsed}/{state.promptsLimit}
+                      </span>
+                    </div>
+                    {state.freePromptsUsed >= state.promptsLimit * 0.8 && state.freePromptsUsed < state.promptsLimit && (
+                      <span className="text-xs text-amber-400 hidden sm:inline">
+                        {state.promptsLimit - state.freePromptsUsed} left
+                      </span>
+                    )}
+                    {state.freePromptsUsed >= state.promptsLimit && (
+                      <button
+                        onClick={() => updateState({ showLimitModal: true })}
+                        className="text-xs text-red-400 hover:text-red-300 underline"
+                      >
+                        Upgrade
+                      </button>
+                    )}
                   </div>
                 )}
                 {state.user && (
@@ -1757,7 +1873,7 @@ function BrandInput({
           )}
         </div>
 
-        <div className="pt-4 border-t border-slate-700">
+        <div id="apiKeySection" className="pt-4 border-t border-slate-700">
           <label className="block text-sm font-medium text-slate-300 mb-2">AI Provider</label>
           <div className="flex gap-3 mb-3">
             <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'gemini' ? 'border-green-500 bg-green-500/20 text-green-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Gemini (Free)</button>
@@ -1765,7 +1881,29 @@ function BrandInput({
             <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'anthropic' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Anthropic</button>
           </div>
           {state.llmProvider === 'gemini' ? (
-            <p className="text-xs text-green-400">✓ {state.promptsLimit - state.freePromptsUsed} free prompts remaining this month</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 rounded-full ${
+                    state.freePromptsUsed >= state.promptsLimit
+                      ? 'bg-red-500'
+                      : state.freePromptsUsed >= state.promptsLimit * 0.8
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500'
+                  }`}
+                  style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
+                />
+              </div>
+              <span className={`text-xs font-medium ${
+                state.freePromptsUsed >= state.promptsLimit
+                  ? 'text-red-400'
+                  : state.freePromptsUsed >= state.promptsLimit * 0.8
+                    ? 'text-amber-400'
+                    : 'text-emerald-400'
+              }`}>
+                {state.promptsLimit - state.freePromptsUsed} left
+              </span>
+            </div>
           ) : (
             <>
               <input
