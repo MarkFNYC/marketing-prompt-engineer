@@ -173,3 +173,4 @@ MIT License — see [LICENSE](./LICENSE) for details.
 Built with ❤️ by [Fabrica Collective](https://fabricacollective.com)
 
 *Powered by Claude & GPT-4*
+
