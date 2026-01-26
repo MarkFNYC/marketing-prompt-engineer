@@ -100,27 +100,89 @@ This document defines the business logic and rules governing the Marketing Promp
 
 ---
 
-## 4. Persona Rules
+## 4. Agency Role Rules
 
-### 4.1 Persona Selection
+### 4.1 Role Authority Model
+The app operates as a virtual agency with three roles, each with defined authority.
+
+| Role | Authority | Can Do | Cannot Do |
+|------|-----------|--------|-----------|
+| **Planning** | Sets strategy, defines briefs, approves messaging | Create threads, explore problems, validate briefs, approve for execution | Generate final content, publish |
+| **Creative** | Executes within approved strategy | Generate content, remix with legends, adapt to channels | Change strategy, override mandatories |
+| **Media** | Optimizes distribution (future) | Recommend channels, timing | Change creative, change strategy |
+
+### 4.2 Strategic Thread States
+Threads follow a defined lifecycle with specific rules per state.
+
+| State | Allowed Actions | Blocked Actions |
+|-------|-----------------|-----------------|
+| `draft` | Edit, delete, Planning conversations | Creative execution |
+| `in_planning` | Planning conversations, select strategy | Creative execution |
+| `pending_review` | Planning Review (approve/reject/refine) | Creative execution, edit strategy |
+| `approved` | Creative execution, view strategy | Edit strategy (requires new review) |
+| `active` | Generate content, track outputs | Edit strategy |
+| `completed` | Archive, export, report | Generate new content |
+
+### 4.3 Planning Review Requirements
+- **Mandatory before Creative**: First creative execution requires approved thread
+- **Soft gate**: Users can override with warning for quick one-offs
+- **Re-review trigger**: Changing strategy after approval requires new review
+- **Review expiry**: None (approval doesn't expire)
+
+### 4.4 Creative Execution Rules
+- Creative outputs **must** reference the approved strategy
+- Mandatories from thread **must** appear in all outputs
+- Constraints from thread **must** be respected
+- Target persona (if selected) **must** influence tone and content
+- Creative can **suggest** strategy changes but cannot implement them
+
+---
+
+## 5. Creative Persona Rules (Advertising Legends)
+
+### 5.1 Creative Persona Selection
 - Default persona: None (uses standard AI voice)
 - Persona affects system prompt only, not user prompt
 - User can change persona and regenerate on output page
 - Persona preference saved per user (not per brand)
+- **26 advertising legends** available for Creative Remix
 
-### 4.2 Premium Personas
+### 5.2 Premium Creative Personas
 - Free users: Access to 2 personas (Ogilvy, Bernbach)
 - Premium users: Access to all personas
 - Premium persona selected by free user: Show preview + upgrade prompt
 
-### 4.3 Persona Behavior
+### 5.3 Creative Persona Behavior
 - Persona system prompt prepended to mode system prompt
 - Persona should influence tone, not override content accuracy
 - If persona conflicts with mode, mode takes precedence
+- Creative persona works **within** the approved strategic thread
 
 ---
 
-## 5. Integration Rules
+## 6. Target Persona Rules (Audience Personas)
+
+### 6.1 Target Persona Generation
+- AI generates 3 distinct personas based on industry/audience context
+- Generated personas include: name, role, pain points, goals, behaviors
+- Users can regenerate if not satisfied
+- Maximum 10 target personas per project (free), unlimited (premium)
+
+### 6.2 Target Persona Selection
+- One target persona can be active per thread/session
+- Selected persona context injected into all AI conversations
+- Both Planning and Creative roles respect target persona
+- Changing persona mid-thread triggers suggestion to re-review strategy
+
+### 6.3 Target Persona Data
+- Stored per project (localStorage for now, database future)
+- Includes: name, role, description, demographics, psychographics
+- Behavioral data: pain points, goals, behaviors, preferred channels
+- Quote field captures representative mindset
+
+---
+
+## 7. Integration Rules
 
 ### 5.1 OAuth Connections
 - Tokens encrypted at rest (AES-256)
@@ -150,7 +212,7 @@ This document defines the business logic and rules governing the Marketing Promp
 
 ---
 
-## 6. Billing Rules
+## 8. Billing Rules
 
 ### 6.1 Subscription Lifecycle
 - Trial: None (free tier serves as trial)
@@ -177,7 +239,7 @@ This document defines the business logic and rules governing the Marketing Promp
 
 ---
 
-## 7. Team Rules
+## 9. Team Rules
 
 ### 7.1 Team Structure
 - One owner per team (cannot be changed without support)
@@ -200,7 +262,7 @@ This document defines the business logic and rules governing the Marketing Promp
 
 ---
 
-## 8. API Usage Rules (Future)
+## 10. API Usage Rules (Future)
 
 ### 8.1 API Access
 - API access: Team tier only (initially)
@@ -215,7 +277,7 @@ This document defines the business logic and rules governing the Marketing Promp
 
 ---
 
-## 9. Content Policies
+## 11. Content Policies
 
 ### 9.1 Prohibited Content
 Users may not generate content that is:
@@ -239,7 +301,7 @@ Users may not generate content that is:
 
 ---
 
-## 10. Data Retention
+## 12. Data Retention
 
 ### 10.1 Active Accounts
 | Data Type | Retention |
@@ -265,17 +327,22 @@ Users may not generate content that is:
 
 ---
 
-## 11. Feature Flags
+## 13. Feature Flags
 
 | Flag | Description | Default |
 |------|-------------|---------|
 | `enable_personas` | Show persona selection | true |
+| `enable_agency_model` | Show role-based navigation (Planning/Creative) | true |
+| `enable_planning_review` | Require Planning Review before Creative | true |
+| `enable_target_personas` | Show AI-generated target personas | true |
 | `enable_integrations` | Show publishing integrations | false (Phase 5) |
 | `enable_teams` | Show team features | false (Phase 5) |
 | `enable_api` | Show API documentation | false (Future) |
 | `enable_analytics` | Show performance analytics | false (Phase 6) |
+| `enable_media_role` | Show Media role features | false (Phase 2) |
 | `maintenance_mode` | Show maintenance page | false |
 
 ---
 
 *Last Updated: January 2025*
+*Updated for Agency Model: January 2025*

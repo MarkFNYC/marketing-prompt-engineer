@@ -11,6 +11,154 @@ This document contains all user stories organized by epic, with acceptance crite
 
 ---
 
+## Epic 0: Agency Operating Model (Strategic Foundation)
+
+### US-0.1: Navigate by Agency Role
+**As a** user
+**I want to** navigate the app by role (Planning, Creative, Media) instead of by channel
+**So that** I follow a strategic process rather than jumping straight to content generation
+
+**Acceptance Criteria:**
+- [ ] Main navigation shows "Talk to Planning" and "Talk to Creative" entry points
+- [ ] "Talk to Media" shown as "Coming Soon"
+- [ ] Role-based framing feels like consulting an agency team
+- [ ] Clear visual distinction between Planning and Creative modes
+
+**Priority:** P0
+
+---
+
+### US-0.2: Start a Strategic Thread
+**As a** user
+**I want to** start a new strategic thread by describing my challenge
+**So that** Planning can help me find the right approach before I create content
+
+**Acceptance Criteria:**
+- [ ] "Talk to Planning" opens conversational interface
+- [ ] User describes business challenge
+- [ ] Planning AI explores the problem, asks clarifying questions
+- [ ] Thread is created and saved automatically
+- [ ] Thread appears in "My Strategic Threads" list
+
+**Priority:** P0
+
+---
+
+### US-0.3: Sanity-Check an Existing Brief
+**As a** user
+**I want to** upload or paste an existing brief for validation
+**So that** I can get expert feedback before executing on it
+
+**Acceptance Criteria:**
+- [ ] "Sanity-check this brief" entry point available
+- [ ] User can paste text or upload a document
+- [ ] AI parses brief and extracts key elements
+- [ ] AI provides strength assessment (1-10 score)
+- [ ] AI suggests specific improvements
+- [ ] User can accept suggestions or proceed as-is
+- [ ] Creates a strategic thread from the brief
+
+**Priority:** P0
+
+---
+
+### US-0.4: Planning Review Checkpoint
+**As a** user
+**I want to** review and approve my strategy before Creative execution
+**So that** all my content stays aligned to a clear strategic foundation
+
+**Acceptance Criteria:**
+- [ ] Planning Review screen shows strategic summary
+- [ ] Checklist validates key brief elements
+- [ ] AI assessment provides feedback
+- [ ] User can Approve, Refine, or go Back
+- [ ] Approval unlocks Creative execution
+- [ ] Review is logged for audit trail
+
+**Priority:** P0
+
+---
+
+### US-0.5: Gate Creative Behind Approved Strategy
+**As a** user attempting to generate content
+**I want to** be prompted to complete Planning Review first
+**So that** I don't create off-strategy content by accident
+
+**Acceptance Criteria:**
+- [ ] Clicking "Talk to Creative" without approved thread shows soft gate
+- [ ] User sees what strategy elements are missing
+- [ ] Option to "Quick approve" or "Complete Planning Review"
+- [ ] Power users can override (with warning)
+- [ ] Thread state tracks whether review is passed
+
+**Priority:** P0
+
+---
+
+### US-0.6: View Strategic Thread Summary
+**As a** user
+**I want to** see a summary of my strategic thread at any time
+**So that** I can remember the strategic foundation when creating content
+
+**Acceptance Criteria:**
+- [ ] Thread summary visible in sidebar during Creative mode
+- [ ] Shows: problem statement, target audience, core message, mandatories
+- [ ] Collapsible to save space
+- [ ] Quick link to full thread details
+- [ ] Editable only through Planning (not Creative)
+
+**Priority:** P1
+
+---
+
+### US-0.7: Track Creative Outputs Against Thread
+**As a** user
+**I want to** see all content generated within a strategic thread
+**So that** I can track what I've created and ensure consistency
+
+**Acceptance Criteria:**
+- [ ] Thread detail page shows all linked outputs
+- [ ] Outputs grouped by discipline
+- [ ] Shows which creative persona was used (if any)
+- [ ] Export thread summary + all outputs
+- [ ] Mark thread as complete when campaign ends
+
+**Priority:** P1
+
+---
+
+### US-0.8: Discovery Mode for Problem Exploration
+**As a** user
+**I want to** explore my business problem with AI before committing to a strategy
+**So that** I can find the right approach rather than jumping to solutions
+
+**Acceptance Criteria:**
+- [ ] Discovery mode available within "Talk to Planning"
+- [ ] AI asks probing questions about the challenge
+- [ ] Generates 3-5 potential strategic angles
+- [ ] User selects preferred direction
+- [ ] Selection becomes the "strategy anchor" for the thread
+
+**Priority:** P1
+
+---
+
+### US-0.9: Select Target Persona for Thread
+**As a** user
+**I want to** associate a target persona with my strategic thread
+**So that** all Planning and Creative work is tailored to that audience
+
+**Acceptance Criteria:**
+- [ ] Persona selector available during Planning
+- [ ] Can select from AI-generated or manually created personas
+- [ ] Persona context injected into all AI conversations
+- [ ] Persona summary visible in thread sidebar
+- [ ] Can change persona (triggers suggestion to re-review strategy)
+
+**Priority:** P0
+
+---
+
 ## Epic 1: Creative Personas
 
 ### US-1.1: Select a Creative Persona
@@ -572,5 +720,72 @@ This document contains all user stories organized by epic, with acceptance crite
 
 ---
 
+---
+
+## Epic 8: Target Personas (Audience Personas)
+
+### US-8.1: Generate Target Personas from Context
+**As a** user
+**I want to** generate target personas based on my industry and audience
+**So that** I can create content tailored to specific buyer profiles
+
+**Acceptance Criteria:**
+- [ ] "Generate Personas" button in Personas Manager
+- [ ] AI generates 3 distinct personas from brand context
+- [ ] Each persona includes: name, role, pain points, goals, behaviors
+- [ ] Personas saved to project/thread
+- [ ] Can regenerate if not satisfied
+
+**Priority:** P0 ✅ (Implemented)
+
+---
+
+### US-8.2: Manually Create Target Persona
+**As a** user
+**I want to** manually create a target persona
+**So that** I can define specific audience segments I already know
+
+**Acceptance Criteria:**
+- [ ] Form to create persona with all fields
+- [ ] Required: name, role
+- [ ] Optional: description, pain points, goals, behaviors, channels
+- [ ] Avatar emoji selector
+- [ ] Save to project/thread
+
+**Priority:** P0 ✅ (Implemented)
+
+---
+
+### US-8.3: Select Persona for Content Generation
+**As a** user
+**I want to** select a target persona before generating content
+**So that** the AI tailors outputs to that specific audience
+
+**Acceptance Criteria:**
+- [ ] Persona selector in Library View
+- [ ] Selected persona context sent to AI
+- [ ] AI references persona pain points and goals
+- [ ] Output reflects persona's preferred tone/channels
+- [ ] Clear indicator of which persona content was generated for
+
+**Priority:** P0 ✅ (Implemented)
+
+---
+
+### US-8.4: Edit and Delete Personas
+**As a** user
+**I want to** edit or delete personas I've created
+**So that** I can keep my audience definitions current
+
+**Acceptance Criteria:**
+- [ ] Edit button on persona cards
+- [ ] Delete with confirmation
+- [ ] Warning if persona is linked to saved outputs
+- [ ] Deleted personas removed from all selections
+
+**Priority:** P1
+
+---
+
 *Last Updated: January 2025*
-*Total User Stories: 40*
+*Total User Stories: 53*

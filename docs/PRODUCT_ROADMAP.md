@@ -1,11 +1,45 @@
-# Marketing Prompt Engineer Pro — Product Roadmap
+# Amplify — Product Roadmap
 
 ## Vision
-Transform the Marketing Prompt Engineer from a standalone tool into a full-featured SaaS platform where marketers can generate, save, and publish AI-powered content directly to their marketing channels—guided by the strategic wisdom of legendary creative minds.
+Amplify is a **virtual agency room** where marketers access the strategic thinking process of real agencies (DDB, Grey, McCann). Unlike other AI tools that start with "what channel?", Amplify starts with "what's the real problem?"—capturing the Planning → Creative → Media workflow that makes great marketing.
+
+## Strategic Differentiator
+> "Every other AI tool is a content generator. Amplify is a strategic thinking partner."
 
 ---
 
-## Phase 1: Creative Personas (Sprint 1-2)
+## Phase 0: Agency Model Foundation (Current Sprint)
+
+### Epic: Strategic Thread & Planning Review
+
+**Overview**: Establish the core agency operating model with Planning and Creative roles, strategic threads as the north star object, and Planning Review as the quality gate.
+
+#### What's Already Built ✅
+- [x] Brand context system
+- [x] Campaign context system (becomes Strategic Thread)
+- [x] AI-generated target personas
+- [x] Strategy/Execution mode toggle (becomes Planning/Creative)
+- [x] Discovery mode for problem exploration
+- [x] Creative Remix with 26 advertising legends
+- [x] Collapsible output sections
+- [x] Dual save (Original/Remix)
+
+#### New Work (P0)
+- [ ] **Planning Review checkpoint** — Gate before Creative execution
+- [ ] **Strategic Thread object** — Links all Planning decisions to Creative outputs
+- [ ] **Brief validator** — "Sanity-check this brief" entry point
+- [ ] **Role-based navigation** — "Talk to Planning" / "Talk to Creative"
+- [ ] Soft gate Creative behind approved thread
+
+#### Technical Requirements
+- Add `strategic_threads` table to database
+- Add `planning_reviews` table to database
+- Implement thread state machine (draft → in_planning → pending_review → approved → active)
+- Update outputs to link to threads
+
+---
+
+## Phase 1: Creative Personas (Sprint 1-2) ✅ COMPLETE
 ### Epic: AI Personas Based on Marketing Legends
 
 **Overview**: Users can select a "creative lens" that adjusts the tone, approach, and philosophy of AI outputs based on legendary marketers and creatives.
@@ -37,10 +71,11 @@ Transform the Marketing Prompt Engineer from a standalone tool into a full-featu
 | **Seth Godin** | 2000s+ | Permission marketing, remarkable products, tribes | Content marketing, community building |
 | **April Dunford** | 2010s+ | Obviously Awesome positioning, competitive alternatives | Positioning, messaging frameworks |
 
-#### Technical Requirements
-- Add `persona` field to state
-- Create persona-specific system prompts
-- Store persona preferences in localStorage (free) / database (paid)
+#### Status: ✅ COMPLETE
+- 26 advertising legend personas implemented
+- Persona system prompts working
+- Creative Remix feature with persona switching
+- Stored in localStorage (database migration pending)
 
 ---
 
@@ -270,44 +305,69 @@ Transform the Marketing Prompt Engineer from a standalone tool into a full-featu
 
 ---
 
-## Sprint Timeline (Estimated)
+## Sprint Timeline (Updated)
 
-| Phase | Sprints | Duration | Milestone |
-|-------|---------|----------|-----------|
-| Phase 1: Personas | 1-2 | 4 weeks | Creative Personas Live |
-| Phase 2: Auth | 3-4 | 4 weeks | User Accounts Live |
-| Phase 3: Payments | 5-6 | 4 weeks | Freemium Launch |
-| Phase 4: Library | 7-8 | 4 weeks | Content Library Live |
-| Phase 5: Integrations | 9-12 | 8 weeks | LinkedIn + Twitter Live |
-| Phase 6: Analytics | 13-14 | 4 weeks | Analytics Dashboard |
+| Phase | Sprints | Duration | Milestone | Status |
+|-------|---------|----------|-----------|--------|
+| Phase 0: Agency Model | 0 | 2 weeks | Planning Review + Strategic Threads | 🔄 In Progress |
+| Phase 1: Personas | 1-2 | 4 weeks | Creative Personas Live | ✅ Complete |
+| Phase 1.5: Target Personas | 2 | 1 week | AI-generated audience personas | ✅ Complete |
+| Phase 2: Auth | 3-4 | 4 weeks | User Accounts Live | ✅ Complete |
+| Phase 3: Payments | 5-6 | 4 weeks | Freemium Launch | 📋 Planned |
+| Phase 4: Library | 7-8 | 4 weeks | Content Library Live | 🔄 Partial |
+| Phase 5: Integrations | 9-12 | 8 weeks | LinkedIn + Twitter Live | 📋 Planned |
+| Phase 6: Analytics | 13-14 | 4 weeks | Analytics Dashboard | 📋 Planned |
+| Phase 7: Media Role | 15-16 | 4 weeks | Channel Recommendations | 📋 Planned |
 
-**Total Estimated Timeline**: 28 weeks (~7 months)
+**Total Estimated Timeline**: 32 weeks (~8 months)
 
 ---
 
-## Success Metrics
+## Success Metrics (Updated for Agency Model)
 
 ### North Star Metric
-- **Monthly Active Users (MAU)** generating and publishing content
+- **Strategic Threads Completed** (from Discovery → Approved → Executed)
+
+This captures the full strategic process, not just content generation.
 
 ### Supporting Metrics
-- Free-to-Paid conversion rate (target: 5%)
-- Prompts run per user per month (target: 20+)
-- Content published via integrations (target: 50% of premium users)
-- Net Promoter Score (target: 50+)
-- Monthly Recurring Revenue (MRR)
+| Metric | Target | Why It Matters |
+|--------|--------|----------------|
+| Threads with Planning Review | 80%+ | Shows users value the strategic process |
+| Planning → Creative conversion | 60%+ | Strategy leads to execution |
+| Brief sanity-check usage | 30%+ of new users | Entry point validation |
+| Creative outputs per thread | 5+ | Strategy enables multiple executions |
+| Remix usage per execution | 2+ | Users exploring creative perspectives |
+| Free-to-Paid conversion rate | 5% | Revenue |
+| Net Promoter Score | 50+ | User satisfaction |
+| Monthly Recurring Revenue (MRR) | Growth | Business health |
 
 ---
 
 ## Open Questions
 
-1. Should we allow users to create custom personas?
+1. ~~Should we allow users to create custom personas?~~ → Yes, target personas implemented
 2. Should free users see a watermark on outputs?
 3. Do we need GDPR/CCPA compliance from day 1?
 4. Should we build a mobile app, or is mobile web sufficient?
 5. Do we want an API for power users/agencies?
+6. **How strict should the Planning Review gate be?** → Decided: Soft gate with override option
+7. **Should we allow quick one-off generations without a thread?** → Yes, with warning
+8. **How do existing campaigns migrate to threads?** → Auto-migrate as `approved` state
+
+---
+
+## Appendix: Agency Model References
+
+See [PRD_AGENCY_MODEL_ADDENDUM.md](./PRD_AGENCY_MODEL_ADDENDUM.md) for detailed specifications on:
+- Agency role authority model
+- Strategic Thread lifecycle
+- Planning Review flow
+- Navigation structure
+- User journeys
 
 ---
 
 *Last Updated: January 2025*
+*Updated for Agency Model: January 2025*
 *Document Owner: Product Team*

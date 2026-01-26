@@ -203,6 +203,7 @@ Saved AI-generated content.
 
 ```sql
 CREATE TYPE output_mode AS ENUM ('strategy', 'execution');
+CREATE TYPE agency_role AS ENUM ('planning', 'creative', 'media');
 
 CREATE TABLE outputs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -210,6 +211,11 @@ CREATE TABLE outputs (
     brand_id UUID REFERENCES brands(id) ON DELETE SET NULL,
     folder_id UUID REFERENCES folders(id) ON DELETE SET NULL,
     persona_id UUID REFERENCES personas(id) ON DELETE SET NULL,
+
+    -- Strategic Thread linkage (new)
+    thread_id UUID REFERENCES strategic_threads(id) ON DELETE SET NULL,
+    target_persona_id UUID REFERENCES user_personas(id) ON DELETE SET NULL,
+    agency_role agency_role, -- Which role generated this
 
     -- Content
     title VARCHAR(500),
@@ -408,6 +414,156 @@ CREATE POLICY "Users can read own history" ON prompt_history
 
 CREATE POLICY "Users can insert own history" ON prompt_history
     FOR INSERT WITH CHECK (auth.uid() = user_id);
+```
+
+---
+
+### strategic_threads
+The north star object linking planning decisions to creative execution.
+
+```sql
+CREATE TYPE thread_state AS ENUM ('draft', 'in_planning', 'pending_review', 'approved', 'active', 'completed', 'archived');
+
+CREATE TABLE strategic_threads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    brand_id UUID REFERENCES brands(id) ON DELETE SET NULL,
+
+    -- Core identity
+    name VARCHAR(255) NOT NULL,
+    problem_statement TEXT,
+
+    -- Planning outputs
+    target_audience TEXT,
+    selected_persona_id UUID REFERENCES user_personas(id) ON DELETE SET NULL,
+    core_message TEXT,
+    message_strategy JSONB, -- {name, angle, core_message} from Discovery
+
+    -- Mandatories & constraints
+    mandatories TEXT[], -- Must include in all outputs
+    constraints TEXT, -- What to avoid
+
+    -- Brief (if uploaded/pasted)
+    brief_content TEXT,
+    brief_parsed JSONB, -- AI-extracted structure from brief
+
+    -- State
+    state thread_state NOT NULL DEFAULT 'draft',
+    planning_review_passed_at TIMESTAMPTZ,
+    planning_review_notes TEXT,
+
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    completed_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ -- Soft delete
+);
+
+-- Indexes
+CREATE INDEX idx_threads_user_id ON strategic_threads(user_id);
+CREATE INDEX idx_threads_brand_id ON strategic_threads(brand_id);
+CREATE INDEX idx_threads_state ON strategic_threads(state);
+CREATE INDEX idx_threads_created_at ON strategic_threads(created_at DESC);
+
+-- RLS
+ALTER TABLE strategic_threads ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can CRUD own threads" ON strategic_threads
+    FOR ALL USING (auth.uid() = user_id);
+```
+
+---
+
+### planning_reviews
+Captures planning checkpoint decisions before creative execution.
+
+```sql
+CREATE TYPE review_outcome AS ENUM ('approved', 'needs_refinement', 'rejected');
+
+CREATE TABLE planning_reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    thread_id UUID NOT NULL REFERENCES strategic_threads(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+    -- Review snapshot (what was reviewed)
+    problem_statement_snapshot TEXT,
+    strategy_snapshot JSONB,
+    mandatories_snapshot TEXT[],
+
+    -- AI Assessment
+    ai_assessment TEXT,
+    ai_score INTEGER, -- 1-10 brief strength
+    ai_suggestions TEXT[],
+
+    -- Checklist results
+    checklist_results JSONB, -- {item: boolean} for each checklist item
+
+    -- Outcome
+    outcome review_outcome NOT NULL,
+    reviewer_notes TEXT,
+
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_reviews_thread_id ON planning_reviews(thread_id);
+CREATE INDEX idx_reviews_user_id ON planning_reviews(user_id);
+
+-- RLS
+ALTER TABLE planning_reviews ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can CRUD own reviews" ON planning_reviews
+    FOR ALL USING (auth.uid() = user_id);
+```
+
+---
+
+### user_personas
+User-generated or AI-generated target personas (distinct from creative legend personas).
+
+```sql
+CREATE TABLE user_personas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    project_id VARCHAR(255), -- Links to localStorage project
+
+    -- Identity
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(255),
+    description TEXT,
+    avatar_emoji VARCHAR(10) DEFAULT '👤',
+
+    -- Demographics & Psychographics
+    demographics TEXT,
+    psychographics TEXT,
+
+    -- Behavioral data
+    pain_points TEXT[],
+    goals TEXT[],
+    behaviors TEXT[],
+    preferred_channels TEXT[],
+
+    -- Voice
+    quote TEXT, -- Representative quote
+
+    -- Metadata
+    is_generated BOOLEAN DEFAULT FALSE,
+
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_user_personas_user_id ON user_personas(user_id);
+CREATE INDEX idx_user_personas_project_id ON user_personas(project_id);
+
+-- RLS
+ALTER TABLE user_personas ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can CRUD own personas" ON user_personas
+    FOR ALL USING (auth.uid() = user_id);
 ```
 
 ---

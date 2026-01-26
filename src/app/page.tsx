@@ -10,6 +10,7 @@ type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'libr
 type Mode = 'strategy' | 'execution';
 type CampaignMode = 'discovery' | 'directed' | 'upload';
 type CampaignGoalType = 'awareness' | 'consideration' | 'conversion' | 'retention';
+type ThreadState = 'draft' | 'in_planning' | 'pending_review' | 'approved' | 'active';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
 type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
 
@@ -29,6 +30,8 @@ interface Campaign {
   mode: CampaignMode;
   brand_id: string;
   discipline?: string;
+  // Strategic Thread State (Agency Model)
+  threadState: ThreadState;
   // Discovery Mode
   business_problem?: string;
   success_metric?: string;
@@ -199,6 +202,15 @@ interface State {
   selectedPersona: Persona | null;
   showPersonaModal: boolean;
   personaGenerating: boolean;
+  // Planning Review (Agency Model)
+  showPlanningReview: boolean;
+  planningReviewLoading: boolean;
+  planningReviewResult: {
+    score: number;
+    assessment: string;
+    suggestions: string[];
+  } | null;
+  skippedPlanningReview: boolean;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -297,6 +309,11 @@ export default function Home() {
     selectedPersona: null,
     showPersonaModal: false,
     personaGenerating: false,
+    // Planning Review (Agency Model)
+    showPlanningReview: false,
+    planningReviewLoading: false,
+    planningReviewResult: null,
+    skippedPlanningReview: false,
   });
 
   // Check auth and load state on mount
@@ -734,6 +751,104 @@ export default function Home() {
     updateState({ remixedOutput: null, remixPersona: null });
   };
 
+  // Planning Review functions (Agency Model)
+  const triggerPlanningReview = async () => {
+    updateState({ showPlanningReview: true, planningReviewLoading: true, planningReviewResult: null });
+
+    try {
+      // Gather context for review
+      const problemStatement = state.discoveryBrief.businessProblem ||
+        state.uploadedBrief.objective ||
+        state.directedBrief.goalDescription ||
+        state.currentProject?.challenge ||
+        '';
+
+      const targetAudience = state.selectedPersona?.name
+        ? `${state.selectedPersona.name} - ${state.selectedPersona.role}: ${state.selectedPersona.description || ''}`
+        : state.uploadedBrief.targetAudience ||
+          state.currentProject?.target_audience ||
+          state.targetAudience ||
+          '';
+
+      const mandatories = [
+        ...(state.directedBrief.campaignMandatories || []),
+        ...(state.uploadedBrief.mandatories || []),
+        ...(state.currentProject?.persistent_mandatories || []),
+      ].filter(Boolean);
+
+      const response = await fetch('/api/planning-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          problemStatement,
+          targetAudience,
+          strategy: state.selectedStrategy,
+          mandatories,
+          brandContext: {
+            name: state.currentProject?.name || state.brand,
+            industry: state.currentProject?.industry || state.industry,
+          },
+        }),
+      });
+
+      const result = await response.json();
+      updateState({ planningReviewLoading: false, planningReviewResult: result });
+    } catch (error) {
+      console.error('Planning review failed:', error);
+      updateState({
+        planningReviewLoading: false,
+        planningReviewResult: {
+          score: 5,
+          assessment: 'Unable to complete review. Please check your strategic foundation.',
+          suggestions: ['Ensure all required fields are filled'],
+        },
+      });
+    }
+  };
+
+  const handlePlanningApprove = () => {
+    // Update campaign/thread state to approved
+    if (state.currentCampaign) {
+      const updatedCampaign = { ...state.currentCampaign, threadState: 'approved' as ThreadState };
+      updateState({
+        currentCampaign: updatedCampaign,
+        showPlanningReview: false,
+        mode: 'execution',
+        skippedPlanningReview: false,
+      });
+      // Save to localStorage
+      saveCampaignState(updatedCampaign);
+    } else {
+      updateState({
+        showPlanningReview: false,
+        mode: 'execution',
+        skippedPlanningReview: false,
+      });
+    }
+  };
+
+  const handlePlanningRefine = () => {
+    // Go back to Planning mode with suggestions
+    updateState({
+      showPlanningReview: false,
+      mode: 'strategy',
+    });
+  };
+
+  const handlePlanningSkip = () => {
+    // Allow skip but set warning flag
+    updateState({
+      showPlanningReview: false,
+      mode: 'execution',
+      skippedPlanningReview: true,
+    });
+  };
+
+  const saveCampaignState = (campaign: Campaign) => {
+    const projectKey = state.currentProject?.id || 'default';
+    localStorage.setItem(`amplify_campaign_${projectKey}`, JSON.stringify(campaign));
+  };
+
   // Persona functions
   const loadPersonas = () => {
     // Load from localStorage for now
@@ -831,6 +946,25 @@ export default function Home() {
   };
 
   const setMode = (mode: Mode) => {
+    // If switching to Creative (execution) mode, check if Planning Review is needed
+    if (mode === 'execution' && state.mode === 'strategy') {
+      // Check if thread is already approved
+      const isApproved = state.currentCampaign?.threadState === 'approved' ||
+                         state.currentCampaign?.threadState === 'active';
+
+      if (!isApproved) {
+        // Trigger Planning Review before allowing Creative mode
+        triggerPlanningReview();
+        return;
+      }
+    }
+
+    // If switching back to Planning from Creative, clear the skipped warning
+    if (mode === 'strategy' && state.mode === 'execution') {
+      updateState({ mode, skippedPlanningReview: false });
+      return;
+    }
+
     updateState({ mode });
   };
 
@@ -1587,6 +1721,17 @@ export default function Home() {
             onClose={() => updateState({ showPersonaModal: false })}
           />
         )}
+        {state.showPlanningReview && (
+          <PlanningReviewModal
+            state={state}
+            isLoading={state.planningReviewLoading}
+            result={state.planningReviewResult}
+            onApprove={handlePlanningApprove}
+            onRefine={handlePlanningRefine}
+            onSkip={handlePlanningSkip}
+            onClose={() => updateState({ showPlanningReview: false })}
+          />
+        )}
         {state.step === 'my-library' && (
           <MyLibrary
             state={state}
@@ -1985,8 +2130,8 @@ function LandingPage({
 
         <div className="flex items-center justify-center gap-3 mb-10">
           <div className="inline-flex items-center bg-slate-800 rounded-xl p-1.5 border border-slate-700">
-            <div className="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium flex items-center gap-2">📋 Strategy Mode</div>
-            <div className="px-4 py-2 rounded-lg text-slate-400 text-sm font-medium flex items-center gap-2">⚡ Execution Mode</div>
+            <div className="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium flex items-center gap-2">📋 Talk to Planning</div>
+            <div className="px-4 py-2 rounded-lg text-slate-400 text-sm font-medium flex items-center gap-2">🎨 Talk to Creative</div>
           </div>
         </div>
 
@@ -2016,8 +2161,8 @@ function LandingPage({
           </div>
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-pink-500/20">3</div>
-            <h3 className="font-semibold text-lg mb-2">Choose Your Mode</h3>
-            <p className="text-slate-400 text-sm">Strategy for frameworks & planning, or Execution for ready-to-use content</p>
+            <h3 className="font-semibold text-lg mb-2">Choose Your Role</h3>
+            <p className="text-slate-400 text-sm">Talk to Planning for strategy, or Creative for ready-to-use content</p>
           </div>
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-green-500/20">4</div>
@@ -2555,11 +2700,30 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
 
       <div className="flex justify-center">
         <div className="inline-flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
-          <button onClick={() => setMode('strategy')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📋 Strategy</button>
-          <button onClick={() => setMode('execution')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}`}>⚡ Execution</button>
+          <button onClick={() => setMode('strategy')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📋 Talk to Planning</button>
+          <button onClick={() => setMode('execution')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}`}>🎨 Talk to Creative</button>
         </div>
       </div>
-      <p className="text-center text-sm text-slate-500">{state.mode === 'strategy' ? 'Get frameworks, analysis, and strategic recommendations' : 'Get ready-to-use content you can copy and publish immediately'}</p>
+      <p className="text-center text-sm text-slate-500">{state.mode === 'strategy' ? 'Define strategy, validate briefs, and get recommendations' : 'Generate content within your approved strategic direction'}</p>
+
+      {/* Skipped Planning Review Warning */}
+      {state.skippedPlanningReview && state.mode === 'execution' && (
+        <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-amber-400 text-xl">⚠️</span>
+          <div className="flex-1">
+            <p className="text-amber-300 font-medium">Strategy not reviewed</p>
+            <p className="text-sm text-amber-200/70 mt-1">
+              You skipped Planning Review. Your creative outputs may not be strategically aligned.
+              <button
+                onClick={() => setMode('strategy')}
+                className="ml-2 underline hover:text-amber-100"
+              >
+                Return to Planning
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Target Persona Selector */}
       <div className="flex justify-center">
@@ -2754,7 +2918,7 @@ function LLMOutput({
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                {state.mode === 'strategy' ? 'Strategy' : 'Creative'} Remix
+                {state.mode === 'strategy' ? 'Planning' : 'Creative'} Remix
               </button>
 {hasRemix ? (
                 <>
@@ -2854,10 +3018,10 @@ function LLMOutput({
           <div className="text-sm text-slate-300 mb-3">{state.selectedPrompt.goal}</div>
           <div className="flex items-center justify-between pt-3 border-t border-slate-700">
             <div className="inline-flex items-center bg-slate-900 rounded-lg p-1">
-              <button onClick={() => switchModeAndRerun('strategy')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📋 Strategy</button>
-              <button onClick={() => switchModeAndRerun('execution')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}`}>⚡ Execution</button>
+              <button onClick={() => switchModeAndRerun('strategy')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📋 Planning</button>
+              <button onClick={() => switchModeAndRerun('execution')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}`}>🎨 Creative</button>
             </div>
-            <span className="text-xs text-slate-500">Switch mode to regenerate</span>
+            <span className="text-xs text-slate-500">Switch role to regenerate</span>
           </div>
         </div>
       )}
@@ -3198,7 +3362,7 @@ function RemixModal({
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="text-3xl">{mode === 'strategy' ? '🧠' : '🎨'}</span>
-              {mode === 'strategy' ? 'Strategy' : 'Creative'} Remix
+              {mode === 'strategy' ? 'Planning' : 'Creative'} Remix
             </h2>
             <p className="text-slate-400 mt-1">
               Reimagine your output through the lens of a legendary {mode === 'strategy' ? 'strategist' : 'creative'}
@@ -3308,6 +3472,214 @@ function PersonaCard({
   );
 }
 
+// Planning Review Modal Component (Agency Model)
+function PlanningReviewModal({
+  state,
+  isLoading,
+  result,
+  onApprove,
+  onRefine,
+  onSkip,
+  onClose,
+}: {
+  state: State;
+  isLoading: boolean;
+  result: { score: number; assessment: string; suggestions: string[] } | null;
+  onApprove: () => void;
+  onRefine: () => void;
+  onSkip: () => void;
+  onClose: () => void;
+}) {
+  // Gather strategic context from state
+  const problemStatement = state.discoveryBrief.businessProblem ||
+    state.uploadedBrief.objective ||
+    state.directedBrief.goalDescription ||
+    state.currentProject?.challenge ||
+    '';
+
+  const targetAudience = state.selectedPersona?.name
+    ? `${state.selectedPersona.name} - ${state.selectedPersona.role}`
+    : state.uploadedBrief.targetAudience ||
+      state.currentProject?.target_audience ||
+      state.targetAudience ||
+      '';
+
+  const strategy = state.selectedStrategy;
+
+  const mandatories = [
+    ...(state.directedBrief.campaignMandatories || []),
+    ...(state.uploadedBrief.mandatories || []),
+    ...(state.currentProject?.persistent_mandatories || []),
+  ].filter(Boolean);
+
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return 'text-green-400';
+    if (score >= 6) return 'text-yellow-400';
+    if (score >= 4) return 'text-orange-400';
+    return 'text-red-400';
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 8) return 'Strong Brief';
+    if (score >= 6) return 'Workable Brief';
+    if (score >= 4) return 'Needs Refinement';
+    return 'Weak Brief';
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                <span className="text-3xl">📋</span>
+                Planning Review
+              </h2>
+              <p className="text-slate-400 mt-1">
+                Review your strategic foundation before moving to Creative
+              </p>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-white p-2" disabled={isLoading}>
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Strategic Foundation Summary */}
+          <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+            <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+              <span>📋</span> Strategic Foundation
+            </h3>
+
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="text-slate-500">Problem:</span>
+                <p className="text-white mt-1">{problemStatement || <span className="text-slate-500 italic">Not defined</span>}</p>
+              </div>
+
+              <div>
+                <span className="text-slate-500">Audience:</span>
+                <p className="text-white mt-1">{targetAudience || <span className="text-slate-500 italic">Not defined</span>}</p>
+              </div>
+
+              <div>
+                <span className="text-slate-500">Strategy:</span>
+                {strategy ? (
+                  <div className="mt-1 bg-slate-800 rounded-lg p-3 border border-slate-600">
+                    <p className="text-white font-medium">{strategy.name}</p>
+                    <p className="text-slate-300 text-xs mt-1">{strategy.core_message}</p>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 italic mt-1">No strategy selected</p>
+                )}
+              </div>
+
+              {mandatories.length > 0 && (
+                <div>
+                  <span className="text-slate-500">Mandatories:</span>
+                  <ul className="mt-1 space-y-1">
+                    {mandatories.map((m, i) => (
+                      <li key={i} className="text-white flex items-start gap-2">
+                        <span className="text-purple-400">•</span> {m}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* AI Assessment */}
+          {isLoading ? (
+            <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700 text-center">
+              <div className="w-10 h-10 border-3 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-slate-300">Planning Director is reviewing your brief...</p>
+            </div>
+          ) : result ? (
+            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+              <h3 className="text-sm font-semibold text-blue-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <span>🤖</span> AI Assessment
+              </h3>
+
+              {/* Score */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`text-4xl font-bold ${getScoreColor(result.score)}`}>
+                  {result.score}/10
+                </div>
+                <div>
+                  <p className={`font-semibold ${getScoreColor(result.score)}`}>
+                    {getScoreLabel(result.score)}
+                  </p>
+                  <p className="text-sm text-slate-400">Brief Quality Score</p>
+                </div>
+              </div>
+
+              {/* Assessment */}
+              <p className="text-slate-300 mb-4">{result.assessment}</p>
+
+              {/* Suggestions */}
+              {result.suggestions.length > 0 && result.score < 8 && (
+                <div>
+                  <p className="text-sm text-slate-500 mb-2">Suggestions:</p>
+                  <ul className="space-y-2">
+                    {result.suggestions.map((suggestion, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <span className="text-yellow-400 mt-0.5">💡</span>
+                        <span className="text-slate-300">{suggestion}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Actions */}
+        <div className="p-6 border-t border-slate-700 bg-slate-900/50">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={onApprove}
+              disabled={isLoading}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Approve & Continue to Creative
+            </button>
+
+            <button
+              onClick={onRefine}
+              disabled={isLoading}
+              className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Refine Strategy
+            </button>
+          </div>
+
+          <button
+            onClick={onSkip}
+            disabled={isLoading}
+            className="w-full mt-3 px-4 py-2 text-slate-400 hover:text-white text-sm transition-colors disabled:opacity-50"
+          >
+            Skip review (not recommended)
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // My Library Component
 function MyLibrary({
   state,
@@ -3402,7 +3774,7 @@ function MyLibrary({
                       <h3 className="font-semibold text-white">{item.title}</h3>
                       <div className="flex items-center gap-2 mt-1">
                         <span className={`text-xs px-2 py-0.5 rounded-full ${item.mode === 'strategy' ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'}`}>
-                          {item.mode === 'strategy' ? '📋 Strategy' : '⚡ Execution'}
+                          {item.mode === 'strategy' ? '📋 Planning' : '🎨 Creative'}
                         </span>
                         <span className="text-xs text-slate-500">{formatDate(item.created_at)}</span>
                       </div>
