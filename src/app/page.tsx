@@ -6,10 +6,50 @@ import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { getCreativePersonas, getStrategyPersonas, type Persona } from '@/lib/personas';
 
-type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library';
+type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'directed-brief' | 'strategy-check' | 'campaigns';
 type Mode = 'strategy' | 'execution';
+type CampaignMode = 'discovery' | 'directed';
+type CampaignGoalType = 'awareness' | 'consideration' | 'conversion' | 'retention';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
 type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
+
+interface MessageStrategy {
+  id: string;
+  name: string;
+  core_message: string;
+  angle: string;
+  rationale: string;
+  best_for?: string[];
+  user_refinements?: string;
+}
+
+interface Campaign {
+  id: string;
+  name: string;
+  mode: CampaignMode;
+  brand_id: string;
+  discipline?: string;
+  // Discovery Mode
+  business_problem?: string;
+  success_metric?: string;
+  success_metric_value?: string;
+  timeline?: string;
+  budget?: string;
+  campaign_constraints?: string;
+  what_been_tried?: string;
+  // Directed Mode
+  goal_type?: CampaignGoalType;
+  goal_description?: string;
+  campaign_mandatories?: string[];
+  // Strategy
+  message_strategy_options?: MessageStrategy[];
+  selected_message_strategy?: MessageStrategy;
+  strategy_check_shown?: boolean;
+  strategy_check_recommendation?: string;
+  // Metadata
+  created_at: string;
+  updated_at: string;
+}
 
 interface User {
   id: string;
@@ -35,6 +75,10 @@ interface Project {
   challenge: string;
   target_audience: string;
   brand_voice: string;
+  // New v1.1 fields
+  value_proposition?: string;
+  persistent_mandatories?: string[];
+  persistent_constraints?: string;
   created_at: string;
   updated_at: string;
 }
@@ -83,6 +127,38 @@ interface State {
   remixExpanded: boolean;
   // Usage limit modal
   showLimitModal: boolean;
+  // Campaign flow (v1.1)
+  campaignMode: CampaignMode | null;
+  currentCampaign: Campaign | null;
+  campaigns: Campaign[];
+  campaignsLoading: boolean;
+  messageStrategies: MessageStrategy[];
+  messageStrategiesLoading: boolean;
+  selectedStrategy: MessageStrategy | null;
+  strategyCheckResult: {
+    aligned: boolean;
+    severity: 'none' | 'mild' | 'strong';
+    recommendation: string;
+    alternativeDisciplines: string[];
+  } | null;
+  // Discovery brief form
+  discoveryBrief: {
+    campaignName: string;
+    businessProblem: string;
+    successMetric: string;
+    successMetricValue: string;
+    timeline: string;
+    budget: string;
+    constraints: string;
+    whatBeenTried: string;
+  };
+  // Directed brief form
+  directedBrief: {
+    campaignName: string;
+    goalType: CampaignGoalType;
+    goalDescription: string;
+    campaignMandatories: string[];
+  };
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -132,6 +208,33 @@ export default function Home() {
     remixExpanded: true,
     // Usage limit modal
     showLimitModal: false,
+    // Campaign flow (v1.1)
+    campaignMode: null,
+    currentCampaign: null,
+    campaigns: [],
+    campaignsLoading: false,
+    messageStrategies: [],
+    messageStrategiesLoading: false,
+    selectedStrategy: null,
+    strategyCheckResult: null,
+    // Discovery brief form
+    discoveryBrief: {
+      campaignName: '',
+      businessProblem: '',
+      successMetric: '',
+      successMetricValue: '',
+      timeline: '',
+      budget: '',
+      constraints: '',
+      whatBeenTried: '',
+    },
+    // Directed brief form
+    directedBrief: {
+      campaignName: '',
+      goalType: 'awareness',
+      goalDescription: '',
+      campaignMandatories: [],
+    },
   });
 
   // Check auth and load state on mount
@@ -427,7 +530,7 @@ export default function Home() {
           challenge: data.project.challenge,
           targetAudience: data.project.target_audience || '',
           brandVoice: data.project.brand_voice || '',
-          step: 'discipline-select',
+          step: 'mode-select',
         });
         return data.project;
       }
@@ -509,7 +612,7 @@ export default function Home() {
       challenge: project.challenge,
       targetAudience: project.target_audience || '',
       brandVoice: project.brand_voice || '',
-      step: 'discipline-select',
+      step: 'mode-select',
     });
   };
 
@@ -685,7 +788,7 @@ export default function Home() {
       targetAudience,
       brandVoice,
       apiKey: apiKeyInput,
-      step: 'discipline-select',
+      step: 'mode-select',
     });
   };
 
@@ -996,8 +1099,217 @@ export default function Home() {
             updateState={updateState}
           />
         )}
+        {state.step === 'mode-select' && (
+          <ModeSelect
+            state={state}
+            onSelectMode={(mode) => {
+              updateState({ campaignMode: mode });
+              if (mode === 'discovery') {
+                updateState({ step: 'discovery-brief' });
+              } else {
+                updateState({ step: 'discipline-select' });
+              }
+            }}
+            goBack={() => state.user ? goBack('projects') : goBack('brand-input')}
+          />
+        )}
+        {state.step === 'discovery-brief' && (
+          <DiscoveryBrief
+            state={state}
+            updateState={updateState}
+            onSubmit={async () => {
+              // Create campaign and generate message strategies
+              updateState({ messageStrategiesLoading: true });
+              try {
+                // Create campaign
+                const campaignRes = await fetch('/api/campaigns', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: state.user?.id,
+                    brandId: state.currentProject?.id,
+                    name: state.discoveryBrief.campaignName,
+                    mode: 'discovery',
+                    businessProblem: state.discoveryBrief.businessProblem,
+                    successMetric: state.discoveryBrief.successMetric,
+                    successMetricValue: state.discoveryBrief.successMetricValue,
+                    timeline: state.discoveryBrief.timeline,
+                    budget: state.discoveryBrief.budget,
+                    campaignConstraints: state.discoveryBrief.constraints,
+                    whatBeenTried: state.discoveryBrief.whatBeenTried,
+                  }),
+                });
+                const campaignData = await campaignRes.json();
+                if (campaignData.campaign) {
+                  updateState({ currentCampaign: campaignData.campaign });
+                }
+
+                // Generate message strategies
+                const strategyRes = await fetch('/api/campaigns/message-strategy', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    campaignId: campaignData.campaign?.id,
+                    brandContext: {
+                      name: state.currentProject?.name || state.brand,
+                      industry: state.currentProject?.industry || state.industry,
+                      targetAudience: state.currentProject?.target_audience || state.targetAudience,
+                      valueProposition: state.currentProject?.value_proposition,
+                    },
+                    businessProblem: state.discoveryBrief.businessProblem,
+                    successMetric: state.discoveryBrief.successMetric,
+                    timeline: state.discoveryBrief.timeline,
+                    budget: state.discoveryBrief.budget,
+                    constraints: state.discoveryBrief.constraints,
+                    whatBeenTried: state.discoveryBrief.whatBeenTried,
+                  }),
+                });
+                const strategyData = await strategyRes.json();
+                if (strategyData.strategies) {
+                  updateState({ messageStrategies: strategyData.strategies, step: 'message-strategy' });
+                }
+              } catch (error) {
+                console.error('Error creating campaign:', error);
+              } finally {
+                updateState({ messageStrategiesLoading: false });
+              }
+            }}
+            goBack={() => updateState({ step: 'mode-select' })}
+          />
+        )}
+        {state.step === 'message-strategy' && (
+          <MessageStrategySelect
+            state={state}
+            onSelect={(strategy) => {
+              updateState({ selectedStrategy: strategy, step: 'discipline-select' });
+              // Update campaign with selected strategy
+              if (state.currentCampaign?.id) {
+                fetch('/api/campaigns', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    id: state.currentCampaign.id,
+                    userId: state.user?.id,
+                    selectedMessageStrategy: strategy,
+                  }),
+                });
+              }
+            }}
+            onRegenerate={async () => {
+              updateState({ messageStrategiesLoading: true });
+              try {
+                const strategyRes = await fetch('/api/campaigns/message-strategy', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    campaignId: state.currentCampaign?.id,
+                    brandContext: {
+                      name: state.currentProject?.name || state.brand,
+                      industry: state.currentProject?.industry || state.industry,
+                      targetAudience: state.currentProject?.target_audience || state.targetAudience,
+                    },
+                    businessProblem: state.discoveryBrief.businessProblem,
+                    successMetric: state.discoveryBrief.successMetric,
+                    timeline: state.discoveryBrief.timeline,
+                    budget: state.discoveryBrief.budget,
+                    constraints: state.discoveryBrief.constraints,
+                    whatBeenTried: state.discoveryBrief.whatBeenTried,
+                  }),
+                });
+                const strategyData = await strategyRes.json();
+                if (strategyData.strategies) {
+                  updateState({ messageStrategies: strategyData.strategies });
+                }
+              } catch (error) {
+                console.error('Error regenerating strategies:', error);
+              } finally {
+                updateState({ messageStrategiesLoading: false });
+              }
+            }}
+            goBack={() => updateState({ step: 'discovery-brief' })}
+          />
+        )}
+        {state.step === 'directed-brief' && (
+          <DirectedBrief
+            state={state}
+            updateState={updateState}
+            onSubmit={async () => {
+              // Create campaign and run strategy check
+              try {
+                // Create campaign
+                const campaignRes = await fetch('/api/campaigns', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: state.user?.id,
+                    brandId: state.currentProject?.id,
+                    name: state.directedBrief.campaignName,
+                    mode: 'directed',
+                    discipline: state.discipline,
+                    goalType: state.directedBrief.goalType,
+                    goalDescription: state.directedBrief.goalDescription,
+                    campaignMandatories: state.directedBrief.campaignMandatories,
+                  }),
+                });
+                const campaignData = await campaignRes.json();
+                if (campaignData.campaign) {
+                  updateState({ currentCampaign: campaignData.campaign });
+                }
+
+                // Run strategy check
+                const checkRes = await fetch('/api/campaigns/strategy-check', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: state.user?.id,
+                    campaignId: campaignData.campaign?.id,
+                    discipline: state.discipline,
+                    goalType: state.directedBrief.goalType,
+                    goalDescription: state.directedBrief.goalDescription,
+                    brandContext: {
+                      industry: state.currentProject?.industry || state.industry,
+                    },
+                  }),
+                });
+                const checkData = await checkRes.json();
+
+                if (!checkData.aligned && checkData.severity !== 'none') {
+                  updateState({ strategyCheckResult: checkData, step: 'strategy-check' });
+                } else {
+                  // Aligned - go straight to execution
+                  updateState({ step: 'library-view' });
+                }
+              } catch (error) {
+                console.error('Error:', error);
+                updateState({ step: 'library-view' });
+              }
+            }}
+            goBack={() => updateState({ step: 'discipline-select' })}
+          />
+        )}
+        {state.step === 'strategy-check' && (
+          <StrategyCheckScreen
+            state={state}
+            onProceed={() => updateState({ step: 'library-view', strategyCheckResult: null })}
+            onAddDiscipline={(disc) => {
+              // User chose to add the suggested discipline
+              updateState({ discipline: disc, step: 'library-view', strategyCheckResult: null });
+            }}
+            goBack={() => updateState({ step: 'directed-brief' })}
+          />
+        )}
         {state.step === 'discipline-select' && (
-          <DisciplineSelect state={state} selectDiscipline={selectDiscipline} goBack={() => state.user ? goBack('projects') : goBack('brand-input')} />
+          <DisciplineSelect
+            state={state}
+            selectDiscipline={(disc) => {
+              selectDiscipline(disc);
+              // If in Directed mode, go to brief first
+              if (state.campaignMode === 'directed') {
+                updateState({ discipline: disc, step: 'directed-brief' });
+              }
+            }}
+            goBack={() => state.campaignMode ? updateState({ step: 'mode-select' }) : (state.user ? goBack('projects') : goBack('brand-input'))}
+          />
         )}
         {state.step === 'library-view' && (
           <LibraryView
@@ -2738,6 +3050,589 @@ function MyLibrary({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// Mode Selection Component (v1.1)
+function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMode: (mode: CampaignMode) => void; goBack: () => void }) {
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
+          <span className="font-medium">{state.currentProject?.name || state.brand}</span>
+          <span className="text-slate-500">•</span>
+          <span>{state.currentProject?.industry || state.industry}</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">What would you like to do?</h2>
+        <p className="text-slate-400">Choose the path that fits your needs</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <button
+          onClick={() => onSelectMode('discovery')}
+          className="p-8 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-800/80 group"
+        >
+          <div className="text-4xl mb-4">🧭</div>
+          <div className="text-xl font-bold mb-2 group-hover:text-purple-300">"I have a problem"</div>
+          <div className="text-slate-400 mb-4">Guide me to the right strategy</div>
+          <div className="text-sm text-slate-500 space-y-1">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              New campaigns
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Uncertain goals
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Strategic planning
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onSelectMode('directed')}
+          className="p-8 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-green-500 hover:bg-slate-800/80 group"
+        >
+          <div className="text-4xl mb-4">🚀</div>
+          <div className="text-xl font-bold mb-2 group-hover:text-green-300">"I know what I need"</div>
+          <div className="text-slate-400 mb-4">Let me execute quickly</div>
+          <div className="text-sm text-slate-500 space-y-1">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Repeat tasks
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Clear objectives
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Fast turnaround
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+        Back
+      </button>
+    </div>
+  );
+}
+
+// Discovery Brief Component (v1.1)
+function DiscoveryBrief({ state, updateState, onSubmit, goBack }: {
+  state: State;
+  updateState: (updates: Partial<State>) => void;
+  onSubmit: () => void;
+  goBack: () => void;
+}) {
+  const updateBrief = (field: keyof State['discoveryBrief'], value: string) => {
+    updateState({
+      discoveryBrief: { ...state.discoveryBrief, [field]: value }
+    });
+  };
+
+  const isValid = state.discoveryBrief.campaignName && state.discoveryBrief.businessProblem;
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
+          <span>Discovery Mode</span>
+          <span className="text-slate-500">•</span>
+          <span>{state.currentProject?.name || state.brand}</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Tell us about your challenge</h2>
+        <p className="text-slate-400">We'll analyze your situation and recommend strategies</p>
+      </div>
+
+      <div className="space-y-6 bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Campaign Name *</label>
+          <input
+            type="text"
+            value={state.discoveryBrief.campaignName}
+            onChange={(e) => updateBrief('campaignName', e.target.value)}
+            placeholder="e.g., Q2 Pipeline Growth"
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">What's the business problem? *</label>
+          <textarea
+            value={state.discoveryBrief.businessProblem}
+            onChange={(e) => updateBrief('businessProblem', e.target.value)}
+            placeholder="Describe the challenge you're trying to solve..."
+            rows={3}
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Success Metric</label>
+            <input
+              type="text"
+              value={state.discoveryBrief.successMetric}
+              onChange={(e) => updateBrief('successMetric', e.target.value)}
+              placeholder="e.g., Pipeline value"
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Target Value</label>
+            <input
+              type="text"
+              value={state.discoveryBrief.successMetricValue}
+              onChange={(e) => updateBrief('successMetricValue', e.target.value)}
+              placeholder="e.g., $2.6M"
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Timeline</label>
+            <input
+              type="date"
+              value={state.discoveryBrief.timeline}
+              onChange={(e) => updateBrief('timeline', e.target.value)}
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Budget</label>
+            <select
+              value={state.discoveryBrief.budget}
+              onChange={(e) => updateBrief('budget', e.target.value)}
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+            >
+              <option value="">Select budget range</option>
+              <option value="<5k">Less than $5K</option>
+              <option value="5k-25k">$5K - $25K</option>
+              <option value="25k-100k">$25K - $100K</option>
+              <option value="100k+">$100K+</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Any constraints?</label>
+          <textarea
+            value={state.discoveryBrief.constraints}
+            onChange={(e) => updateBrief('constraints', e.target.value)}
+            placeholder="Team size, resources, regulatory limitations..."
+            rows={2}
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">What's been tried before?</label>
+          <textarea
+            value={state.discoveryBrief.whatBeenTried}
+            onChange={(e) => updateBrief('whatBeenTried', e.target.value)}
+            placeholder="Previous approaches, what worked or didn't..."
+            rows={2}
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-8">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+          Back
+        </button>
+        <button
+          onClick={onSubmit}
+          disabled={!isValid || state.messageStrategiesLoading}
+          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+            isValid && !state.messageStrategiesLoading
+              ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
+              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+          }`}
+        >
+          {state.messageStrategiesLoading ? (
+            <>
+              <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Analyzing...
+            </>
+          ) : (
+            <>
+              Continue to Strategy
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Message Strategy Selection Component (v1.1)
+function MessageStrategySelect({ state, onSelect, onRegenerate, goBack }: {
+  state: State;
+  onSelect: (strategy: MessageStrategy) => void;
+  onRegenerate: () => void;
+  goBack: () => void;
+}) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [refinement, setRefinement] = useState('');
+
+  const handleConfirm = () => {
+    const strategy = state.messageStrategies.find(s => s.id === selectedId);
+    if (strategy) {
+      onSelect({ ...strategy, user_refinements: refinement || undefined });
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
+          <span>Discovery Mode</span>
+          <span className="text-slate-500">•</span>
+          <span>Message Strategy</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Choose Your Strategic Angle</h2>
+        <p className="text-slate-400">Based on your brief, here are three positioning strategies</p>
+      </div>
+
+      {state.messageStrategiesLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <svg className="animate-spin w-12 h-12 text-purple-500 mb-4" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <p className="text-slate-400">Generating strategic options...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {state.messageStrategies.map((strategy) => (
+            <button
+              key={strategy.id}
+              onClick={() => setSelectedId(strategy.id)}
+              className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
+                selectedId === strategy.id
+                  ? 'border-purple-500 bg-purple-500/10'
+                  : 'border-slate-700 bg-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-lg font-bold text-white">{strategy.name}</h3>
+                {selectedId === strategy.id && (
+                  <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <p className="text-purple-300 font-medium mb-2">"{strategy.core_message}"</p>
+              <p className="text-slate-400 text-sm mb-3">{strategy.angle}</p>
+              <div className="bg-slate-900/50 rounded-lg p-3">
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Why this fits</p>
+                <p className="text-sm text-slate-300">{strategy.rationale}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selectedId && (
+        <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            Any adjustments to this strategy? (optional)
+          </label>
+          <input
+            type="text"
+            value={refinement}
+            onChange={(e) => setRefinement(e.target.value)}
+            placeholder="e.g., Emphasize our 10-year track record..."
+            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+          />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-8">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+          Edit Brief
+        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onRegenerate}
+            disabled={state.messageStrategiesLoading}
+            className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+          >
+            Show different options
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={!selectedId}
+            className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+              selectedId
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+            }`}
+          >
+            Confirm Strategy
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Directed Brief Component (v1.1)
+function DirectedBrief({ state, updateState, onSubmit, goBack }: {
+  state: State;
+  updateState: (updates: Partial<State>) => void;
+  onSubmit: () => void;
+  goBack: () => void;
+}) {
+  const updateBrief = (field: keyof State['directedBrief'], value: any) => {
+    updateState({
+      directedBrief: { ...state.directedBrief, [field]: value }
+    });
+  };
+
+  const isValid = state.directedBrief.campaignName && state.directedBrief.goalType;
+
+  const disciplineLabel = disciplines.find(d => d.value === state.discipline)?.label || state.discipline;
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm mb-4">
+          <span>Directed Mode</span>
+          <span className="text-slate-500">•</span>
+          <span>{disciplineLabel}</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Quick Campaign Setup</h2>
+        <p className="text-slate-400">Tell us the basics so we can tailor your content</p>
+      </div>
+
+      <div className="space-y-6 bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Campaign Name *</label>
+          <input
+            type="text"
+            value={state.directedBrief.campaignName}
+            onChange={(e) => updateBrief('campaignName', e.target.value)}
+            placeholder="e.g., Product Launch Social"
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-green-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">What's your goal? *</label>
+          <div className="grid grid-cols-2 gap-3">
+            {(['awareness', 'consideration', 'conversion', 'retention'] as CampaignGoalType[]).map((goal) => (
+              <button
+                key={goal}
+                onClick={() => updateBrief('goalType', goal)}
+                className={`p-4 rounded-xl border-2 transition-all text-left ${
+                  state.directedBrief.goalType === goal
+                    ? 'border-green-500 bg-green-500/10'
+                    : 'border-slate-700 bg-slate-900 hover:border-slate-600'
+                }`}
+              >
+                <div className="font-medium capitalize">{goal}</div>
+                <div className="text-xs text-slate-500">
+                  {goal === 'awareness' && 'Get noticed'}
+                  {goal === 'consideration' && 'Build interest'}
+                  {goal === 'conversion' && 'Drive action'}
+                  {goal === 'retention' && 'Keep customers'}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Goal details (optional)</label>
+          <input
+            type="text"
+            value={state.directedBrief.goalDescription}
+            onChange={(e) => updateBrief('goalDescription', e.target.value)}
+            placeholder="e.g., Drive pre-orders for new product"
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-green-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            Campaign-specific must-includes (optional)
+          </label>
+          <input
+            type="text"
+            placeholder="Press Enter to add"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value) {
+                updateBrief('campaignMandatories', [...(state.directedBrief.campaignMandatories || []), e.currentTarget.value]);
+                e.currentTarget.value = '';
+              }
+            }}
+            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-green-500 focus:outline-none"
+          />
+          {state.directedBrief.campaignMandatories && state.directedBrief.campaignMandatories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {state.directedBrief.campaignMandatories.map((m, i) => (
+                <span key={i} className="px-3 py-1 bg-slate-700 rounded-full text-sm flex items-center gap-2">
+                  {m}
+                  <button
+                    onClick={() => {
+                      const newList = state.directedBrief.campaignMandatories?.filter((_, idx) => idx !== i);
+                      updateBrief('campaignMandatories', newList);
+                    }}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-8">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+          Back
+        </button>
+        <button
+          onClick={onSubmit}
+          disabled={!isValid}
+          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+            isValid
+              ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white'
+              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+          }`}
+        >
+          Continue to Prompts
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Strategy Check Screen Component (v1.1)
+function StrategyCheckScreen({ state, onProceed, onAddDiscipline, goBack }: {
+  state: State;
+  onProceed: () => void;
+  onAddDiscipline: (discipline: string) => void;
+  goBack: () => void;
+}) {
+  const check = state.strategyCheckResult;
+  if (!check) return null;
+
+  const isStrong = check.severity === 'strong';
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm mb-4 ${
+          isStrong ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/20 text-blue-300'
+        }`}>
+          <span>{isStrong ? 'Strategy Alert' : 'Quick Suggestion'}</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">
+          {isStrong ? 'Hold on a moment...' : 'A quick thought'}
+        </h2>
+      </div>
+
+      <div className={`p-6 rounded-2xl border-2 ${
+        isStrong ? 'border-amber-500/50 bg-amber-500/5' : 'border-blue-500/50 bg-blue-500/5'
+      }`}>
+        <div className="flex items-start gap-4">
+          <div className={`p-3 rounded-full ${
+            isStrong ? 'bg-amber-500/20' : 'bg-blue-500/20'
+          }`}>
+            {isStrong ? (
+              <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-white mb-4">{check.recommendation}</p>
+
+            {check.alternativeDisciplines.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm text-slate-400 mb-2">Suggested disciplines for {state.directedBrief.goalType}:</p>
+                <div className="flex flex-wrap gap-2">
+                  {check.alternativeDisciplines.map((disc) => {
+                    const discipline = disciplines.find(d => d.value === disc);
+                    return (
+                      <button
+                        key={disc}
+                        onClick={() => onAddDiscipline(disc)}
+                        className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                      >
+                        <span>{discipline?.icon || '📌'}</span>
+                        <span>{discipline?.label || disc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-8">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+          Edit Brief
+        </button>
+        <button
+          onClick={onProceed}
+          className="px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          Continue Anyway
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }

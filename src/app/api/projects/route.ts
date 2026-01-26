@@ -30,7 +30,18 @@ export async function GET(request: NextRequest) {
 // POST - Create new project
 export async function POST(request: NextRequest) {
   try {
-    const { userId, name, website, industry, challenge, targetAudience, brandVoice } = await request.json();
+    const {
+      userId,
+      name,
+      website,
+      industry,
+      challenge,
+      targetAudience,
+      brandVoice,
+      valueProposition,
+      persistentMandatories,
+      persistentConstraints,
+    } = await request.json();
 
     if (!userId || !name || !industry || !challenge) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -46,6 +57,9 @@ export async function POST(request: NextRequest) {
         challenge,
         target_audience: targetAudience || '',
         brand_voice: brandVoice || '',
+        value_proposition: valueProposition || '',
+        persistent_mandatories: persistentMandatories || [],
+        persistent_constraints: persistentConstraints || '',
       })
       .select()
       .single();
@@ -64,23 +78,42 @@ export async function POST(request: NextRequest) {
 // PUT - Update project
 export async function PUT(request: NextRequest) {
   try {
-    const { id, userId, name, website, industry, challenge, targetAudience, brandVoice } = await request.json();
+    const {
+      id,
+      userId,
+      name,
+      website,
+      industry,
+      challenge,
+      targetAudience,
+      brandVoice,
+      valueProposition,
+      persistentMandatories,
+      persistentConstraints,
+    } = await request.json();
 
     if (!id || !userId) {
       return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
     }
 
+    const updateData: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+
+    // Only update fields that are provided
+    if (name !== undefined) updateData.name = name;
+    if (website !== undefined) updateData.website = website || '';
+    if (industry !== undefined) updateData.industry = industry;
+    if (challenge !== undefined) updateData.challenge = challenge;
+    if (targetAudience !== undefined) updateData.target_audience = targetAudience || '';
+    if (brandVoice !== undefined) updateData.brand_voice = brandVoice || '';
+    if (valueProposition !== undefined) updateData.value_proposition = valueProposition || '';
+    if (persistentMandatories !== undefined) updateData.persistent_mandatories = persistentMandatories || [];
+    if (persistentConstraints !== undefined) updateData.persistent_constraints = persistentConstraints || '';
+
     const { data, error } = await getSupabaseAdmin()
       .from('projects')
-      .update({
-        name,
-        website: website || '',
-        industry,
-        challenge,
-        target_audience: targetAudience || '',
-        brand_voice: brandVoice || '',
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', id)
       .eq('user_id', userId)
       .select()
