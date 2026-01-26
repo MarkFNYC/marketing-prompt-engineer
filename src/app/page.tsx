@@ -736,11 +736,6 @@ export default function Home() {
         selectedStrategy: state.selectedStrategy || undefined,
       } : undefined;
 
-      // Debug logging - remove after confirming fix works
-      console.log('🎯 Frontend - Campaign Mode:', state.campaignMode);
-      console.log('🎯 Frontend - Directed Brief:', state.directedBrief);
-      console.log('🎯 Frontend - Campaign Context being sent:', campaignContext);
-
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

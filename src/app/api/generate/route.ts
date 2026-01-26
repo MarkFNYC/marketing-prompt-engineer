@@ -32,9 +32,6 @@ export async function POST(request: NextRequest) {
 
     const { prompt, mode, provider, userApiKey, brandContext, campaignContext } = await request.json();
 
-    // Debug logging - remove after confirming fix works
-    console.log('🎯 Generate API - Campaign Context Received:', JSON.stringify(campaignContext, null, 2));
-
     // Validate input
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
