@@ -706,6 +706,28 @@ export default function Home() {
     const personalizedPrompt = personalizePrompt(prompt, state);
 
     try {
+      // Build campaign context based on mode
+      const campaignContext = state.campaignMode ? {
+        campaignName: state.campaignMode === 'discovery'
+          ? state.discoveryBrief.campaignName
+          : state.directedBrief.campaignName,
+        // Discovery mode fields
+        businessProblem: state.discoveryBrief.businessProblem || undefined,
+        successMetric: state.discoveryBrief.successMetric || undefined,
+        successMetricValue: state.discoveryBrief.successMetricValue || undefined,
+        timeline: state.discoveryBrief.timeline || undefined,
+        budget: state.discoveryBrief.budget || undefined,
+        constraints: state.discoveryBrief.constraints || undefined,
+        // Directed mode fields
+        goalType: state.directedBrief.goalType || undefined,
+        goalDescription: state.directedBrief.goalDescription || undefined,
+        campaignMandatories: state.directedBrief.campaignMandatories?.length
+          ? state.directedBrief.campaignMandatories
+          : undefined,
+        // Strategy anchor (from Discovery mode)
+        selectedStrategy: state.selectedStrategy || undefined,
+      } : undefined;
+
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -721,7 +743,10 @@ export default function Home() {
             challenge: state.challenge,
             targetAudience: state.targetAudience,
             brandVoice: state.brandVoice,
+            persistentMandatories: state.currentProject?.persistent_mandatories,
+            persistentConstraints: state.currentProject?.persistent_constraints,
           },
+          campaignContext,
         }),
       });
 

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
     }
 
-    const { prompt, mode, provider, userApiKey, brandContext } = await request.json();
+    const { prompt, mode, provider, userApiKey, brandContext, campaignContext } = await request.json();
 
     // Validate input
     if (!prompt) {
@@ -53,7 +53,57 @@ export async function POST(request: NextRequest) {
         parts.push('');
         parts.push('IMPORTANT: Adapt your writing style to match the brand voice described above. Maintain this tone consistently throughout your response.');
       }
+      // Brand-level mandatories and constraints
+      if (brandContext.persistentMandatories?.length) {
+        parts.push('');
+        parts.push('BRAND MANDATORIES (Must include in all outputs):');
+        brandContext.persistentMandatories.forEach((m: string, i: number) => {
+          parts.push(`  ${i + 1}. ${m}`);
+        });
+      }
+      if (brandContext.persistentConstraints) {
+        parts.push('');
+        parts.push('BRAND CONSTRAINTS (Always respect):');
+        parts.push(brandContext.persistentConstraints);
+      }
       brandContextString = parts.join('\n');
+    }
+
+    // Build campaign context string if provided
+    let campaignContextString = '';
+    if (campaignContext) {
+      const parts: string[] = ['\n\n---\n\nCAMPAIGN CONTEXT:'];
+      if (campaignContext.campaignName) parts.push(`Campaign: ${campaignContext.campaignName}`);
+      if (campaignContext.goalType) parts.push(`Goal: ${campaignContext.goalType}`);
+      if (campaignContext.goalDescription) parts.push(`Goal Details: ${campaignContext.goalDescription}`);
+      if (campaignContext.businessProblem) parts.push(`Business Problem: ${campaignContext.businessProblem}`);
+      if (campaignContext.successMetric) {
+        parts.push(`Success Metric: ${campaignContext.successMetric}${campaignContext.successMetricValue ? ' - ' + campaignContext.successMetricValue : ''}`);
+      }
+      if (campaignContext.timeline) parts.push(`Timeline: ${campaignContext.timeline}`);
+      if (campaignContext.budget) parts.push(`Budget: ${campaignContext.budget}`);
+      if (campaignContext.constraints) parts.push(`Constraints: ${campaignContext.constraints}`);
+      // Campaign-specific mandatories
+      if (campaignContext.campaignMandatories?.length) {
+        parts.push('');
+        parts.push('CAMPAIGN MANDATORIES (Must include for this campaign):');
+        campaignContext.campaignMandatories.forEach((m: string, i: number) => {
+          parts.push(`  ${i + 1}. ${m}`);
+        });
+      }
+      // Message strategy anchor (from Discovery mode)
+      if (campaignContext.selectedStrategy) {
+        parts.push('');
+        parts.push('STRATEGY ANCHOR:');
+        parts.push(`Strategy: ${campaignContext.selectedStrategy.name}`);
+        parts.push(`Core Message: ${campaignContext.selectedStrategy.core_message}`);
+        parts.push(`Angle: ${campaignContext.selectedStrategy.angle}`);
+        parts.push('');
+        parts.push('IMPORTANT: All outputs must serve and reinforce this strategy.');
+      }
+      parts.push('');
+      parts.push('IMPORTANT: Your output MUST be relevant to this specific campaign context. Incorporate the campaign details above into your response.');
+      campaignContextString = parts.join('\n');
     }
 
     // Build system prompt based on mode
@@ -70,7 +120,7 @@ IMPORTANT RULES FOR EXECUTION MODE:
 - For calendars: Actual dates, actual post copy
 - Use markdown formatting for clarity
 - Be specific to the brand and context provided
-- If brand voice is specified, STRICTLY follow that tone and style${brandContextString}`
+- If brand voice is specified, STRICTLY follow that tone and style${brandContextString}${campaignContextString}`
       : `You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt.
 
 IMPORTANT RULES FOR STRATEGY MODE:
@@ -80,7 +130,7 @@ IMPORTANT RULES FOR STRATEGY MODE:
 - Help them understand WHY, not just WHAT
 - Use markdown formatting for clarity
 - Tailor advice specifically to the brand context provided
-- If brand voice is specified, consider how to maintain it in recommendations${brandContextString}`;
+- If brand voice is specified, consider how to maintain it in recommendations${brandContextString}${campaignContextString}`;
 
     let result: string;
 
