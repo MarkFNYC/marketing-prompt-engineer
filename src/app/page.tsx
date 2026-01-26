@@ -1435,6 +1435,7 @@ export default function Home() {
         {state.step === 'mode-select' && (
           <ModeSelect
             state={state}
+            updateState={updateState}
             onSelectMode={(mode) => {
               updateState({ campaignMode: mode });
               if (mode === 'discovery') {
@@ -3871,7 +3872,18 @@ function MyLibrary({
 }
 
 // Mode Selection Component (v1.1)
-function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMode: (mode: CampaignMode) => void; goBack: () => void }) {
+function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State; onSelectMode: (mode: CampaignMode) => void; goBack: () => void; updateState: (updates: Partial<State>) => void }) {
+  const [showSettings, setShowSettings] = React.useState(false);
+
+  const setProvider = (provider: Provider) => {
+    updateState({ llmProvider: provider });
+    localStorage.setItem('amplify_provider', provider);
+    if (provider === 'gemini') {
+      updateState({ apiKey: '' });
+      localStorage.removeItem('amplify_api_key');
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
@@ -3879,10 +3891,70 @@ function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMod
           <span className="font-medium">{state.currentProject?.name || state.brand}</span>
           <span className="text-slate-500">•</span>
           <span>{state.currentProject?.industry || state.industry}</span>
+          <span className="text-slate-500">•</span>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="flex items-center gap-1 hover:text-purple-200 transition-colors"
+            title="API Settings"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </button>
         </div>
         <h2 className="text-3xl font-bold mb-4">What would you like to do?</h2>
         <p className="text-slate-400">Choose the path that fits your needs</p>
       </div>
+
+      {/* Collapsible API Settings */}
+      {showSettings && (
+        <div className="mb-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-medium text-slate-300">AI Provider</label>
+            <button onClick={() => setShowSettings(false)} className="text-slate-500 hover:text-white">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="flex gap-3 mb-3">
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-2 rounded-lg border text-sm ${state.llmProvider === 'gemini' ? 'border-green-500 bg-green-500/20 text-green-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Gemini (Free)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-2 rounded-lg border text-sm ${state.llmProvider === 'openai' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>OpenAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-2 rounded-lg border text-sm ${state.llmProvider === 'anthropic' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Anthropic</button>
+          </div>
+          {state.llmProvider === 'gemini' ? (
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 rounded-full ${
+                    state.freePromptsUsed >= state.promptsLimit ? 'bg-red-500' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-amber-500' : 'bg-emerald-500'
+                  }`}
+                  style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
+                />
+              </div>
+              <span className={`text-xs font-medium ${state.freePromptsUsed >= state.promptsLimit ? 'text-red-400' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                {state.promptsLimit - state.freePromptsUsed} free prompts left
+              </span>
+            </div>
+          ) : (
+            <>
+              <input
+                type="password"
+                value={state.apiKey}
+                onChange={(e) => {
+                  updateState({ apiKey: e.target.value });
+                  localStorage.setItem('amplify_api_key', e.target.value);
+                }}
+                placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
+                className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+              />
+              <p className="text-xs text-slate-500 mt-2">Stored locally in your browser only</p>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <button
