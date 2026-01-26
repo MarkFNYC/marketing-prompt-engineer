@@ -2125,7 +2125,7 @@ function LandingPage({
         <p className="text-xl text-slate-400 mb-8 max-w-2xl">Your AI marketing team in a browser — from strategy to send</p>
 
         <p className="text-base text-slate-500 max-w-2xl mb-8 leading-relaxed">
-          90 expert prompts across 9 disciplines. Personalized to your brand. Powered by the strategic wisdom of legendary creative minds.
+          Your virtual agency room. Start with strategy, not channels. Planning → Creative → Results.
         </p>
 
         <div className="flex items-center justify-center gap-3 mb-10">
@@ -2143,7 +2143,7 @@ function LandingPage({
           <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
         </button>
 
-        <p className="text-xs text-slate-600 mt-4">15 free prompts/month • Sign up to track usage across devices</p>
+        <p className="text-xs text-slate-600 mt-4">Free to start • Full strategic workflow included</p>
       </div>
 
       <div className="py-16 border-t border-slate-800">
@@ -2156,18 +2156,18 @@ function LandingPage({
           </div>
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-cyan-500/20">2</div>
-            <h3 className="font-semibold text-lg mb-2">Pick a Discipline</h3>
-            <p className="text-slate-400 text-sm">Choose from 9 disciplines: SEO, Email, Social, Blog, and more</p>
+            <h3 className="font-semibold text-lg mb-2">Talk to Planning</h3>
+            <p className="text-slate-400 text-sm">Explore your problem, validate your brief, develop message strategy</p>
           </div>
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-pink-500/20">3</div>
-            <h3 className="font-semibold text-lg mb-2">Choose Your Role</h3>
-            <p className="text-slate-400 text-sm">Talk to Planning for strategy, or Creative for ready-to-use content</p>
+            <h3 className="font-semibold text-lg mb-2">Planning Review</h3>
+            <p className="text-slate-400 text-sm">Get AI assessment of your brief strength before execution</p>
           </div>
           <div className="text-center">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-green-500/20">4</div>
-            <h3 className="font-semibold text-lg mb-2">Run or Copy</h3>
-            <p className="text-slate-400 text-sm">Execute with AI instantly, or copy to your favorite tool</p>
+            <h3 className="font-semibold text-lg mb-2">Talk to Creative</h3>
+            <p className="text-slate-400 text-sm">Generate content aligned to your approved strategy</p>
           </div>
         </div>
       </div>

@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Amplify — AI-powered marketing',
-  description: 'Your AI marketing team in a browser — from strategy to send. 90 expert prompts across 9 disciplines, personalized to your brand.',
-  keywords: ['AI marketing', 'marketing prompts', 'content generation', 'SEO', 'social media', 'email marketing'],
+  description: 'Your virtual agency room. Start with strategy, not channels. Planning → Creative → Results.',
+  keywords: ['AI marketing', 'marketing strategy', 'creative brief', 'content generation', 'brand strategy', 'marketing planning'],
   authors: [{ name: 'Fabrica Collective', url: 'https://fabricacollective.com' }],
   openGraph: {
     title: 'Amplify — AI-powered marketing',
