@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { getCreativePersonas, getStrategyPersonas, type Persona } from '@/lib/personas';
+import { getCreativePersonas, getStrategyPersonas, type Persona as RemixPersona } from '@/lib/personas';
 
 type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'directed-brief' | 'strategy-check' | 'campaigns' | 'upload-brief' | 'brief-review';
 type Mode = 'strategy' | 'execution';
@@ -3257,12 +3257,12 @@ function RemixModal({
   );
 }
 
-// Persona Card Component
+// Remix Persona Card Component
 function PersonaCard({
   persona,
   onSelect,
 }: {
-  persona: Persona;
+  persona: RemixPersona;
   onSelect: (id: string) => void;
 }) {
   return (
