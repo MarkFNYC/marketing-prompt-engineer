@@ -83,6 +83,24 @@ interface Project {
   updated_at: string;
 }
 
+interface Persona {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  demographics?: string;
+  psychographics?: string;
+  pain_points?: string[];
+  goals?: string[];
+  behaviors?: string[];
+  preferred_channels?: string[];
+  quote?: string;
+  avatar_emoji?: string;
+  is_generated: boolean;
+  project_id?: string;
+  created_at: string;
+}
+
 interface State {
   step: Step;
   mode: Mode;
@@ -175,6 +193,12 @@ interface State {
   };
   briefParsingLoading: boolean;
   briefFileName: string | null;
+  // Personas
+  personas: Persona[];
+  personasLoading: boolean;
+  selectedPersona: Persona | null;
+  showPersonaModal: boolean;
+  personaGenerating: boolean;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -267,6 +291,12 @@ export default function Home() {
     },
     briefParsingLoading: false,
     briefFileName: null,
+    // Personas
+    personas: [],
+    personasLoading: false,
+    selectedPersona: null,
+    showPersonaModal: false,
+    personaGenerating: false,
   });
 
   // Check auth and load state on mount
@@ -704,6 +734,89 @@ export default function Home() {
     updateState({ remixedOutput: null, remixPersona: null });
   };
 
+  // Persona functions
+  const loadPersonas = () => {
+    // Load from localStorage for now
+    const projectKey = state.currentProject?.id || 'default';
+    const saved = localStorage.getItem(`amplify_personas_${projectKey}`);
+    if (saved) {
+      try {
+        const personas = JSON.parse(saved);
+        updateState({ personas });
+      } catch (e) {
+        console.error('Failed to load personas:', e);
+      }
+    }
+  };
+
+  const savePersonas = (personas: Persona[]) => {
+    const projectKey = state.currentProject?.id || 'default';
+    localStorage.setItem(`amplify_personas_${projectKey}`, JSON.stringify(personas));
+    updateState({ personas });
+  };
+
+  const generatePersonas = async () => {
+    updateState({ personaGenerating: true });
+    try {
+      const response = await fetch('/api/personas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate',
+          projectId: state.currentProject?.id,
+          industry: state.currentProject?.industry || state.industry,
+          targetAudience: state.currentProject?.target_audience || state.targetAudience,
+          challenge: state.currentProject?.challenge || state.challenge,
+        }),
+      });
+      const data = await response.json();
+      if (data.personas) {
+        const newPersonas = [...state.personas, ...data.personas];
+        savePersonas(newPersonas);
+      } else if (data.error) {
+        alert('Failed to generate personas: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Failed to generate personas:', error);
+      alert('Failed to generate personas');
+    }
+    updateState({ personaGenerating: false });
+  };
+
+  const addManualPersona = (personaData: Partial<Persona>) => {
+    const newPersona: Persona = {
+      id: `manual-${Date.now()}`,
+      name: personaData.name || 'New Persona',
+      role: personaData.role || '',
+      description: personaData.description || '',
+      demographics: personaData.demographics,
+      psychographics: personaData.psychographics,
+      pain_points: personaData.pain_points || [],
+      goals: personaData.goals || [],
+      behaviors: personaData.behaviors || [],
+      preferred_channels: personaData.preferred_channels || [],
+      quote: personaData.quote,
+      avatar_emoji: personaData.avatar_emoji || '👤',
+      is_generated: false,
+      project_id: state.currentProject?.id,
+      created_at: new Date().toISOString(),
+    };
+    const newPersonas = [...state.personas, newPersona];
+    savePersonas(newPersonas);
+  };
+
+  const deletePersona = (personaId: string) => {
+    const newPersonas = state.personas.filter(p => p.id !== personaId);
+    savePersonas(newPersonas);
+    if (state.selectedPersona?.id === personaId) {
+      updateState({ selectedPersona: null });
+    }
+  };
+
+  const selectPersona = (persona: Persona | null) => {
+    updateState({ selectedPersona: persona });
+  };
+
   const copyToClipboard = (text: string, id: number | string) => {
     navigator.clipboard.writeText(text).then(() => {
       updateState({ copiedId: id });
@@ -799,6 +912,15 @@ export default function Home() {
             persistentConstraints: state.currentProject?.persistent_constraints,
           },
           campaignContext,
+          personaContext: state.selectedPersona ? {
+            name: state.selectedPersona.name,
+            role: state.selectedPersona.role,
+            description: state.selectedPersona.description,
+            pain_points: state.selectedPersona.pain_points,
+            goals: state.selectedPersona.goals,
+            behaviors: state.selectedPersona.behaviors,
+            preferred_channels: state.selectedPersona.preferred_channels,
+          } : undefined,
         }),
       });
 
@@ -1423,6 +1545,10 @@ export default function Home() {
             runPrompt={runPrompt}
             copyToClipboard={copyToClipboard}
             goBack={() => goBack('discipline-select')}
+            onOpenPersonas={() => {
+              loadPersonas();
+              updateState({ showPersonaModal: true });
+            }}
           />
         )}
         {state.step === 'llm-output' && (
@@ -1445,6 +1571,20 @@ export default function Home() {
             isLoading={state.remixLoading}
             onSelect={runRemix}
             onClose={closeRemixModal}
+          />
+        )}
+        {state.showPersonaModal && (
+          <PersonasManager
+            personas={state.personas}
+            selectedPersona={state.selectedPersona}
+            isGenerating={state.personaGenerating}
+            onGenerate={generatePersonas}
+            onSelect={(persona) => {
+              selectPersona(persona);
+              updateState({ showPersonaModal: false });
+            }}
+            onDelete={deletePersona}
+            onClose={() => updateState({ showPersonaModal: false })}
           />
         )}
         {state.step === 'my-library' && (
@@ -2399,7 +2539,7 @@ function DisciplineSelect({ state, selectDiscipline, goBack }: { state: State; s
 }
 
 // Library View Component
-function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, copyToClipboard, goBack }: { state: State; setMode: (m: Mode) => void; toggleModel: (i: number) => void; togglePrompt: (i: number) => void; runPrompt: (i: number) => void; copyToClipboard: (t: string, id: number | string) => void; goBack: () => void }) {
+function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, copyToClipboard, goBack, onOpenPersonas }: { state: State; setMode: (m: Mode) => void; toggleModel: (i: number) => void; togglePrompt: (i: number) => void; runPrompt: (i: number) => void; copyToClipboard: (t: string, id: number | string) => void; goBack: () => void; onOpenPersonas: () => void }) {
   const lib = state.library;
 
   return (
@@ -2420,6 +2560,31 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
         </div>
       </div>
       <p className="text-center text-sm text-slate-500">{state.mode === 'strategy' ? 'Get frameworks, analysis, and strategic recommendations' : 'Get ready-to-use content you can copy and publish immediately'}</p>
+
+      {/* Target Persona Selector */}
+      <div className="flex justify-center">
+        <button
+          onClick={onOpenPersonas}
+          className={`px-4 py-2 rounded-xl border-2 transition-all flex items-center gap-3 ${
+            state.selectedPersona
+              ? 'border-purple-500 bg-purple-500/10 hover:bg-purple-500/20'
+              : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+          }`}
+        >
+          <span className="text-2xl">
+            {state.selectedPersona?.avatar_emoji || '👥'}
+          </span>
+          <div className="text-left">
+            <div className="text-xs text-slate-400">Target Persona</div>
+            <div className="font-medium">
+              {state.selectedPersona ? state.selectedPersona.name : 'General Audience'}
+            </div>
+          </div>
+          <svg className="w-4 h-4 text-slate-400 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
 
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-4">{lib.title}</h2>
@@ -2821,6 +2986,182 @@ function LLMOutput({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// Personas Manager Component
+function PersonasManager({
+  personas,
+  selectedPersona,
+  isGenerating,
+  onGenerate,
+  onSelect,
+  onDelete,
+  onClose,
+}: {
+  personas: Persona[];
+  selectedPersona: Persona | null;
+  isGenerating: boolean;
+  onGenerate: () => void;
+  onSelect: (persona: Persona | null) => void;
+  onDelete: (id: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden border border-slate-700">
+        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-3">
+              👥 Target Personas
+            </h2>
+            <p className="text-slate-400 mt-1">Generate AI personas or create your own. Select one to personalize your prompts.</p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white p-2">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto max-h-[calc(85vh-180px)]">
+          {/* Generate Button */}
+          <div className="mb-6">
+            <button
+              onClick={onGenerate}
+              disabled={isGenerating}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-medium flex items-center gap-2 disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Generating personas...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Generate AI Personas
+                </>
+              )}
+            </button>
+            <p className="text-xs text-slate-500 mt-2">Generates 3 distinct buyer personas based on your industry and target audience</p>
+          </div>
+
+          {/* No Personas State */}
+          {personas.length === 0 && !isGenerating && (
+            <div className="text-center py-12 text-slate-400">
+              <div className="text-5xl mb-4">👥</div>
+              <p className="text-lg mb-2">No personas yet</p>
+              <p className="text-sm">Generate AI personas based on your business, or create them manually.</p>
+            </div>
+          )}
+
+          {/* Personas Grid */}
+          {personas.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* "No Persona" option */}
+              <button
+                onClick={() => onSelect(null)}
+                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                  selectedPersona === null
+                    ? 'border-purple-500 bg-purple-500/10'
+                    : 'border-slate-700 hover:border-slate-600'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-2xl">
+                    🎯
+                  </div>
+                  <div>
+                    <div className="font-semibold">General Audience</div>
+                    <div className="text-sm text-slate-400">No specific persona selected</div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Persona Cards */}
+              {personas.map((persona) => (
+                <div
+                  key={persona.id}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    selectedPersona?.id === persona.id
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <button
+                    onClick={() => onSelect(persona)}
+                    className="w-full text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-2xl flex-shrink-0">
+                        {persona.avatar_emoji || '👤'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-white">{persona.name}</div>
+                        <div className="text-sm text-purple-300">{persona.role}</div>
+                        <div className="text-sm text-slate-400 mt-1 line-clamp-2">{persona.description}</div>
+                      </div>
+                    </div>
+
+                    {/* Pain Points Preview */}
+                    {persona.pain_points && persona.pain_points.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-slate-700">
+                        <div className="text-xs text-slate-500 mb-1">Pain Points:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {persona.pain_points.slice(0, 2).map((point, i) => (
+                            <span key={i} className="text-xs px-2 py-0.5 bg-red-500/20 text-red-300 rounded">
+                              {point.length > 30 ? point.substring(0, 30) + '...' : point}
+                            </span>
+                          ))}
+                          {persona.pain_points.length > 2 && (
+                            <span className="text-xs text-slate-500">+{persona.pain_points.length - 2} more</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Delete Button */}
+                  <div className="flex justify-end mt-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Delete this persona?')) {
+                          onDelete(persona.id);
+                        }
+                      }}
+                      className="text-xs text-slate-500 hover:text-red-400 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-700 flex justify-between items-center">
+          <div className="text-sm text-slate-400">
+            {selectedPersona ? (
+              <span className="text-purple-300">✓ Writing for: {selectedPersona.name}</span>
+            ) : (
+              <span>No persona selected (general audience)</span>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium"
+          >
+            Done
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

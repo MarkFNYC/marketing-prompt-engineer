@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
     }
 
-    const { prompt, mode, provider, userApiKey, brandContext, campaignContext } = await request.json();
+    const { prompt, mode, provider, userApiKey, brandContext, campaignContext, personaContext } = await request.json();
 
     // Validate input
     if (!prompt) {
@@ -134,6 +134,43 @@ export async function POST(request: NextRequest) {
       campaignContextString = parts.join('\n');
     }
 
+    // Build persona context string if provided
+    let personaContextString = '';
+    if (personaContext) {
+      const parts: string[] = ['\n\n---\n\n👤 TARGET PERSONA (Write specifically for this person):'];
+      parts.push(`Name: ${personaContext.name}`);
+      if (personaContext.role) parts.push(`Role: ${personaContext.role}`);
+      if (personaContext.description) parts.push(`Profile: ${personaContext.description}`);
+
+      if (personaContext.pain_points?.length) {
+        parts.push('');
+        parts.push('Their Pain Points:');
+        personaContext.pain_points.forEach((p: string) => parts.push(`  • ${p}`));
+      }
+
+      if (personaContext.goals?.length) {
+        parts.push('');
+        parts.push('Their Goals:');
+        personaContext.goals.forEach((g: string) => parts.push(`  • ${g}`));
+      }
+
+      if (personaContext.behaviors?.length) {
+        parts.push('');
+        parts.push('Key Behaviors:');
+        personaContext.behaviors.forEach((b: string) => parts.push(`  • ${b}`));
+      }
+
+      if (personaContext.preferred_channels?.length) {
+        parts.push('');
+        parts.push(`Preferred Channels: ${personaContext.preferred_channels.join(', ')}`);
+      }
+
+      parts.push('');
+      parts.push('🎯 PERSONA INSTRUCTION: Tailor ALL content specifically for this persona. Address their pain points, speak to their goals, and use language/tone that resonates with someone in their role. Make them feel understood.');
+
+      personaContextString = parts.join('\n');
+    }
+
     // Build system prompt based on mode
     const systemPrompt = mode === 'execution'
       ? `You are an elite marketing executor. Your job is to CREATE ready-to-use content, not explain strategy.
@@ -148,7 +185,8 @@ IMPORTANT RULES FOR EXECUTION MODE:
 - For calendars: Actual dates, actual post copy
 - Use markdown formatting for clarity
 - Be specific to the brand and context provided
-- If brand voice is specified, STRICTLY follow that tone and style${brandContextString}${campaignContextString}`
+- If brand voice is specified, STRICTLY follow that tone and style
+- If a target persona is provided, write specifically for that person${brandContextString}${campaignContextString}${personaContextString}`
       : `You are an elite marketing strategist. Provide detailed, actionable recommendations based on the prompt.
 
 IMPORTANT RULES FOR STRATEGY MODE:
@@ -158,7 +196,8 @@ IMPORTANT RULES FOR STRATEGY MODE:
 - Help them understand WHY, not just WHAT
 - Use markdown formatting for clarity
 - Tailor advice specifically to the brand context provided
-- If brand voice is specified, consider how to maintain it in recommendations${brandContextString}${campaignContextString}`;
+- If brand voice is specified, consider how to maintain it in recommendations
+- If a target persona is provided, tailor recommendations for reaching that specific person${brandContextString}${campaignContextString}${personaContextString}`;
 
     let result: string;
 
