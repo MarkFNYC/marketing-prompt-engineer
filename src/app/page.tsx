@@ -815,6 +815,7 @@ export default function Home() {
         showPlanningReview: false,
         mode: 'execution',
         skippedPlanningReview: false,
+        step: 'discipline-select', // Move to Creative execution
       });
       // Save to localStorage
       saveCampaignState(updatedCampaign);
@@ -823,6 +824,7 @@ export default function Home() {
         showPlanningReview: false,
         mode: 'execution',
         skippedPlanningReview: false,
+        step: 'discipline-select', // Move to Creative execution
       });
     }
   };
@@ -841,6 +843,7 @@ export default function Home() {
       showPlanningReview: false,
       mode: 'execution',
       skippedPlanningReview: true,
+      step: 'discipline-select', // Move to Creative execution with warning
     });
   };
 
@@ -1522,7 +1525,8 @@ export default function Home() {
           <MessageStrategySelect
             state={state}
             onSelect={(strategy) => {
-              updateState({ selectedStrategy: strategy, step: 'discipline-select' });
+              // Save the selected strategy
+              updateState({ selectedStrategy: strategy });
               // Update campaign with selected strategy
               if (state.currentCampaign?.id) {
                 fetch('/api/campaigns', {
@@ -1535,6 +1539,8 @@ export default function Home() {
                   }),
                 });
               }
+              // Trigger Planning Review before moving to Creative
+              triggerPlanningReview();
             }}
             onRegenerate={async () => {
               updateState({ messageStrategiesLoading: true });
