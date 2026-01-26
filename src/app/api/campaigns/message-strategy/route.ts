@@ -1,7 +1,9 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// Initialize Gemini with server-side API key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 // POST - Generate message strategy options for Discovery Mode
 export async function POST(request: NextRequest) {
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build the prompt for message strategy generation
-    const systemPrompt = `You are a senior marketing strategist. Your task is to analyze a business challenge and propose 3 distinct message strategies.
+    const prompt = `You are a senior marketing strategist. Your task is to analyze a business challenge and propose 3 distinct message strategies.
 
 Each strategy should include:
 1. A clear name (e.g., "Trusted Advisor Positioning", "Risk Reversal", "Peer Proof")
@@ -31,7 +33,7 @@ Each strategy should include:
 4. A rationale (why this fits the situation)
 5. Best for (2-3 use cases where this excels)
 
-Return your response as a valid JSON array with exactly 3 options.
+Return your response as a valid JSON array with exactly 3 options. Return ONLY the JSON array, no markdown formatting.
 
 Format:
 [
@@ -43,9 +45,11 @@ Format:
     "rationale": "Why this is a good fit for this specific situation",
     "best_for": ["use case 1", "use case 2"]
   }
-]`;
+]
 
-    const userPrompt = `BRAND CONTEXT:
+---
+
+BRAND CONTEXT:
 ${brandContext?.name ? `Brand: ${brandContext.name}` : ''}
 ${brandContext?.industry ? `Industry: ${brandContext.industry}` : ''}
 ${brandContext?.targetAudience ? `Target Audience: ${brandContext.targetAudience}` : ''}
@@ -61,31 +65,10 @@ ${whatBeenTried ? `What's Been Tried: ${whatBeenTried}` : ''}
 
 Based on this brief, propose 3 distinct message strategies. Each should take a meaningfully different approach to solving this business problem. Consider the constraints and what's been tried.`;
 
-    // Call Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 2000,
-          },
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.error) {
-      return NextResponse.json({ error: data.error.message }, { status: 500 });
-    }
-
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    // Use the same model as the main generate endpoint
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
     // Extract JSON from response
     let strategies;
@@ -95,27 +78,33 @@ Based on this brief, propose 3 distinct message strategies. Each should take a m
       if (jsonMatch) {
         strategies = JSON.parse(jsonMatch[0]);
       } else {
-        throw new Error('No JSON array found in response');
+        console.error('No JSON array found in response:', text);
+        return NextResponse.json({ error: 'Failed to parse strategy options - no JSON found' }, { status: 500 });
       }
     } catch (parseError) {
-      console.error('Failed to parse strategies:', parseError);
+      console.error('Failed to parse strategies:', parseError, 'Response:', text);
       return NextResponse.json({ error: 'Failed to parse strategy options' }, { status: 500 });
     }
 
     // If campaignId provided, save to campaign
     if (campaignId) {
-      await getSupabaseAdmin()
-        .from('campaigns')
-        .update({
-          message_strategy_options: strategies,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', campaignId);
+      try {
+        await getSupabaseAdmin()
+          .from('campaigns')
+          .update({
+            message_strategy_options: strategies,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', campaignId);
+      } catch (dbError) {
+        console.error('Failed to save to database:', dbError);
+        // Don't fail the request if DB save fails - still return strategies
+      }
     }
 
     return NextResponse.json({ strategies });
   } catch (error: any) {
     console.error('Message strategy generation error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
