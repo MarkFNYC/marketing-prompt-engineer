@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
 
     const { prompt, mode, provider, userApiKey, brandContext, campaignContext } = await request.json();
 
+    // Debug logging - remove after confirming fix works
+    console.log('🎯 Generate API - Campaign Context Received:', JSON.stringify(campaignContext, null, 2));
+
     // Validate input
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
@@ -72,9 +75,9 @@ export async function POST(request: NextRequest) {
     // Build campaign context string if provided
     let campaignContextString = '';
     if (campaignContext) {
-      const parts: string[] = ['\n\n---\n\nCAMPAIGN CONTEXT:'];
-      if (campaignContext.campaignName) parts.push(`Campaign: ${campaignContext.campaignName}`);
-      if (campaignContext.goalType) parts.push(`Goal: ${campaignContext.goalType}`);
+      const parts: string[] = ['\n\n---\n\n🎯 CAMPAIGN CONTEXT (THIS IS YOUR PRIMARY FOCUS):'];
+      if (campaignContext.campaignName) parts.push(`Campaign Name: "${campaignContext.campaignName}"`);
+      if (campaignContext.goalType) parts.push(`Campaign Goal: ${campaignContext.goalType}`);
       if (campaignContext.goalDescription) parts.push(`Goal Details: ${campaignContext.goalDescription}`);
       if (campaignContext.businessProblem) parts.push(`Business Problem: ${campaignContext.businessProblem}`);
       if (campaignContext.successMetric) {
@@ -86,7 +89,7 @@ export async function POST(request: NextRequest) {
       // Campaign-specific mandatories
       if (campaignContext.campaignMandatories?.length) {
         parts.push('');
-        parts.push('CAMPAIGN MANDATORIES (Must include for this campaign):');
+        parts.push('🚨 CAMPAIGN MANDATORIES (MUST include these specific points):');
         campaignContext.campaignMandatories.forEach((m: string, i: number) => {
           parts.push(`  ${i + 1}. ${m}`);
         });
@@ -102,7 +105,7 @@ export async function POST(request: NextRequest) {
         parts.push('IMPORTANT: All outputs must serve and reinforce this strategy.');
       }
       parts.push('');
-      parts.push('IMPORTANT: Your output MUST be relevant to this specific campaign context. Incorporate the campaign details above into your response.');
+      parts.push('⚠️ CRITICAL INSTRUCTION: Your ENTIRE output must be about this specific campaign. Do NOT create generic brand content - focus specifically on the campaign name, goal, and details provided above. Every piece of content should directly reference or relate to this campaign topic.');
       campaignContextString = parts.join('\n');
     }
 

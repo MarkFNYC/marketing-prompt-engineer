@@ -706,9 +706,17 @@ export default function Home() {
     const personalizedPrompt = personalizePrompt(prompt, state);
 
     try {
-      // Build campaign context based on mode
-      const campaignContext = state.campaignMode ? {
-        campaignName: state.campaignMode === 'discovery'
+      // Build campaign context - check for actual data, not just mode flag
+      const hasDiscoveryData = state.discoveryBrief.campaignName || state.discoveryBrief.businessProblem;
+      const hasDirectedData = state.directedBrief.campaignName || state.directedBrief.goalDescription;
+      const hasCampaignData = state.campaignMode || hasDiscoveryData || hasDirectedData;
+
+      // Determine which brief has the active data
+      const isDiscoveryMode = state.campaignMode === 'discovery' || (hasDiscoveryData && !hasDirectedData);
+
+      const campaignContext = hasCampaignData ? {
+        // Campaign name from the active mode
+        campaignName: isDiscoveryMode
           ? state.discoveryBrief.campaignName
           : state.directedBrief.campaignName,
         // Discovery mode fields
@@ -718,7 +726,7 @@ export default function Home() {
         timeline: state.discoveryBrief.timeline || undefined,
         budget: state.discoveryBrief.budget || undefined,
         constraints: state.discoveryBrief.constraints || undefined,
-        // Directed mode fields
+        // Directed mode fields - ALWAYS include if present
         goalType: state.directedBrief.goalType || undefined,
         goalDescription: state.directedBrief.goalDescription || undefined,
         campaignMandatories: state.directedBrief.campaignMandatories?.length
@@ -727,6 +735,11 @@ export default function Home() {
         // Strategy anchor (from Discovery mode)
         selectedStrategy: state.selectedStrategy || undefined,
       } : undefined;
+
+      // Debug logging - remove after confirming fix works
+      console.log('🎯 Frontend - Campaign Mode:', state.campaignMode);
+      console.log('🎯 Frontend - Directed Brief:', state.directedBrief);
+      console.log('🎯 Frontend - Campaign Context being sent:', campaignContext);
 
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -3520,10 +3533,17 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
           </label>
           <input
             type="text"
-            placeholder="Press Enter to add"
+            placeholder="Type and press Enter to add (or it will be added when you continue)"
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.currentTarget.value) {
-                updateBrief('campaignMandatories', [...(state.directedBrief.campaignMandatories || []), e.currentTarget.value]);
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                updateBrief('campaignMandatories', [...(state.directedBrief.campaignMandatories || []), e.currentTarget.value.trim()]);
+                e.currentTarget.value = '';
+              }
+            }}
+            onBlur={(e) => {
+              // Auto-add text when user leaves the field (in case they didn't press Enter)
+              if (e.currentTarget.value.trim()) {
+                updateBrief('campaignMandatories', [...(state.directedBrief.campaignMandatories || []), e.currentTarget.value.trim()]);
                 e.currentTarget.value = '';
               }
             }}
