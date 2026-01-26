@@ -1501,11 +1501,16 @@ export default function Home() {
                   }),
                 });
                 const strategyData = await strategyRes.json();
-                if (strategyData.strategies) {
+                if (strategyData.error) {
+                  alert('Strategy generation failed: ' + strategyData.error);
+                } else if (strategyData.strategies) {
                   updateState({ messageStrategies: strategyData.strategies, step: 'message-strategy' });
+                } else {
+                  alert('No strategies returned. Please try again.');
                 }
-              } catch (error) {
+              } catch (error: any) {
                 console.error('Error creating campaign:', error);
+                alert('Error: ' + (error.message || 'Failed to generate strategies'));
               } finally {
                 updateState({ messageStrategiesLoading: false });
               }
