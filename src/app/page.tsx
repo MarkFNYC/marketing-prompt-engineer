@@ -6,9 +6,9 @@ import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { getCreativePersonas, getStrategyPersonas, type Persona } from '@/lib/personas';
 
-type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'directed-brief' | 'strategy-check' | 'campaigns';
+type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'directed-brief' | 'strategy-check' | 'campaigns' | 'upload-brief' | 'brief-review';
 type Mode = 'strategy' | 'execution';
-type CampaignMode = 'discovery' | 'directed';
+type CampaignMode = 'discovery' | 'directed' | 'upload';
 type CampaignGoalType = 'awareness' | 'consideration' | 'conversion' | 'retention';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
 type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
@@ -159,6 +159,22 @@ interface State {
     goalDescription: string;
     campaignMandatories: string[];
   };
+  // Uploaded brief data
+  uploadedBrief: {
+    campaignName: string | null;
+    objective: string | null;
+    targetAudience: string | null;
+    proposition: string | null;
+    support: string[] | null;
+    mandatories: string[] | null;
+    tone: string | null;
+    constraints: string | null;
+    budget: string | null;
+    timeline: string | null;
+    successMetrics: string | null;
+  };
+  briefParsingLoading: boolean;
+  briefFileName: string | null;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -235,6 +251,22 @@ export default function Home() {
       goalDescription: '',
       campaignMandatories: [],
     },
+    // Uploaded brief data
+    uploadedBrief: {
+      campaignName: null,
+      objective: null,
+      targetAudience: null,
+      proposition: null,
+      support: null,
+      mandatories: null,
+      tone: null,
+      constraints: null,
+      budget: null,
+      timeline: null,
+      successMetrics: null,
+    },
+    briefParsingLoading: false,
+    briefFileName: null,
   });
 
   // Check auth and load state on mount
@@ -709,31 +741,43 @@ export default function Home() {
       // Build campaign context - check for actual data, not just mode flag
       const hasDiscoveryData = state.discoveryBrief.campaignName || state.discoveryBrief.businessProblem;
       const hasDirectedData = state.directedBrief.campaignName || state.directedBrief.goalDescription;
-      const hasCampaignData = state.campaignMode || hasDiscoveryData || hasDirectedData;
+      const hasUploadedData = state.uploadedBrief.campaignName || state.uploadedBrief.proposition;
+      const hasCampaignData = state.campaignMode || hasDiscoveryData || hasDirectedData || hasUploadedData;
 
       // Determine which brief has the active data
-      const isDiscoveryMode = state.campaignMode === 'discovery' || (hasDiscoveryData && !hasDirectedData);
+      const isDiscoveryMode = state.campaignMode === 'discovery' || (hasDiscoveryData && !hasDirectedData && !hasUploadedData);
+      const isUploadMode = state.campaignMode === 'upload' || (hasUploadedData && !hasDiscoveryData && !hasDirectedData);
+
+      // For uploaded briefs, merge the data into campaign context
+      const uploadedBrief = state.uploadedBrief;
 
       const campaignContext = hasCampaignData ? {
         // Campaign name from the active mode
-        campaignName: isDiscoveryMode
-          ? state.discoveryBrief.campaignName
-          : state.directedBrief.campaignName,
+        campaignName: isUploadMode
+          ? uploadedBrief.campaignName
+          : isDiscoveryMode
+            ? state.discoveryBrief.campaignName
+            : state.directedBrief.campaignName,
         // Discovery mode fields
         businessProblem: state.discoveryBrief.businessProblem || undefined,
-        successMetric: state.discoveryBrief.successMetric || undefined,
+        successMetric: state.discoveryBrief.successMetric || uploadedBrief.successMetrics || undefined,
         successMetricValue: state.discoveryBrief.successMetricValue || undefined,
-        timeline: state.discoveryBrief.timeline || undefined,
-        budget: state.discoveryBrief.budget || undefined,
-        constraints: state.discoveryBrief.constraints || undefined,
+        timeline: state.discoveryBrief.timeline || uploadedBrief.timeline || undefined,
+        budget: state.discoveryBrief.budget || uploadedBrief.budget || undefined,
+        constraints: state.discoveryBrief.constraints || uploadedBrief.constraints || undefined,
         // Directed mode fields - ALWAYS include if present
         goalType: state.directedBrief.goalType || undefined,
-        goalDescription: state.directedBrief.goalDescription || undefined,
+        goalDescription: state.directedBrief.goalDescription || uploadedBrief.objective || undefined,
         campaignMandatories: state.directedBrief.campaignMandatories?.length
           ? state.directedBrief.campaignMandatories
-          : undefined,
+          : uploadedBrief.mandatories || undefined,
         // Strategy anchor (from Discovery mode)
         selectedStrategy: state.selectedStrategy || undefined,
+        // Uploaded brief specific fields
+        proposition: uploadedBrief.proposition || undefined,
+        support: uploadedBrief.support || undefined,
+        targetAudience: uploadedBrief.targetAudience || undefined,
+        tone: uploadedBrief.tone || undefined,
       } : undefined;
 
       const response = await fetch('/api/generate', {
@@ -1139,6 +1183,8 @@ export default function Home() {
               updateState({ campaignMode: mode });
               if (mode === 'discovery') {
                 updateState({ step: 'discovery-brief' });
+              } else if (mode === 'upload') {
+                updateState({ step: 'upload-brief' });
               } else {
                 updateState({ step: 'discipline-select' });
               }
@@ -1329,6 +1375,30 @@ export default function Home() {
               updateState({ discipline: disc, step: 'library-view', strategyCheckResult: null });
             }}
             goBack={() => updateState({ step: 'directed-brief' })}
+          />
+        )}
+        {state.step === 'upload-brief' && (
+          <UploadBrief
+            state={state}
+            updateState={updateState}
+            onParsed={(parsed, missingFields) => {
+              updateState({
+                uploadedBrief: parsed,
+                step: 'brief-review',
+              });
+            }}
+            goBack={() => updateState({ step: 'mode-select' })}
+          />
+        )}
+        {state.step === 'brief-review' && (
+          <BriefReview
+            state={state}
+            updateState={updateState}
+            onComplete={() => {
+              // After brief is complete, go to discipline select
+              updateState({ step: 'discipline-select' });
+            }}
+            goBack={() => updateState({ step: 'upload-brief' })}
           />
         )}
         {state.step === 'discipline-select' && (
@@ -3090,7 +3160,7 @@ function MyLibrary({
 // Mode Selection Component (v1.1)
 function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMode: (mode: CampaignMode) => void; goBack: () => void }) {
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
           <span className="font-medium">{state.currentProject?.name || state.brand}</span>
@@ -3101,14 +3171,14 @@ function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMod
         <p className="text-slate-400">Choose the path that fits your needs</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <button
           onClick={() => onSelectMode('discovery')}
-          className="p-8 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-800/80 group"
+          className="p-6 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-800/80 group"
         >
           <div className="text-4xl mb-4">🧭</div>
-          <div className="text-xl font-bold mb-2 group-hover:text-purple-300">"I have a problem"</div>
-          <div className="text-slate-400 mb-4">Guide me to the right strategy</div>
+          <div className="text-lg font-bold mb-2 group-hover:text-purple-300">"I have a problem"</div>
+          <div className="text-slate-400 text-sm mb-4">Guide me to the right strategy</div>
           <div className="text-sm text-slate-500 space-y-1">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3133,11 +3203,11 @@ function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMod
 
         <button
           onClick={() => onSelectMode('directed')}
-          className="p-8 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-green-500 hover:bg-slate-800/80 group"
+          className="p-6 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-green-500 hover:bg-slate-800/80 group"
         >
           <div className="text-4xl mb-4">🚀</div>
-          <div className="text-xl font-bold mb-2 group-hover:text-green-300">"I know what I need"</div>
-          <div className="text-slate-400 mb-4">Let me execute quickly</div>
+          <div className="text-lg font-bold mb-2 group-hover:text-green-300">"I know what I need"</div>
+          <div className="text-slate-400 text-sm mb-4">Let me execute quickly</div>
           <div className="text-sm text-slate-500 space-y-1">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3156,6 +3226,35 @@ function ModeSelect({ state, onSelectMode, goBack }: { state: State; onSelectMod
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               Fast turnaround
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onSelectMode('upload')}
+          className="p-6 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-amber-500 hover:bg-slate-800/80 group"
+        >
+          <div className="text-4xl mb-4">📄</div>
+          <div className="text-lg font-bold mb-2 group-hover:text-amber-300">"I have a brief"</div>
+          <div className="text-slate-400 text-sm mb-4">Upload your creative brief</div>
+          <div className="text-sm text-slate-500 space-y-1">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              PDF, Word, or text
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Auto-extract fields
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Agency workflows
             </div>
           </div>
         </button>
@@ -3668,6 +3767,362 @@ function StrategyCheckScreen({ state, onProceed, onAddDiscipline, goBack }: {
           className="px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all bg-slate-700 hover:bg-slate-600 text-white"
         >
           Continue Anyway
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Upload Brief Component
+function UploadBrief({ state, updateState, onParsed, goBack }: {
+  state: State;
+  updateState: (updates: Partial<State>) => void;
+  onParsed: (parsed: State['uploadedBrief'], missingFields: string[]) => void;
+  goBack: () => void;
+}) {
+  const [dragActive, setDragActive] = useState(false);
+  const [pasteMode, setPasteMode] = useState(false);
+  const [pastedText, setPastedText] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFile = async (file: File) => {
+    updateState({ briefParsingLoading: true, briefFileName: file.name });
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/briefs/parse', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        updateState({ briefParsingLoading: false });
+        return;
+      }
+
+      onParsed(data.parsed, data.missingFields);
+      updateState({ briefParsingLoading: false });
+    } catch (err: any) {
+      setError(err.message || 'Failed to parse brief');
+      updateState({ briefParsingLoading: false });
+    }
+  };
+
+  const handlePastedText = async () => {
+    if (!pastedText.trim()) {
+      setError('Please paste some text');
+      return;
+    }
+
+    updateState({ briefParsingLoading: true, briefFileName: 'Pasted text' });
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('textContent', pastedText);
+
+      const response = await fetch('/api/briefs/parse', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        updateState({ briefParsingLoading: false });
+        return;
+      }
+
+      onParsed(data.parsed, data.missingFields);
+      updateState({ briefParsingLoading: false });
+    } catch (err: any) {
+      setError(err.message || 'Failed to parse brief');
+      updateState({ briefParsingLoading: false });
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm mb-4">
+          <span>Upload Brief</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Upload Your Creative Brief</h2>
+        <p className="text-slate-400">We'll extract the key information and fill in the gaps</p>
+      </div>
+
+      {state.briefParsingLoading ? (
+        <div className="bg-slate-800/50 rounded-2xl p-12 border border-slate-700 text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-lg font-medium">Analyzing your brief...</p>
+          <p className="text-slate-400 text-sm mt-2">{state.briefFileName}</p>
+        </div>
+      ) : (
+        <>
+          {!pasteMode ? (
+            <div
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              className={`bg-slate-800/50 rounded-2xl p-12 border-2 border-dashed transition-all text-center ${
+                dragActive ? 'border-amber-500 bg-amber-500/10' : 'border-slate-600 hover:border-slate-500'
+              }`}
+            >
+              <div className="text-5xl mb-4">📄</div>
+              <p className="text-lg font-medium mb-2">Drag & drop your brief here</p>
+              <p className="text-slate-400 text-sm mb-6">PDF, Word, or text files accepted</p>
+
+              <div className="flex items-center justify-center gap-4">
+                <label className="px-6 py-3 rounded-xl font-medium bg-amber-600 hover:bg-amber-500 text-white cursor-pointer transition-all">
+                  Browse Files
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.txt,image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleFile(e.target.files[0]);
+                      }
+                    }}
+                  />
+                </label>
+                <button
+                  onClick={() => setPasteMode(true)}
+                  className="px-6 py-3 rounded-xl font-medium bg-slate-700 hover:bg-slate-600 text-white transition-all"
+                >
+                  Paste Text Instead
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+              <label className="block text-sm font-medium text-slate-300 mb-2">Paste your brief content</label>
+              <textarea
+                value={pastedText}
+                onChange={(e) => setPastedText(e.target.value)}
+                placeholder="Paste your creative brief text here..."
+                rows={12}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none resize-none"
+              />
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={() => setPasteMode(false)}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  ← Upload file instead
+                </button>
+                <button
+                  onClick={handlePastedText}
+                  disabled={!pastedText.trim()}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                    pastedText.trim()
+                      ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                      : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  Analyze Brief
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {error && (
+        <div className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300">
+          {error}
+        </div>
+      )}
+
+      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+        Back
+      </button>
+    </div>
+  );
+}
+
+// Brief Review Component
+function BriefReview({ state, updateState, onComplete, goBack }: {
+  state: State;
+  updateState: (updates: Partial<State>) => void;
+  onComplete: () => void;
+  goBack: () => void;
+}) {
+  const brief = state.uploadedBrief;
+
+  const updateField = (field: keyof State['uploadedBrief'], value: any) => {
+    updateState({
+      uploadedBrief: { ...state.uploadedBrief, [field]: value }
+    });
+  };
+
+  // Fields configuration
+  const fields = [
+    { key: 'campaignName', label: 'Campaign Name', type: 'text', required: true },
+    { key: 'objective', label: 'Objective', type: 'text', required: true, placeholder: 'What do you want to achieve?' },
+    { key: 'targetAudience', label: 'Target Audience', type: 'textarea', placeholder: 'Who are you trying to reach?' },
+    { key: 'proposition', label: 'Proposition / Key Message', type: 'textarea', required: true, placeholder: 'The core promise or single-minded message' },
+    { key: 'support', label: 'Support / Proof Points', type: 'array', placeholder: 'Reasons to believe' },
+    { key: 'mandatories', label: 'Mandatories', type: 'array', placeholder: 'Must-include elements' },
+    { key: 'tone', label: 'Tone of Voice', type: 'text', placeholder: 'How should it sound?' },
+    { key: 'constraints', label: 'Constraints', type: 'textarea', placeholder: 'Things to avoid or limitations' },
+    { key: 'budget', label: 'Budget', type: 'text', placeholder: 'If relevant' },
+    { key: 'timeline', label: 'Timeline', type: 'text', placeholder: 'Key dates' },
+    { key: 'successMetrics', label: 'Success Metrics', type: 'text', placeholder: 'How will you measure success?' },
+  ];
+
+  const requiredFields = fields.filter(f => f.required);
+  const isValid = requiredFields.every(f => {
+    const value = brief[f.key as keyof typeof brief];
+    return value && (Array.isArray(value) ? value.length > 0 : value.trim() !== '');
+  });
+
+  const extractedCount = Object.entries(brief).filter(([_, v]) => v && (Array.isArray(v) ? v.length > 0 : true)).length;
+  const totalFields = fields.length;
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm mb-4">
+          <span>Review Brief</span>
+          <span className="text-slate-500">•</span>
+          <span>{extractedCount}/{totalFields} fields extracted</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Review & Complete Your Brief</h2>
+        <p className="text-slate-400">Fill in any missing fields or mark them as not relevant</p>
+      </div>
+
+      <div className="space-y-6 bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+        {fields.map((field) => {
+          const value = brief[field.key as keyof typeof brief];
+          const isEmpty = !value || (Array.isArray(value) && value.length === 0);
+
+          return (
+            <div key={field.key} className={isEmpty ? 'bg-slate-700/30 rounded-xl p-4 -mx-2' : ''}>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  {field.label}
+                  {field.required && <span className="text-amber-400 ml-1">*</span>}
+                </label>
+                {isEmpty && (
+                  <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-300 rounded-full">
+                    Missing
+                  </span>
+                )}
+              </div>
+
+              {field.type === 'text' && (
+                <input
+                  type="text"
+                  value={(value as string) || ''}
+                  onChange={(e) => updateField(field.key as keyof State['uploadedBrief'], e.target.value)}
+                  placeholder={field.placeholder || ''}
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none"
+                />
+              )}
+
+              {field.type === 'textarea' && (
+                <textarea
+                  value={(value as string) || ''}
+                  onChange={(e) => updateField(field.key as keyof State['uploadedBrief'], e.target.value)}
+                  placeholder={field.placeholder || ''}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none resize-none"
+                />
+              )}
+
+              {field.type === 'array' && (
+                <div>
+                  <input
+                    type="text"
+                    placeholder={`Add ${field.placeholder || 'item'} and press Enter`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                        const currentArray = (value as string[]) || [];
+                        updateField(field.key as keyof State['uploadedBrief'], [...currentArray, e.currentTarget.value.trim()]);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.currentTarget.value.trim()) {
+                        const currentArray = (value as string[]) || [];
+                        updateField(field.key as keyof State['uploadedBrief'], [...currentArray, e.currentTarget.value.trim()]);
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none"
+                  />
+                  {value && (value as string[]).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {(value as string[]).map((item, i) => (
+                        <span key={i} className="px-3 py-1 bg-slate-700 rounded-full text-sm flex items-center gap-2">
+                          {item}
+                          <button
+                            onClick={() => {
+                              const newArray = (value as string[]).filter((_, idx) => idx !== i);
+                              updateField(field.key as keyof State['uploadedBrief'], newArray.length > 0 ? newArray : null);
+                            }}
+                            className="text-slate-400 hover:text-white"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-between mt-8">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+          Back
+        </button>
+        <button
+          onClick={onComplete}
+          disabled={!isValid}
+          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+            isValid
+              ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white'
+              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+          }`}
+        >
+          Continue to Prompts
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

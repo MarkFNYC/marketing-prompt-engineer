@@ -75,14 +75,39 @@ export async function POST(request: NextRequest) {
       const parts: string[] = ['\n\n---\n\n🎯 CAMPAIGN CONTEXT (THIS IS YOUR PRIMARY FOCUS):'];
       if (campaignContext.campaignName) parts.push(`Campaign Name: "${campaignContext.campaignName}"`);
       if (campaignContext.goalType) parts.push(`Campaign Goal: ${campaignContext.goalType}`);
-      if (campaignContext.goalDescription) parts.push(`Goal Details: ${campaignContext.goalDescription}`);
+      if (campaignContext.goalDescription) parts.push(`Objective: ${campaignContext.goalDescription}`);
+      if (campaignContext.targetAudience) parts.push(`Target Audience: ${campaignContext.targetAudience}`);
       if (campaignContext.businessProblem) parts.push(`Business Problem: ${campaignContext.businessProblem}`);
+
+      // Proposition/Key Message (from uploaded brief)
+      if (campaignContext.proposition) {
+        parts.push('');
+        parts.push('📌 PROPOSITION (Core Message):');
+        parts.push(campaignContext.proposition);
+      }
+
+      // Support/Proof Points (from uploaded brief)
+      if (campaignContext.support?.length) {
+        parts.push('');
+        parts.push('✅ SUPPORT / PROOF POINTS (Reasons to Believe):');
+        campaignContext.support.forEach((s: string, i: number) => {
+          parts.push(`  ${i + 1}. ${s}`);
+        });
+      }
+
+      // Tone of voice (from uploaded brief)
+      if (campaignContext.tone) {
+        parts.push('');
+        parts.push(`🎭 TONE OF VOICE: ${campaignContext.tone}`);
+      }
+
       if (campaignContext.successMetric) {
         parts.push(`Success Metric: ${campaignContext.successMetric}${campaignContext.successMetricValue ? ' - ' + campaignContext.successMetricValue : ''}`);
       }
       if (campaignContext.timeline) parts.push(`Timeline: ${campaignContext.timeline}`);
       if (campaignContext.budget) parts.push(`Budget: ${campaignContext.budget}`);
       if (campaignContext.constraints) parts.push(`Constraints: ${campaignContext.constraints}`);
+
       // Campaign-specific mandatories
       if (campaignContext.campaignMandatories?.length) {
         parts.push('');
@@ -103,6 +128,9 @@ export async function POST(request: NextRequest) {
       }
       parts.push('');
       parts.push('⚠️ CRITICAL INSTRUCTION: Your ENTIRE output must be about this specific campaign. Do NOT create generic brand content - focus specifically on the campaign name, goal, and details provided above. Every piece of content should directly reference or relate to this campaign topic.');
+      if (campaignContext.proposition) {
+        parts.push('Use the PROPOSITION as your key message and back it up with the SUPPORT points provided.');
+      }
       campaignContextString = parts.join('\n');
     }
 
