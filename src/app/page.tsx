@@ -3873,7 +3873,7 @@ function MyLibrary({
 
 // Mode Selection Component (v1.1)
 function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State; onSelectMode: (mode: CampaignMode) => void; goBack: () => void; updateState: (updates: Partial<State>) => void }) {
-  const [showSettings, setShowSettings] = React.useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const setProvider = (provider: Provider) => {
     updateState({ llmProvider: provider });
