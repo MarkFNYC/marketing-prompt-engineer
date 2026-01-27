@@ -237,6 +237,11 @@ interface State {
     suggestions: string[];
   } | null;
   skippedPlanningReview: boolean;
+  // Re-brief / Edit Output
+  showRebriefModal: boolean;
+  rebriefFeedback: string;
+  isEditingOutput: boolean;
+  editedOutput: string;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -356,6 +361,11 @@ export default function Home() {
     planningReviewLoading: false,
     planningReviewResult: null,
     skippedPlanningReview: false,
+    // Re-brief / Edit Output
+    showRebriefModal: false,
+    rebriefFeedback: '',
+    isEditingOutput: false,
+    editedOutput: '',
   });
 
   // Check auth and load state on mount
@@ -1186,6 +1196,45 @@ export default function Home() {
     }
   };
 
+  // Regenerate with creative re-brief feedback
+  const regenerateWithFeedback = (feedback: string) => {
+    if (!state.selectedPrompt) return;
+
+    // Append feedback as a re-brief instruction to the original prompt
+    const rebriefPrompt = `${state.selectedPrompt.prompt}
+
+---
+CREATIVE RE-BRIEF:
+The previous output didn't meet requirements. Please regenerate with the following feedback in mind:
+${feedback}
+
+Important: Address this specific feedback while maintaining the core brief requirements. Generate a fresh, improved version.`;
+
+    updateState({
+      showRebriefModal: false,
+      rebriefFeedback: '',
+      isEditingOutput: false,
+    });
+    runPromptWithLLM(rebriefPrompt);
+  };
+
+  // Save edited output
+  const saveEditedOutput = () => {
+    updateState({
+      llmOutput: state.editedOutput,
+      isEditingOutput: false,
+      editedOutput: '',
+    });
+  };
+
+  // Cancel edit
+  const cancelEdit = () => {
+    updateState({
+      isEditingOutput: false,
+      editedOutput: '',
+    });
+  };
+
   const submitBrandInfo = () => {
     const brand = (document.getElementById('brand') as HTMLInputElement)?.value || '';
     const website = (document.getElementById('website') as HTMLInputElement)?.value || '';
@@ -1867,6 +1916,7 @@ export default function Home() {
         {state.step === 'llm-output' && (
           <LLMOutput
             state={state}
+            updateState={updateState}
             copyLLMOutput={copyLLMOutput}
             switchModeAndRerun={switchModeAndRerun}
             goBack={() => goBack('library-view')}
@@ -1876,6 +1926,9 @@ export default function Home() {
             onClearRemix={clearRemix}
             onToggleOriginal={() => updateState({ originalExpanded: !state.originalExpanded })}
             onToggleRemix={() => updateState({ remixExpanded: !state.remixExpanded })}
+            onRebrief={regenerateWithFeedback}
+            onSaveEdit={saveEditedOutput}
+            onCancelEdit={cancelEdit}
           />
         )}
         {state.showRemixModal && (
@@ -3056,6 +3109,7 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
 
 function LLMOutput({
   state,
+  updateState,
   copyLLMOutput,
   switchModeAndRerun,
   goBack,
@@ -3065,8 +3119,12 @@ function LLMOutput({
   onClearRemix,
   onToggleOriginal,
   onToggleRemix,
+  onRebrief,
+  onSaveEdit,
+  onCancelEdit,
 }: {
   state: State;
+  updateState: (updates: Partial<State>) => void;
   copyLLMOutput: (id: string) => void;
   switchModeAndRerun: (m: Mode) => void;
   goBack: () => void;
@@ -3076,6 +3134,9 @@ function LLMOutput({
   onClearRemix: () => void;
   onToggleOriginal: () => void;
   onToggleRemix: () => void;
+  onRebrief: (feedback: string) => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
 }) {
   const isLimitReached = state.llmOutput.startsWith('__LIMIT_REACHED__');
   const content = isLimitReached ? state.llmOutput.replace('__LIMIT_REACHED__\n\n', '') : state.llmOutput;
@@ -3242,12 +3303,104 @@ function LLMOutput({
                 <p className="text-yellow-400 text-lg">Free limit reached</p>
                 <p className="text-slate-400">{content}</p>
               </div>
+            ) : state.isEditingOutput ? (
+              /* Edit Mode */
+              <div className="space-y-4">
+                <textarea
+                  value={state.editedOutput}
+                  onChange={(e) => updateState({ editedOutput: e.target.value })}
+                  className="w-full h-96 px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white font-mono text-sm focus:border-purple-500 focus:outline-none resize-y"
+                  placeholder="Edit the output..."
+                />
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    onClick={onCancelEdit}
+                    className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={onSaveEdit}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm text-white transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
             ) : (
-              <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(content) }} />
+              /* Normal View with Edit/Re-brief options */
+              <div>
+                <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(content) }} />
+
+                {/* Edit / Re-brief Buttons */}
+                <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-700">
+                  <button
+                    onClick={() => updateState({ isEditingOutput: true, editedOutput: content })}
+                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => updateState({ showRebriefModal: true })}
+                    className="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-600/50 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Re-brief & Regenerate
+                  </button>
+                  <span className="text-xs text-slate-500 ml-2">Not quite right? Give feedback to regenerate.</span>
+                </div>
+              </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Re-brief Modal */}
+      {state.showRebriefModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-lg">
+            <h3 className="text-xl font-bold mb-2">Creative Re-brief</h3>
+            <p className="text-slate-400 text-sm mb-4">
+              Tell us what's not working and we'll regenerate with your feedback.
+            </p>
+            <textarea
+              value={state.rebriefFeedback}
+              onChange={(e) => updateState({ rebriefFeedback: e.target.value })}
+              placeholder="e.g., 'The tone is too formal - make it more conversational' or 'Include more specific statistics' or 'The opening hook is weak'"
+              rows={4}
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none mb-4"
+              autoFocus
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => updateState({ showRebriefModal: false, rebriefFeedback: '' })}
+                className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => onRebrief(state.rebriefFeedback)}
+                disabled={!state.rebriefFeedback.trim()}
+                className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                  state.rebriefFeedback.trim()
+                    ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                    : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Regenerate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Remixed Output - Accordion */}
       {hasRemix && state.remixPersona && (
