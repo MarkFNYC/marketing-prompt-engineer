@@ -176,17 +176,29 @@ interface State {
     recommendation: string;
     alternativeDisciplines: string[];
   } | null;
-  // Discovery brief form
+  // Discovery brief form (expanded for complete creative brief)
   discoveryBrief: {
+    // Step 1: The Problem
     campaignName: string;
     businessProblem: string;
+    whatBeenTried: string;
+    // Step 2: The Audience
+    targetAudience: string;
+    // Step 3: The Proposition
+    proposition: string;
+    support: string[];
+    // Step 4: The Brief Details
+    tone: string;
+    mandatories: string[];
+    constraints: string;
+    // Step 5: The Measures
     successMetric: string;
     successMetricValue: string;
     timeline: string;
     budget: string;
-    constraints: string;
-    whatBeenTried: string;
   };
+  // Discovery wizard step tracking
+  discoveryWizardStep: 1 | 2 | 3 | 4 | 5 | 6;
   // Directed brief form
   directedBrief: {
     campaignName: string;
@@ -287,17 +299,29 @@ export default function Home() {
     creativeIdeasLoading: false,
     selectedCreativeIdea: null,
     strategyCheckResult: null,
-    // Discovery brief form
+    // Discovery brief form (expanded)
     discoveryBrief: {
+      // Step 1: The Problem
       campaignName: '',
       businessProblem: '',
+      whatBeenTried: '',
+      // Step 2: The Audience
+      targetAudience: '',
+      // Step 3: The Proposition
+      proposition: '',
+      support: [],
+      // Step 4: The Brief Details
+      tone: '',
+      mandatories: [],
+      constraints: '',
+      // Step 5: The Measures
       successMetric: '',
       successMetricValue: '',
       timeline: '',
       budget: '',
-      constraints: '',
-      whatBeenTried: '',
     },
+    // Discovery wizard step
+    discoveryWizardStep: 1,
     // Directed brief form
     directedBrief: {
       campaignName: '',
@@ -774,25 +798,56 @@ export default function Home() {
     updateState({ showPlanningReview: true, planningReviewLoading: true, planningReviewResult: null });
 
     try {
-      // Gather context for review
+      // Gather context for review - prioritize discovery brief fields
       const problemStatement = state.discoveryBrief.businessProblem ||
         state.uploadedBrief.objective ||
         state.directedBrief.goalDescription ||
         state.currentProject?.challenge ||
         '';
 
-      const targetAudience = state.selectedPersona?.name
-        ? `${state.selectedPersona.name} - ${state.selectedPersona.role}: ${state.selectedPersona.description || ''}`
-        : state.uploadedBrief.targetAudience ||
-          state.currentProject?.target_audience ||
-          state.targetAudience ||
-          '';
+      const targetAudience = state.discoveryBrief.targetAudience ||
+        (state.selectedPersona?.name
+          ? `${state.selectedPersona.name} - ${state.selectedPersona.role}: ${state.selectedPersona.description || ''}`
+          : state.uploadedBrief.targetAudience ||
+            state.currentProject?.target_audience ||
+            state.targetAudience ||
+            '');
+
+      const proposition = state.discoveryBrief.proposition ||
+        state.uploadedBrief.proposition ||
+        '';
+
+      const support = [
+        ...(state.discoveryBrief.support || []),
+        ...(state.uploadedBrief.support || []),
+      ].filter(Boolean);
+
+      const tone = state.discoveryBrief.tone ||
+        state.uploadedBrief.tone ||
+        '';
 
       const mandatories = [
+        ...(state.discoveryBrief.mandatories || []),
         ...(state.directedBrief.campaignMandatories || []),
         ...(state.uploadedBrief.mandatories || []),
         ...(state.currentProject?.persistent_mandatories || []),
       ].filter(Boolean);
+
+      const constraints = state.discoveryBrief.constraints ||
+        state.uploadedBrief.constraints ||
+        '';
+
+      const successMetric = state.discoveryBrief.successMetric ||
+        state.uploadedBrief.successMetrics ||
+        '';
+
+      const timeline = state.discoveryBrief.timeline ||
+        state.uploadedBrief.timeline ||
+        '';
+
+      const budget = state.discoveryBrief.budget ||
+        state.uploadedBrief.budget ||
+        '';
 
       const response = await fetch('/api/planning-review', {
         method: 'POST',
@@ -800,9 +855,16 @@ export default function Home() {
         body: JSON.stringify({
           problemStatement,
           targetAudience,
+          proposition,
+          support,
+          tone,
           strategy: state.selectedStrategy,
           creativeIdea: state.selectedCreativeIdea,
           mandatories,
+          constraints,
+          successMetric,
+          timeline,
+          budget,
           brandContext: {
             name: state.currentProject?.name || state.brand,
             industry: state.currentProject?.industry || state.industry,
@@ -1023,28 +1085,37 @@ export default function Home() {
           : isDiscoveryMode
             ? state.discoveryBrief.campaignName
             : state.directedBrief.campaignName,
-        // Discovery mode fields
+        // Discovery mode fields (expanded)
         businessProblem: state.discoveryBrief.businessProblem || undefined,
         successMetric: state.discoveryBrief.successMetric || uploadedBrief.successMetrics || undefined,
         successMetricValue: state.discoveryBrief.successMetricValue || undefined,
         timeline: state.discoveryBrief.timeline || uploadedBrief.timeline || undefined,
         budget: state.discoveryBrief.budget || uploadedBrief.budget || undefined,
         constraints: state.discoveryBrief.constraints || uploadedBrief.constraints || undefined,
+        whatBeenTried: state.discoveryBrief.whatBeenTried || undefined,
         // Directed mode fields - ALWAYS include if present
         goalType: state.directedBrief.goalType || undefined,
         goalDescription: state.directedBrief.goalDescription || uploadedBrief.objective || undefined,
-        campaignMandatories: state.directedBrief.campaignMandatories?.length
-          ? state.directedBrief.campaignMandatories
-          : uploadedBrief.mandatories || undefined,
+        campaignMandatories: [
+          ...(state.discoveryBrief.mandatories || []),
+          ...(state.directedBrief.campaignMandatories || []),
+          ...(uploadedBrief.mandatories || []),
+        ].filter(Boolean).length > 0 ? [
+          ...(state.discoveryBrief.mandatories || []),
+          ...(state.directedBrief.campaignMandatories || []),
+          ...(uploadedBrief.mandatories || []),
+        ].filter(Boolean) : undefined,
         // Strategy anchor (from Discovery mode)
         selectedStrategy: state.selectedStrategy || undefined,
         // Creative idea (from Creative Ideas step)
         selectedCreativeIdea: state.selectedCreativeIdea || undefined,
-        // Uploaded brief specific fields
-        proposition: uploadedBrief.proposition || undefined,
-        support: uploadedBrief.support || undefined,
-        targetAudience: uploadedBrief.targetAudience || undefined,
-        tone: uploadedBrief.tone || undefined,
+        // Brief fields - prioritize discovery, fallback to uploaded
+        proposition: state.discoveryBrief.proposition || uploadedBrief.proposition || undefined,
+        support: [...(state.discoveryBrief.support || []), ...(uploadedBrief.support || [])].filter(Boolean).length > 0
+          ? [...(state.discoveryBrief.support || []), ...(uploadedBrief.support || [])].filter(Boolean)
+          : undefined,
+        targetAudience: state.discoveryBrief.targetAudience || uploadedBrief.targetAudience || undefined,
+        tone: state.discoveryBrief.tone || uploadedBrief.tone || undefined,
       } : undefined;
 
       const response = await fetch('/api/generate', {
@@ -1459,7 +1530,8 @@ export default function Home() {
             onSelectMode={(mode) => {
               updateState({ campaignMode: mode });
               if (mode === 'discovery') {
-                updateState({ step: 'discovery-brief' });
+                // Reset wizard to step 1 when entering discovery mode
+                updateState({ step: 'discovery-brief', discoveryWizardStep: 1 });
               } else if (mode === 'upload') {
                 updateState({ step: 'upload-brief' });
               } else {
@@ -1470,14 +1542,14 @@ export default function Home() {
           />
         )}
         {state.step === 'discovery-brief' && (
-          <DiscoveryBrief
+          <DiscoveryWizard
             state={state}
             updateState={updateState}
-            onSubmit={async () => {
+            onComplete={async () => {
               // Create campaign and generate message strategies
               updateState({ messageStrategiesLoading: true });
               try {
-                // Create campaign
+                // Create campaign with expanded brief fields
                 const campaignRes = await fetch('/api/campaigns', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -1493,6 +1565,12 @@ export default function Home() {
                     budget: state.discoveryBrief.budget,
                     campaignConstraints: state.discoveryBrief.constraints,
                     whatBeenTried: state.discoveryBrief.whatBeenTried,
+                    // Expanded brief fields
+                    targetAudience: state.discoveryBrief.targetAudience,
+                    proposition: state.discoveryBrief.proposition,
+                    support: state.discoveryBrief.support,
+                    tone: state.discoveryBrief.tone,
+                    mandatories: state.discoveryBrief.mandatories,
                   }),
                 });
                 const campaignData = await campaignRes.json();
@@ -1500,7 +1578,7 @@ export default function Home() {
                   updateState({ currentCampaign: campaignData.campaign });
                 }
 
-                // Generate message strategies
+                // Generate message strategies with expanded brief context
                 const strategyRes = await fetch('/api/campaigns/message-strategy', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -1509,8 +1587,8 @@ export default function Home() {
                     brandContext: {
                       name: state.currentProject?.name || state.brand,
                       industry: state.currentProject?.industry || state.industry,
-                      targetAudience: state.currentProject?.target_audience || state.targetAudience,
-                      valueProposition: state.currentProject?.value_proposition,
+                      targetAudience: state.discoveryBrief.targetAudience || state.currentProject?.target_audience || state.targetAudience,
+                      valueProposition: state.discoveryBrief.proposition || state.currentProject?.value_proposition,
                     },
                     businessProblem: state.discoveryBrief.businessProblem,
                     successMetric: state.discoveryBrief.successMetric,
@@ -1518,6 +1596,12 @@ export default function Home() {
                     budget: state.discoveryBrief.budget,
                     constraints: state.discoveryBrief.constraints,
                     whatBeenTried: state.discoveryBrief.whatBeenTried,
+                    // Expanded brief fields for richer strategy generation
+                    targetAudience: state.discoveryBrief.targetAudience,
+                    proposition: state.discoveryBrief.proposition,
+                    support: state.discoveryBrief.support,
+                    tone: state.discoveryBrief.tone,
+                    mandatories: state.discoveryBrief.mandatories,
                   }),
                 });
                 const strategyData = await strategyRes.json();
@@ -1535,7 +1619,7 @@ export default function Home() {
                 updateState({ messageStrategiesLoading: false });
               }
             }}
-            goBack={() => updateState({ step: 'mode-select' })}
+            goBack={() => updateState({ step: 'mode-select', discoveryWizardStep: 1 })}
           />
         )}
         {state.step === 'message-strategy' && (
@@ -1617,7 +1701,7 @@ export default function Home() {
                 updateState({ messageStrategiesLoading: false });
               }
             }}
-            goBack={() => updateState({ step: 'discovery-brief' })}
+            goBack={() => updateState({ step: 'discovery-brief', discoveryWizardStep: 6 })}
           />
         )}
         {state.step === 'creative-ideas' && (
@@ -4164,159 +4248,505 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
   );
 }
 
-// Discovery Brief Component (v1.1)
-function DiscoveryBrief({ state, updateState, onSubmit, goBack }: {
+// Discovery Wizard Progress Bar
+function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
+  const steps = [
+    { num: 1, label: 'Problem' },
+    { num: 2, label: 'Audience' },
+    { num: 3, label: 'Proposition' },
+    { num: 4, label: 'Details' },
+    { num: 5, label: 'Measures' },
+    { num: 6, label: 'Review' },
+  ];
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center justify-between max-w-xl mx-auto">
+        {steps.map((step, index) => (
+          <div key={step.num} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                  step.num < currentStep
+                    ? 'bg-purple-600 text-white'
+                    : step.num === currentStep
+                    ? 'bg-purple-500 text-white ring-4 ring-purple-500/30'
+                    : 'bg-slate-700 text-slate-400'
+                }`}
+              >
+                {step.num < currentStep ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  step.num
+                )}
+              </div>
+              <span className={`text-xs mt-1 ${step.num === currentStep ? 'text-purple-300' : 'text-slate-500'}`}>
+                {step.label}
+              </span>
+            </div>
+            {index < steps.length - 1 && (
+              <div
+                className={`w-8 md:w-12 h-0.5 mx-1 ${
+                  step.num < currentStep ? 'bg-purple-600' : 'bg-slate-700'
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Discovery Wizard Component (v2.0 - Guided Briefing Session)
+function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
   state: State;
   updateState: (updates: Partial<State>) => void;
-  onSubmit: () => void;
+  onComplete: () => void;
   goBack: () => void;
 }) {
-  const updateBrief = (field: keyof State['discoveryBrief'], value: string) => {
+  const step = state.discoveryWizardStep;
+
+  const updateBrief = (field: keyof State['discoveryBrief'], value: string | string[]) => {
     updateState({
       discoveryBrief: { ...state.discoveryBrief, [field]: value }
     });
   };
 
-  const isValid = state.discoveryBrief.campaignName && state.discoveryBrief.businessProblem;
+  const nextStep = () => {
+    if (step < 6) {
+      updateState({ discoveryWizardStep: (step + 1) as 1 | 2 | 3 | 4 | 5 | 6 });
+    }
+  };
+
+  const prevStep = () => {
+    if (step > 1) {
+      updateState({ discoveryWizardStep: (step - 1) as 1 | 2 | 3 | 4 | 5 | 6 });
+    } else {
+      goBack();
+    }
+  };
+
+  const stepTitles: Record<number, { title: string; subtitle: string }> = {
+    1: { title: 'The Problem', subtitle: "Let's understand what you're trying to solve" },
+    2: { title: 'The Audience', subtitle: 'Who are you trying to reach?' },
+    3: { title: 'The Proposition', subtitle: 'What are you offering them?' },
+    4: { title: 'The Brief Details', subtitle: 'How should this feel?' },
+    5: { title: 'The Measures', subtitle: 'How will you measure success?' },
+    6: { title: 'Review Your Brief', subtitle: 'Make sure everything looks right' },
+  };
+
+  const canProceed = () => {
+    switch (step) {
+      case 1: return state.discoveryBrief.campaignName && state.discoveryBrief.businessProblem;
+      case 2: return state.discoveryBrief.targetAudience;
+      case 3: return state.discoveryBrief.proposition;
+      case 4: return true; // All optional
+      case 5: return true; // All optional
+      case 6: return true; // Review
+      default: return false;
+    }
+  };
+
+  // Calculate brief completeness
+  const calculateCompleteness = () => {
+    const fields = [
+      { name: 'Campaign Name', value: state.discoveryBrief.campaignName, weight: 5 },
+      { name: 'Business Problem', value: state.discoveryBrief.businessProblem, weight: 15 },
+      { name: 'Target Audience', value: state.discoveryBrief.targetAudience, weight: 15 },
+      { name: 'Proposition', value: state.discoveryBrief.proposition, weight: 20 },
+      { name: 'Support Points', value: state.discoveryBrief.support?.length > 0, weight: 10 },
+      { name: 'Tone', value: state.discoveryBrief.tone, weight: 5 },
+      { name: 'Mandatories', value: state.discoveryBrief.mandatories?.length > 0, weight: 5 },
+      { name: 'Constraints', value: state.discoveryBrief.constraints, weight: 5 },
+      { name: 'Success Metric', value: state.discoveryBrief.successMetric, weight: 10 },
+      { name: 'Timeline', value: state.discoveryBrief.timeline, weight: 5 },
+      { name: 'Budget', value: state.discoveryBrief.budget, weight: 5 },
+    ];
+
+    let score = 0;
+    fields.forEach(f => {
+      if (f.value) score += f.weight;
+    });
+    return score;
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
+      {/* Header with brand context */}
+      <div className="text-center mb-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
-          <span>Discovery Mode</span>
+          <span>Building Your Brief</span>
           <span className="text-slate-500">•</span>
           <span>{state.currentProject?.name || state.brand}</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Tell us about your challenge</h2>
-        <p className="text-slate-400">We'll analyze your situation and recommend strategies</p>
       </div>
 
-      <div className="space-y-6 bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Campaign Name *</label>
-          <input
-            type="text"
-            value={state.discoveryBrief.campaignName}
-            onChange={(e) => updateBrief('campaignName', e.target.value)}
-            placeholder="e.g., Q2 Pipeline Growth"
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
-          />
-        </div>
+      {/* Progress Bar */}
+      <DiscoveryProgressBar currentStep={step} />
 
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">What's the business problem? *</label>
-          <textarea
-            value={state.discoveryBrief.businessProblem}
-            onChange={(e) => updateBrief('businessProblem', e.target.value)}
-            placeholder="Describe the challenge you're trying to solve..."
-            rows={3}
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
-          />
-        </div>
+      {/* Step Title */}
+      <div className="text-center mb-6">
+        <div className="text-sm text-purple-400 mb-1">Step {step} of 6</div>
+        <h2 className="text-2xl font-bold mb-2">{stepTitles[step].title}</h2>
+        <p className="text-slate-400">{stepTitles[step].subtitle}</p>
+      </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Success Metric</label>
-            <input
-              type="text"
-              value={state.discoveryBrief.successMetric}
-              onChange={(e) => updateBrief('successMetric', e.target.value)}
-              placeholder="e.g., Pipeline value"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
-            />
+      {/* Step Content */}
+      <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 mb-6">
+        {step === 1 && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Campaign Name *</label>
+              <input
+                type="text"
+                value={state.discoveryBrief.campaignName}
+                onChange={(e) => updateBrief('campaignName', e.target.value)}
+                placeholder="e.g., Q2 Pipeline Growth, Brand Awareness Push"
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">What's the business problem? *</label>
+              <textarea
+                value={state.discoveryBrief.businessProblem}
+                onChange={(e) => updateBrief('businessProblem', e.target.value)}
+                placeholder="Describe the challenge you're trying to solve. What's not working? What opportunity are you trying to capture?"
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">What's been tried before?</label>
+              <textarea
+                value={state.discoveryBrief.whatBeenTried}
+                onChange={(e) => updateBrief('whatBeenTried', e.target.value)}
+                placeholder="Previous approaches, what worked or didn't work..."
+                rows={2}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Target Value</label>
-            <input
-              type="text"
-              value={state.discoveryBrief.successMetricValue}
-              onChange={(e) => updateBrief('successMetricValue', e.target.value)}
-              placeholder="e.g., $2.6M"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
-            />
-          </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Timeline</label>
-            <input
-              type="date"
-              value={state.discoveryBrief.timeline}
-              onChange={(e) => updateBrief('timeline', e.target.value)}
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
-            />
+        {step === 2 && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Who is your target audience? *</label>
+              <textarea
+                value={state.discoveryBrief.targetAudience}
+                onChange={(e) => updateBrief('targetAudience', e.target.value)}
+                placeholder="Describe who you're trying to reach. Include demographics, psychographics, behaviors, pain points..."
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+              />
+              <p className="text-xs text-slate-500 mt-2">
+                Tip: Be specific. "Enterprise IT decision-makers frustrated with legacy systems" is better than "businesses"
+              </p>
+            </div>
+            {state.personas.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Or select from your personas:</label>
+                <div className="flex flex-wrap gap-2">
+                  {state.personas.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => updateBrief('targetAudience', `${p.name} - ${p.role}: ${p.description || ''}`)}
+                      className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                    >
+                      {p.avatar_emoji || '👤'} {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Budget</label>
-            <select
-              value={state.discoveryBrief.budget}
-              onChange={(e) => updateBrief('budget', e.target.value)}
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+        )}
+
+        {step === 3 && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">What's your core proposition? *</label>
+              <textarea
+                value={state.discoveryBrief.proposition}
+                onChange={(e) => updateBrief('proposition', e.target.value)}
+                placeholder="The single most important thing you want your audience to think, feel, or do. This is your key message or promise."
+                rows={3}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Support points / Reasons to believe</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Add a proof point and press Enter..."
+                  className="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                      updateBrief('support', [...(state.discoveryBrief.support || []), e.currentTarget.value.trim()]);
+                      e.currentTarget.value = '';
+                    }
+                  }}
+                />
+              </div>
+              {state.discoveryBrief.support && state.discoveryBrief.support.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {state.discoveryBrief.support.map((point, i) => (
+                    <span key={i} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm flex items-center gap-2">
+                      {point}
+                      <button
+                        onClick={() => updateBrief('support', state.discoveryBrief.support.filter((_, idx) => idx !== i))}
+                        className="text-purple-400 hover:text-white"
+                      >×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-slate-500 mt-2">
+                Why should they believe your proposition? Add facts, features, or proof points.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Tone of voice</label>
+              <input
+                type="text"
+                value={state.discoveryBrief.tone}
+                onChange={(e) => updateBrief('tone', e.target.value)}
+                placeholder="e.g., Professional but approachable, Bold and provocative, Warm and empathetic..."
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Mandatories (must-include elements)</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Add a mandatory and press Enter..."
+                  className="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                      updateBrief('mandatories', [...(state.discoveryBrief.mandatories || []), e.currentTarget.value.trim()]);
+                      e.currentTarget.value = '';
+                    }
+                  }}
+                />
+              </div>
+              {state.discoveryBrief.mandatories && state.discoveryBrief.mandatories.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {state.discoveryBrief.mandatories.map((item, i) => (
+                    <span key={i} className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm flex items-center gap-2">
+                      {item}
+                      <button
+                        onClick={() => updateBrief('mandatories', state.discoveryBrief.mandatories.filter((_, idx) => idx !== i))}
+                        className="text-amber-400 hover:text-white"
+                      >×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Constraints (things to avoid)</label>
+              <textarea
+                value={state.discoveryBrief.constraints}
+                onChange={(e) => updateBrief('constraints', e.target.value)}
+                placeholder="Legal restrictions, competitor comparisons to avoid, off-brand topics..."
+                rows={2}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+              />
+            </div>
+            <button
+              onClick={nextStep}
+              className="w-full py-2 text-slate-400 hover:text-white text-sm transition-colors"
             >
-              <option value="">Select budget range</option>
-              <option value="<5k">Less than $5K</option>
-              <option value="5k-25k">$5K - $25K</option>
-              <option value="25k-100k">$25K - $100K</option>
-              <option value="100k+">$100K+</option>
-            </select>
+              Skip this step →
+            </button>
           </div>
-        </div>
+        )}
 
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Any constraints?</label>
-          <textarea
-            value={state.discoveryBrief.constraints}
-            onChange={(e) => updateBrief('constraints', e.target.value)}
-            placeholder="Team size, resources, regulatory limitations..."
-            rows={2}
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
-          />
-        </div>
+        {step === 5 && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Success Metric</label>
+                <input
+                  type="text"
+                  value={state.discoveryBrief.successMetric}
+                  onChange={(e) => updateBrief('successMetric', e.target.value)}
+                  placeholder="e.g., Pipeline value, Leads, Revenue"
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Value</label>
+                <input
+                  type="text"
+                  value={state.discoveryBrief.successMetricValue}
+                  onChange={(e) => updateBrief('successMetricValue', e.target.value)}
+                  placeholder="e.g., $2.6M, 500 leads"
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Timeline</label>
+                <input
+                  type="date"
+                  value={state.discoveryBrief.timeline}
+                  onChange={(e) => updateBrief('timeline', e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Budget</label>
+                <select
+                  value={state.discoveryBrief.budget}
+                  onChange={(e) => updateBrief('budget', e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                >
+                  <option value="">Select budget range</option>
+                  <option value="<5k">Less than $5K</option>
+                  <option value="5k-25k">$5K - $25K</option>
+                  <option value="25k-100k">$25K - $100K</option>
+                  <option value="100k+">$100K+</option>
+                </select>
+              </div>
+            </div>
+            <button
+              onClick={nextStep}
+              className="w-full py-2 text-slate-400 hover:text-white text-sm transition-colors"
+            >
+              Skip this step →
+            </button>
+          </div>
+        )}
 
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">What's been tried before?</label>
-          <textarea
-            value={state.discoveryBrief.whatBeenTried}
-            onChange={(e) => updateBrief('whatBeenTried', e.target.value)}
-            placeholder="Previous approaches, what worked or didn't..."
-            rows={2}
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
-          />
-        </div>
+        {step === 6 && (
+          <div className="space-y-4">
+            {/* Brief Completeness Score */}
+            <div className="p-4 bg-slate-900/50 rounded-xl mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-300">Brief Completeness</span>
+                <span className={`text-sm font-bold ${calculateCompleteness() >= 80 ? 'text-green-400' : calculateCompleteness() >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                  {calculateCompleteness()}%
+                </span>
+              </div>
+              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 ${calculateCompleteness() >= 80 ? 'bg-green-500' : calculateCompleteness() >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                  style={{ width: `${calculateCompleteness()}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Brief Summary */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Campaign</span>
+                <span className="text-white text-sm text-right max-w-[60%]">{state.discoveryBrief.campaignName || '-'}</span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Problem</span>
+                <span className="text-white text-sm text-right max-w-[60%] line-clamp-2">{state.discoveryBrief.businessProblem || '-'}</span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Audience</span>
+                <span className="text-white text-sm text-right max-w-[60%] line-clamp-2">{state.discoveryBrief.targetAudience || '-'}</span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Proposition</span>
+                <span className="text-white text-sm text-right max-w-[60%] line-clamp-2">{state.discoveryBrief.proposition || '-'}</span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Support Points</span>
+                <span className="text-white text-sm text-right max-w-[60%]">
+                  {state.discoveryBrief.support?.length ? `${state.discoveryBrief.support.length} point(s)` : '-'}
+                </span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Tone</span>
+                <span className="text-white text-sm text-right max-w-[60%]">{state.discoveryBrief.tone || '-'}</span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Mandatories</span>
+                <span className="text-white text-sm text-right max-w-[60%]">
+                  {state.discoveryBrief.mandatories?.length ? `${state.discoveryBrief.mandatories.length} item(s)` : '-'}
+                </span>
+              </div>
+              <div className="flex justify-between items-start py-2 border-b border-slate-700">
+                <span className="text-slate-400 text-sm">Success Metric</span>
+                <span className="text-white text-sm text-right max-w-[60%]">
+                  {state.discoveryBrief.successMetric ? `${state.discoveryBrief.successMetric}: ${state.discoveryBrief.successMetricValue || 'TBD'}` : '-'}
+                </span>
+              </div>
+              <div className="flex justify-between items-start py-2">
+                <span className="text-slate-400 text-sm">Timeline / Budget</span>
+                <span className="text-white text-sm text-right max-w-[60%]">
+                  {state.discoveryBrief.timeline || '-'} / {state.discoveryBrief.budget || '-'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="flex items-center justify-between mt-8">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+      {/* Navigation */}
+      <div className="flex items-center justify-between">
+        <button onClick={prevStep} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
           Back
         </button>
-        <button
-          onClick={onSubmit}
-          disabled={!isValid || state.messageStrategiesLoading}
-          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
-            isValid && !state.messageStrategiesLoading
-              ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
-              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
-          }`}
-        >
-          {state.messageStrategiesLoading ? (
-            <>
-              <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Analyzing...
-            </>
-          ) : (
-            <>
-              Continue to Strategy
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </>
-          )}
-        </button>
+
+        {step < 6 ? (
+          <button
+            onClick={nextStep}
+            disabled={!canProceed()}
+            className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+              canProceed()
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+            }`}
+          >
+            Next
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        ) : (
+          <button
+            onClick={onComplete}
+            disabled={state.messageStrategiesLoading}
+            className="px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
+          >
+            {state.messageStrategiesLoading ? (
+              <>
+                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Generating Strategies...
+              </>
+            ) : (
+              <>
+                Continue to Strategy
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -23,6 +23,14 @@ interface PlanningReviewRequest {
     name: string;
     industry: string;
   };
+  // Expanded brief fields
+  proposition?: string;
+  support?: string[];
+  tone?: string;
+  constraints?: string;
+  successMetric?: string;
+  timeline?: string;
+  budget?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -52,7 +60,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body: PlanningReviewRequest = await request.json();
-    const { problemStatement, targetAudience, strategy, creativeIdea, mandatories, brandContext } = body;
+    const {
+      problemStatement,
+      targetAudience,
+      strategy,
+      creativeIdea,
+      mandatories,
+      brandContext,
+      // Expanded brief fields
+      proposition,
+      support,
+      tone,
+      constraints,
+      successMetric,
+      timeline,
+      budget,
+    } = body;
 
     // Build the assessment prompt
     const assessmentPrompt = `You are a senior Planning Director at a top advertising agency (like DDB, Grey, or McCann). Your job is to review creative briefs before they go to the Creative team.
@@ -68,6 +91,15 @@ ${problemStatement || 'Not provided'}
 
 TARGET AUDIENCE:
 ${targetAudience || 'Not provided'}
+
+CORE PROPOSITION:
+${proposition || 'Not provided'}
+
+SUPPORT POINTS / REASONS TO BELIEVE:
+${support?.length ? support.map((s, i) => `${i + 1}. ${s}`).join('\n') : 'None provided'}
+
+TONE OF VOICE:
+${tone || 'Not specified'}
 
 SELECTED STRATEGY:
 ${strategy ? `
@@ -86,17 +118,26 @@ ${creativeIdea.tone_and_feel?.length ? `Tone: ${creativeIdea.tone_and_feel.join(
 
 MANDATORIES:
 ${mandatories?.length ? mandatories.map((m, i) => `${i + 1}. ${m}`).join('\n') : 'None specified'}
+
+CONSTRAINTS:
+${constraints || 'None specified'}
+
+SUCCESS METRICS:
+${successMetric ? `${successMetric}${timeline ? ` by ${timeline}` : ''}` : 'Not defined'}
+
+BUDGET: ${budget || 'Not specified'}
 ---
 
 Note: "User Refinements" may contain additional context about the target audience or strategic direction that should be factored into your assessment.
 
 Evaluate this brief against these criteria:
-1. Is there a clear, single-minded proposition?
+1. Is there a clear, single-minded proposition? (Core proposition should be compelling and differentiating)
 2. Is the strategy distinctive vs. competition?
 3. Is it relevant to the target audience (including any refinements)?
-4. Does the creative idea bring the strategy to life in a compelling way?
-5. Are the mandatories achievable and clear?
-6. Is there enough direction for Creative to execute well?
+4. Are the support points credible and compelling?
+5. Does the creative idea bring the strategy to life in a compelling way?
+6. Are the mandatories achievable and the constraints clear?
+7. Is there enough direction for Creative to execute well?
 
 Respond in this exact JSON format:
 {
@@ -106,11 +147,13 @@ Respond in this exact JSON format:
 }
 
 Scoring guide:
-- 1-3: Brief is too weak to proceed. Critical elements missing.
+- 1-3: Brief is too weak to proceed. Critical elements missing (problem, audience, or proposition).
 - 4-5: Brief needs work. Some good elements but gaps remain.
 - 6-7: Brief is workable. Minor refinements would help.
-- 8-9: Brief is strong. Ready for Creative execution.
-- 10: Brief is exceptional. Clear, compelling, and actionable.
+- 8-9: Brief is strong. All elements present and cohesive.
+- 10: Brief is exceptional. Clear, compelling, differentiated, and actionable.
+
+IMPORTANT: A complete brief should have at minimum: problem statement, target audience, proposition, and strategy. If any of these are missing, the score should be 5 or below. If all core elements are present and cohesive, the score should be 6+.
 
 Be honest and constructive. If the brief is weak, say so clearly. If it's strong, acknowledge that.
 Return ONLY valid JSON, no markdown formatting.`;

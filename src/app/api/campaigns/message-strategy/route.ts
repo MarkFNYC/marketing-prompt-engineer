@@ -17,6 +17,12 @@ export async function POST(request: NextRequest) {
       budget,
       constraints,
       whatBeenTried,
+      // Expanded brief fields
+      targetAudience,
+      proposition,
+      support,
+      tone,
+      mandatories,
     } = await request.json();
 
     if (!businessProblem) {
@@ -52,18 +58,23 @@ Format:
 BRAND CONTEXT:
 ${brandContext?.name ? `Brand: ${brandContext.name}` : ''}
 ${brandContext?.industry ? `Industry: ${brandContext.industry}` : ''}
-${brandContext?.targetAudience ? `Target Audience: ${brandContext.targetAudience}` : ''}
-${brandContext?.valueProposition ? `Value Proposition: ${brandContext.valueProposition}` : ''}
+${brandContext?.targetAudience || targetAudience ? `Target Audience: ${targetAudience || brandContext?.targetAudience}` : ''}
+${brandContext?.valueProposition || proposition ? `Value Proposition: ${proposition || brandContext?.valueProposition}` : ''}
 
 CAMPAIGN BRIEF:
 Business Problem: ${businessProblem}
+${targetAudience ? `Target Audience: ${targetAudience}` : ''}
+${proposition ? `Core Proposition: ${proposition}` : ''}
+${support?.length ? `Support Points: ${support.join(', ')}` : ''}
+${tone ? `Desired Tone: ${tone}` : ''}
+${mandatories?.length ? `Mandatories: ${mandatories.join(', ')}` : ''}
 ${successMetric ? `Success Metric: ${successMetric}` : ''}
 ${timeline ? `Timeline: ${timeline}` : ''}
 ${budget ? `Budget: ${budget}` : ''}
 ${constraints ? `Constraints: ${constraints}` : ''}
 ${whatBeenTried ? `What's Been Tried: ${whatBeenTried}` : ''}
 
-Based on this brief, propose 3 distinct message strategies. Each should take a meaningfully different approach to solving this business problem. Consider the constraints and what's been tried.`;
+Based on this comprehensive brief, propose 3 distinct message strategies. Each should take a meaningfully different approach to solving this business problem. Build upon the proposition provided (if any) and consider the target audience, tone requirements, and constraints.`;
 
     // Use the same model as the main generate endpoint
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
