@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
     }
 
-    const { originalContent, personaId, mode, brandContext } = await request.json();
+    const { originalContent, personaId, mode, brandContext, feedback } = await request.json();
 
     if (!originalContent || !personaId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -40,8 +40,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid persona' }, { status: 400 });
     }
 
-    // Build the remix prompt
-    const remixPrompt = buildRemixPrompt(originalContent, persona, mode, brandContext);
+    // Build the remix prompt (with optional feedback for re-brief)
+    const remixPrompt = buildRemixPrompt(originalContent, persona, mode, brandContext, feedback);
 
     // Call Gemini API
     if (!GEMINI_API_KEY) {
@@ -101,7 +101,8 @@ function buildRemixPrompt(
   originalContent: string,
   persona: { fullName: string; systemPrompt: string; tagline: string },
   mode: 'strategy' | 'execution',
-  brandContext?: { brand?: string; industry?: string; challenge?: string; targetAudience?: string; brandVoice?: string }
+  brandContext?: { brand?: string; industry?: string; challenge?: string; targetAudience?: string; brandVoice?: string },
+  feedback?: string
 ): string {
   const modeContext = mode === 'strategy'
     ? 'This is a strategic framework/analysis. Reimagine the strategic thinking and approach.'
@@ -121,12 +122,27 @@ function buildRemixPrompt(
     brandInfo = parts.join('\n');
   }
 
+  // Add re-brief feedback section if provided
+  let feedbackSection = '';
+  if (feedback) {
+    feedbackSection = `
+
+---
+
+CREATIVE RE-BRIEF:
+The previous remix didn't meet requirements. Please regenerate with the following feedback in mind:
+${feedback}
+
+CRITICAL: You MUST address this specific feedback while maintaining your unique voice and the core brief requirements. This feedback takes priority.`;
+  }
+
   return `${persona.systemPrompt}
 
 ---
 
 ${modeContext}
 ${brandInfo}
+${feedbackSection}
 
 ---
 
@@ -144,7 +160,7 @@ Important:
 - If this is strategy, rethink the strategic framework
 - If this is creative, reimagine the headlines, copy, and creative direction
 - Be bold - your perspective should noticeably transform the output
-- If a brand voice was specified, blend your style with their voice appropriately
+- If a brand voice was specified, blend your style with their voice appropriately${feedback ? '\n- Address the re-brief feedback provided above - this is critical' : ''}
 
 Begin your reimagined version:`;
 }

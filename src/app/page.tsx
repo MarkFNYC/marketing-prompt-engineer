@@ -242,6 +242,11 @@ interface State {
   rebriefFeedback: string;
   isEditingOutput: boolean;
   editedOutput: string;
+  // Re-brief / Edit Remix
+  showRebriefRemixModal: boolean;
+  rebriefRemixFeedback: string;
+  isEditingRemix: boolean;
+  editedRemix: string;
 }
 
 const FREE_PROMPT_LIMIT = 15;
@@ -366,6 +371,11 @@ export default function Home() {
     rebriefFeedback: '',
     isEditingOutput: false,
     editedOutput: '',
+    // Re-brief / Edit Remix
+    showRebriefRemixModal: false,
+    rebriefRemixFeedback: '',
+    isEditingRemix: false,
+    editedRemix: '',
   });
 
   // Check auth and load state on mount
@@ -1235,6 +1245,62 @@ Important: Address this specific feedback while maintaining the core brief requi
     });
   };
 
+  // Save edited remix
+  const saveEditedRemix = () => {
+    updateState({
+      remixedOutput: state.editedRemix,
+      isEditingRemix: false,
+      editedRemix: '',
+    });
+  };
+
+  // Cancel remix edit
+  const cancelRemixEdit = () => {
+    updateState({
+      isEditingRemix: false,
+      editedRemix: '',
+    });
+  };
+
+  // Regenerate remix with feedback
+  const regenerateRemixWithFeedback = (feedback: string) => {
+    if (!state.remixPersona) return;
+
+    // Re-run the remix with feedback
+    updateState({
+      showRebriefRemixModal: false,
+      rebriefRemixFeedback: '',
+      remixLoading: true,
+    });
+
+    // Call the remix API with feedback
+    const runRemixWithFeedback = async () => {
+      try {
+        const response = await fetch('/api/remix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            originalContent: state.llmOutput,
+            personaId: state.remixPersona?.id,
+            mode: state.mode,
+            feedback: feedback, // Pass the feedback for re-brief
+          }),
+        });
+        const data = await response.json();
+        if (data.result) {
+          updateState({ remixedOutput: data.result, remixLoading: false });
+        } else {
+          updateState({ remixLoading: false });
+        }
+      } catch (error) {
+        console.error('Remix with feedback failed:', error);
+        updateState({ remixLoading: false });
+      }
+    };
+
+    runRemixWithFeedback();
+  };
+
   const submitBrandInfo = () => {
     const brand = (document.getElementById('brand') as HTMLInputElement)?.value || '';
     const website = (document.getElementById('website') as HTMLInputElement)?.value || '';
@@ -1929,6 +1995,9 @@ Important: Address this specific feedback while maintaining the core brief requi
             onRebrief={regenerateWithFeedback}
             onSaveEdit={saveEditedOutput}
             onCancelEdit={cancelEdit}
+            onSaveRemixEdit={saveEditedRemix}
+            onCancelRemixEdit={cancelRemixEdit}
+            onRebriefRemix={regenerateRemixWithFeedback}
           />
         )}
         {state.showRemixModal && (
@@ -3122,6 +3191,9 @@ function LLMOutput({
   onRebrief,
   onSaveEdit,
   onCancelEdit,
+  onSaveRemixEdit,
+  onCancelRemixEdit,
+  onRebriefRemix,
 }: {
   state: State;
   updateState: (updates: Partial<State>) => void;
@@ -3137,6 +3209,9 @@ function LLMOutput({
   onRebrief: (feedback: string) => void;
   onSaveEdit: () => void;
   onCancelEdit: () => void;
+  onSaveRemixEdit: () => void;
+  onCancelRemixEdit: () => void;
+  onRebriefRemix: (feedback: string) => void;
 }) {
   const isLimitReached = state.llmOutput.startsWith('__LIMIT_REACHED__');
   const content = isLimitReached ? state.llmOutput.replace('__LIMIT_REACHED__\n\n', '') : state.llmOutput;
@@ -3477,9 +3552,108 @@ function LLMOutput({
           </div>
           {state.remixExpanded && (
             <div className="p-6">
-              <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
+              {state.remixLoading ? (
+                <div className="flex items-center gap-3 text-slate-400">
+                  <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Regenerating remix...</span>
+                </div>
+              ) : state.isEditingRemix ? (
+                /* Edit Mode for Remix */
+                <div className="space-y-4">
+                  <textarea
+                    value={state.editedRemix}
+                    onChange={(e) => updateState({ editedRemix: e.target.value })}
+                    className="w-full h-96 px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white font-mono text-sm focus:border-purple-500 focus:outline-none resize-y"
+                    placeholder="Edit the remix..."
+                  />
+                  <div className="flex items-center justify-end gap-3">
+                    <button
+                      onClick={onCancelRemixEdit}
+                      className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={onSaveRemixEdit}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm text-white transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Normal Remix View with Edit/Re-brief */
+                <div>
+                  <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
+
+                  {/* Edit / Re-brief Buttons for Remix */}
+                  <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-700/50">
+                    <button
+                      onClick={() => updateState({ isEditingRemix: true, editedRemix: state.remixedOutput || '' })}
+                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => updateState({ showRebriefRemixModal: true })}
+                      className="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-600/50 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Re-brief & Regenerate
+                    </button>
+                    <span className="text-xs text-slate-500 ml-2">Not quite right? Give feedback to regenerate.</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Re-brief Remix Modal */}
+      {state.showRebriefRemixModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-lg">
+            <h3 className="text-xl font-bold mb-2">Re-brief the Remix</h3>
+            <p className="text-slate-400 text-sm mb-4">
+              Tell us what's not working with {state.remixPersona?.name}'s version and we'll regenerate.
+            </p>
+            <textarea
+              value={state.rebriefRemixFeedback}
+              onChange={(e) => updateState({ rebriefRemixFeedback: e.target.value })}
+              placeholder="e.g., 'Don't mention price' or 'Make it shorter' or 'Add more urgency'"
+              rows={4}
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none mb-4"
+              autoFocus
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => updateState({ showRebriefRemixModal: false, rebriefRemixFeedback: '' })}
+                className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => onRebriefRemix(state.rebriefRemixFeedback)}
+                disabled={!state.rebriefRemixFeedback.trim()}
+                className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                  state.rebriefRemixFeedback.trim()
+                    ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                    : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Regenerate Remix
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
