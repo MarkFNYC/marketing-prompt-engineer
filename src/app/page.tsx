@@ -1397,36 +1397,30 @@ Important: Address this specific feedback while maintaining the core brief requi
 
       {/* Usage Limit Modal */}
       {state.showLimitModal && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] border-3 border-[#ff3333] p-8 w-full max-w-md relative">
-            {/* Corner accents */}
-            <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-[#f7ff00]"></div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-[#f7ff00]"></div>
-            <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-[#f7ff00]"></div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-[#f7ff00]"></div>
-
+        <div className="fixed inset-0 bg-[var(--ink)]/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--paper)] border-2 border-[var(--pantone-red)] p-8 w-full max-w-md relative">
             <div className="text-center">
-              <div className="font-display text-6xl text-[#ff3333] mb-4">!</div>
-              <h2 className="headline-md text-[#ff3333] mb-2">LIMIT REACHED</h2>
-              <p className="text-[#666] mb-8">
-                You've burned through all {state.promptsLimit} free prompts. Time to level up.
+              <div className="font-serif text-6xl text-[var(--pantone-red)] mb-4">*</div>
+              <h2 className="headline-section text-[var(--pantone-red)] mb-2">Limit Reached</h2>
+              <p className="text-[var(--gray-text)] mb-8">
+                You've used all {state.promptsLimit} free prompts. Time to level up.
               </p>
 
               <div className="space-y-4 mb-8">
-                <div className="p-4 bg-[#1a1a1a] border-2 border-[#f7ff00]">
+                <div className="p-4 bg-[var(--cream)] border-2 border-[var(--ink)]">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-display text-lg text-[#f7ff00]">PREMIUM</span>
-                    <span className="font-mono text-[#f7ff00]">$29/mo</span>
+                    <span className="headline-card">Premium</span>
+                    <span className="font-medium text-[var(--pantone-red)]">$29/mo</span>
                   </div>
-                  <ul className="text-sm text-[#999] text-left space-y-2 mb-4 font-mono">
+                  <ul className="text-sm text-[var(--gray-text)] text-left space-y-2 mb-4">
                     <li className="flex items-center gap-2">
-                      <span className="text-[#00ff66]">✓</span> Unlimited prompts
+                      <span className="text-[var(--success)]">✓</span> Unlimited prompts
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-[#00ff66]">✓</span> Priority AI responses
+                      <span className="text-[var(--success)]">✓</span> Priority AI responses
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-[#00ff66]">✓</span> All 26 creative personas
+                      <span className="text-[var(--success)]">✓</span> All 26 creative personas
                     </li>
                   </ul>
                   <button
@@ -1434,17 +1428,17 @@ Important: Address this specific feedback while maintaining the core brief requi
                       updateState({ showLimitModal: false });
                       alert('Premium checkout coming soon!');
                     }}
-                    className="btn-primary w-full"
+                    className="btn-accent w-full"
                   >
-                    UPGRADE NOW
+                    Upgrade Now
                   </button>
                 </div>
 
-                <div className="font-display text-[#333] tracking-[0.3em]">OR</div>
+                <div className="label text-[var(--gray-warm)]">or</div>
 
-                <div className="p-4 bg-[#1a1a1a] border-2 border-[#333]">
-                  <p className="text-sm text-white mb-2 font-display">BRING YOUR OWN KEY</p>
-                  <p className="text-xs text-[#666] mb-3">Use your OpenAI or Anthropic API key</p>
+                <div className="p-4 bg-[var(--cream)] border border-[var(--gray-warm)]">
+                  <p className="text-sm text-[var(--ink)] mb-2 font-medium">Bring Your Own Key</p>
+                  <p className="text-xs text-[var(--gray-muted)] mb-3">Use your OpenAI or Anthropic API key</p>
                   <button
                     onClick={() => {
                       updateState({ showLimitModal: false, step: 'brand-input' });
@@ -1454,16 +1448,16 @@ Important: Address this specific feedback while maintaining the core brief requi
                     }}
                     className="btn-secondary btn-sm w-full"
                   >
-                    ADD API KEY
+                    Add API Key
                   </button>
                 </div>
               </div>
 
               <button
                 onClick={() => updateState({ showLimitModal: false })}
-                className="text-xs text-[#444] hover:text-[#666] font-display tracking-wider"
+                className="text-xs text-[var(--gray-muted)] hover:text-[var(--ink)] label"
               >
-                MAYBE LATER
+                Maybe Later
               </button>
             </div>
           </div>
@@ -1471,16 +1465,16 @@ Important: Address this specific feedback while maintaining the core brief requi
       )}
 
       {state.step !== 'landing' && (
-        <header className="border-b-2 border-[#333] bg-[#0a0a0a] sticky top-0 z-10">
+        <header className="border-b border-[var(--gray-warm)] bg-[var(--paper)] sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              {/* Logo - bold and stark */}
-              <div className="flex items-center gap-4 cursor-pointer group" onClick={resetAll}>
-                <div className="w-10 h-10 bg-[#f7ff00] flex items-center justify-center">
-                  <span className="font-display text-black text-xl">A</span>
+              {/* Logo - elegant serif */}
+              <div className="flex items-center gap-3 cursor-pointer group" onClick={resetAll}>
+                <div className="w-10 h-10 bg-[var(--pantone-red)] flex items-center justify-center">
+                  <span className="font-serif text-white text-xl font-bold">A</span>
                 </div>
                 <div>
-                  <h1 className="font-display text-xl tracking-wide text-white group-hover:text-[#f7ff00] transition-colors">AMPLIFY</h1>
+                  <h1 className="font-serif text-xl text-[var(--ink)] group-hover:text-[var(--pantone-red)] transition-colors">Amplify</h1>
                 </div>
               </div>
 
@@ -1500,37 +1494,37 @@ Important: Address this specific feedback while maintaining the core brief requi
                         brandVoice: project.brand_voice || '',
                         step: 'brand-input'
                       })}
-                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] border-2 border-[#333] text-[#f7ff00] text-xs font-display tracking-wider hover:border-[#f7ff00] transition-colors"
+                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[var(--cream)] border border-[var(--gray-warm)] text-[var(--ink)] text-xs label hover:border-[var(--ink)] transition-colors"
                       title="Edit brand profile"
                     >
-                      <span>{project.name.toUpperCase()}</span>
-                      <span className="text-[#666]">✎</span>
+                      <span>{project.name}</span>
+                      <span className="text-[var(--gray-muted)]">✎</span>
                     </button>
                   );
                 })()}
 
-                {/* Usage meter - industrial style */}
+                {/* Usage meter - elegant style */}
                 {state.llmProvider === 'gemini' && !state.apiKey && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
+                      <div className="w-20 h-2 bg-[var(--gray-warm)] overflow-hidden">
                         <div
                           className={`h-full transition-all duration-300 ${
                             state.freePromptsUsed >= state.promptsLimit
-                              ? 'bg-[#ff3333]'
+                              ? 'bg-[var(--error)]'
                               : state.freePromptsUsed >= state.promptsLimit * 0.8
-                                ? 'bg-[#f7ff00]'
-                                : 'bg-[#00ff66]'
+                                ? 'bg-[var(--warning)]'
+                                : 'bg-[var(--success)]'
                           }`}
                           style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                         />
                       </div>
-                      <span className={`text-xs font-mono ${
+                      <span className={`text-xs font-medium ${
                         state.freePromptsUsed >= state.promptsLimit
-                          ? 'text-[#ff3333]'
+                          ? 'text-[var(--error)]'
                           : state.freePromptsUsed >= state.promptsLimit * 0.8
-                            ? 'text-[#f7ff00]'
-                            : 'text-[#666]'
+                            ? 'text-[var(--warning)]'
+                            : 'text-[var(--gray-muted)]'
                       }`}>
                         {state.freePromptsUsed}/{state.promptsLimit}
                       </span>
@@ -1538,9 +1532,9 @@ Important: Address this specific feedback while maintaining the core brief requi
                     {state.freePromptsUsed >= state.promptsLimit && (
                       <button
                         onClick={() => updateState({ showLimitModal: true })}
-                        className="text-xs text-[#ff3333] hover:text-[#ff1493] uppercase tracking-wider font-display"
+                        className="text-xs text-[var(--pantone-red)] hover:text-[var(--pantone-red-dark)] label"
                       >
-                        UPGRADE
+                        Upgrade
                       </button>
                     )}
                   </div>
@@ -1551,15 +1545,15 @@ Important: Address this specific feedback while maintaining the core brief requi
                   <>
                     <button
                       onClick={openProjects}
-                      className="text-xs text-[#666] hover:text-[#f7ff00] uppercase tracking-wider font-display flex items-center gap-1"
+                      className="text-xs text-[var(--gray-muted)] hover:text-[var(--pantone-red)] label flex items-center gap-1"
                     >
-                      PROJECTS
+                      Projects
                     </button>
                     <button
                       onClick={openMyLibrary}
-                      className="text-xs text-[#f7ff00] hover:text-white uppercase tracking-wider font-display flex items-center gap-1"
+                      className="text-xs text-[var(--pantone-red)] hover:text-[var(--ink)] label flex items-center gap-1"
                     >
-                      LIBRARY
+                      Library
                     </button>
                   </>
                 )}
@@ -1567,17 +1561,17 @@ Important: Address this specific feedback while maintaining the core brief requi
                 {/* Auth */}
                 {state.user ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-[#666] font-mono hidden sm:inline">{state.user.email}</span>
-                    <button onClick={handleLogout} className="text-xs text-[#666] hover:text-white uppercase tracking-wider">
-                      EXIT
+                    <span className="text-xs text-[var(--gray-muted)] hidden sm:inline">{state.user.email}</span>
+                    <button onClick={handleLogout} className="text-xs text-[var(--gray-muted)] hover:text-[var(--ink)] label">
+                      Sign out
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => updateState({ authModal: 'login' })}
-                    className="text-xs text-[#f7ff00] hover:text-white uppercase tracking-wider font-display"
+                    className="text-xs text-[var(--pantone-red)] hover:text-[var(--ink)] label"
                   >
-                    LOGIN
+                    Log in
                   </button>
                 )}
               </div>
@@ -2086,51 +2080,51 @@ function AuthModal({
   // Success screens
   if (mode === 'signup-success') {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+      <div className="fixed inset-0 bg-[var(--ink)]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-[var(--paper)] border border-[var(--gray-warm)] p-8 w-full max-w-md text-center">
           {/* Success Icon */}
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-16 h-16 rounded-full bg-[var(--success)]/10 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-[var(--success)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
 
-          <h2 className="text-2xl font-bold mb-2">Check your email</h2>
-          <p className="text-slate-400 mb-6">
+          <h2 className="headline-section mb-2">Check your email</h2>
+          <p className="text-[var(--gray-text)] mb-6">
             We sent a confirmation link to<br />
-            <span className="text-white font-medium">{signupEmail}</span>
+            <span className="text-[var(--ink)] font-medium">{signupEmail}</span>
           </p>
 
-          <div className="bg-slate-900/50 rounded-xl p-4 mb-6 text-left">
-            <p className="text-sm text-slate-400">
-              <span className="text-purple-400 font-medium">Next steps:</span>
+          <div className="bg-[var(--cream)] border border-[var(--gray-warm)] p-4 mb-6 text-left">
+            <p className="text-sm text-[var(--gray-text)]">
+              <span className="text-[var(--pantone-red)] font-medium">Next steps:</span>
             </p>
-            <ol className="text-sm text-slate-400 mt-2 space-y-2">
+            <ol className="text-sm text-[var(--gray-text)] mt-2 space-y-2">
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span className="w-5 h-5 bg-[var(--pantone-red)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
                 <span>Open the email from Amplify</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span className="w-5 h-5 bg-[var(--pantone-red)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
                 <span>Click the confirmation link</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span className="w-5 h-5 bg-[var(--pantone-red)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
                 <span>You'll be automatically signed in</span>
               </li>
             </ol>
           </div>
 
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-[var(--gray-muted)] mb-4">
             Didn't receive the email? Check your spam folder or{' '}
-            <button onClick={() => onSwitchMode('signup')} className="text-purple-400 hover:text-purple-300">
+            <button onClick={() => onSwitchMode('signup')} className="text-[var(--pantone-red)] hover:underline">
               try again
             </button>
           </p>
 
           <button
             onClick={onClose}
-            className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all"
+            className="btn-secondary w-full"
           >
             Got it
           </button>
@@ -2141,51 +2135,51 @@ function AuthModal({
 
   if (mode === 'reset-sent') {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+      <div className="fixed inset-0 bg-[var(--ink)]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-[var(--paper)] border border-[var(--gray-warm)] p-8 w-full max-w-md text-center">
           {/* Email Icon */}
-          <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-16 h-16 rounded-full bg-[var(--pantone-red)]/10 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-[var(--pantone-red)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
 
-          <h2 className="text-2xl font-bold mb-2">Check your email</h2>
-          <p className="text-slate-400 mb-6">
+          <h2 className="headline-section mb-2">Check your email</h2>
+          <p className="text-[var(--gray-text)] mb-6">
             We sent a magic link to<br />
-            <span className="text-white font-medium">{signupEmail}</span>
+            <span className="text-[var(--ink)] font-medium">{signupEmail}</span>
           </p>
 
-          <div className="bg-slate-900/50 rounded-xl p-4 mb-6 text-left">
-            <p className="text-sm text-slate-400">
-              <span className="text-purple-400 font-medium">Next steps:</span>
+          <div className="bg-[var(--cream)] border border-[var(--gray-warm)] p-4 mb-6 text-left">
+            <p className="text-sm text-[var(--gray-text)]">
+              <span className="text-[var(--pantone-red)] font-medium">Next steps:</span>
             </p>
-            <ol className="text-sm text-slate-400 mt-2 space-y-2">
+            <ol className="text-sm text-[var(--gray-text)] mt-2 space-y-2">
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span className="w-5 h-5 bg-[var(--pantone-red)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
                 <span>Open the email from Amplify</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span className="w-5 h-5 bg-[var(--pantone-red)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
                 <span>Click the magic link</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span className="w-5 h-5 bg-[var(--pantone-red)] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
                 <span>You'll be automatically signed in</span>
               </li>
             </ol>
           </div>
 
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-[var(--gray-muted)] mb-4">
             Didn't receive the email? Check your spam folder or{' '}
-            <button onClick={() => onSwitchMode('login')} className="text-purple-400 hover:text-purple-300">
+            <button onClick={() => onSwitchMode('login')} className="text-[var(--pantone-red)] hover:underline">
               try again
             </button>
           </p>
 
           <button
             onClick={() => onSwitchMode('login')}
-            className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all"
+            className="btn-secondary w-full"
           >
             Back to login
           </button>
@@ -2197,21 +2191,21 @@ function AuthModal({
   // Forgot Password Form
   if (mode === 'forgot-password') {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
+      <div className="fixed inset-0 bg-[var(--ink)]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-[var(--paper)] border border-[var(--gray-warm)] p-6 w-full max-w-md">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold">Reset password</h2>
-              <p className="text-sm text-slate-400 mt-1">We'll send you a reset link</p>
+              <h2 className="headline-card">Reset password</h2>
+              <p className="text-sm text-[var(--gray-text)] mt-1">We'll send you a reset link</p>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+            <button onClick={onClose} className="text-[var(--gray-muted)] hover:text-[var(--ink)] p-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-start gap-2">
+              <div className="p-3 bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)] text-sm flex items-start gap-2">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -2220,13 +2214,13 @@ function AuthModal({
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
+              <label className="block label mb-2">Email address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                className="input w-full"
                 required
                 autoFocus
               />
@@ -2235,7 +2229,7 @@ function AuthModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="btn-accent w-full flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isLoading ? (
                 <>
@@ -2248,9 +2242,9 @@ function AuthModal({
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-400 mt-4">
+          <p className="text-center text-sm text-[var(--gray-text)] mt-4">
             Remember your password?{' '}
-            <button onClick={() => onSwitchMode('login')} className="text-purple-400 hover:text-purple-300 font-medium">
+            <button onClick={() => onSwitchMode('login')} className="text-[var(--pantone-red)] hover:underline font-medium">
               Log in
             </button>
           </p>
@@ -2261,23 +2255,23 @@ function AuthModal({
 
   // Login / Signup Forms
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-[var(--ink)]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[var(--paper)] border border-[var(--gray-warm)] p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
-            <p className="text-sm text-slate-400 mt-1">
+            <h2 className="headline-card">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
+            <p className="text-sm text-[var(--gray-text)] mt-1">
               {mode === 'login' ? 'Sign in to continue to Amplify' : 'Start creating amazing marketing content'}
             </p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+          <button onClick={onClose} className="text-[var(--gray-muted)] hover:text-[var(--ink)] p-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-start gap-2">
+            <div className="p-3 bg-[var(--error)]/10 border border-[var(--error)]/30 text-[var(--error)] text-sm flex items-start gap-2">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -2286,13 +2280,13 @@ function AuthModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
+            <label className="block label mb-2">Email address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+              className="input w-full"
               required
               autoFocus
             />
@@ -2302,7 +2296,7 @@ function AuthModal({
           {mode === 'signup' && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-slate-300">Password</label>
+                <label className="block label">Password</label>
               </div>
               <div className="relative">
                 <input
@@ -2310,14 +2304,14 @@ function AuthModal({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pr-12"
+                  className="input w-full pr-12"
                   required
                   minLength={6}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--gray-muted)] hover:text-[var(--ink)]"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2331,13 +2325,13 @@ function AuthModal({
                   )}
                 </button>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Must be at least 6 characters</p>
+              <p className="text-xs text-[var(--gray-muted)] mt-2">Must be at least 6 characters</p>
             </div>
           )}
 
           {/* Magic link hint for login */}
           {mode === 'login' && (
-            <p className="text-xs text-slate-400 -mt-2">
+            <p className="text-xs text-[var(--gray-muted)] -mt-2 italic">
               We'll send you a magic link to sign in - no password needed.
             </p>
           )}
@@ -2345,7 +2339,7 @@ function AuthModal({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="btn-accent w-full flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isLoading ? (
               <>
@@ -2360,25 +2354,25 @@ function AuthModal({
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-700"></div>
+            <div className="w-full border-t border-[var(--gray-warm)]"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-slate-800 px-2 text-slate-500">or</span>
+            <span className="bg-[var(--paper)] px-2 text-[var(--gray-muted)]">or</span>
           </div>
         </div>
 
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-[var(--gray-text)]">
           {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => onSwitchMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-purple-400 hover:text-purple-300 font-medium"
+            className="text-[var(--pantone-red)] hover:underline font-medium"
           >
             {mode === 'login' ? 'Sign up for free' : 'Sign in'}
           </button>
         </p>
 
         {mode === 'signup' && (
-          <p className="text-center text-xs text-slate-500 mt-4">
+          <p className="text-center text-xs text-[var(--gray-muted)] mt-4">
             By creating an account, you agree to our Terms of Service
           </p>
         )}
@@ -2402,113 +2396,114 @@ function LandingPage({
   onLogout: () => void;
 }) {
   return (
-    <div className="min-h-[90vh] flex flex-col texture-grain">
-      {/* Top nav - raw and direct */}
-      <div className="flex justify-between items-center py-6 border-b-2 border-[#333]">
+    <div className="min-h-[90vh] flex flex-col">
+      {/* Top nav - elegant and understated */}
+      <div className="flex justify-between items-center py-6 border-b border-[var(--gray-warm)]">
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-[#f7ff00]"></div>
-          <span className="font-display text-sm tracking-[0.2em] text-[#999]">FABRICA COLLECTIVE</span>
+          <div className="w-2 h-2 bg-[var(--pantone-red)] rounded-full"></div>
+          <span className="label text-[var(--gray-muted)]">FABRICA COLLECTIVE</span>
         </div>
         {user ? (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-[#666] font-mono">{user.email}</span>
-            <button onClick={onLogout} className="text-sm text-[#999] hover:text-white uppercase tracking-wider">Exit</button>
+            <span className="text-sm text-[var(--gray-text)]">{user.email}</span>
+            <button onClick={onLogout} className="label hover:text-[var(--ink)] transition-colors">Sign out</button>
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <button onClick={onLogin} className="text-sm text-[#999] hover:text-white uppercase tracking-wider">Log in</button>
+            <button onClick={onLogin} className="label hover:text-[var(--ink)] transition-colors">Log in</button>
             <button onClick={onSignup} className="btn-primary btn-sm">Sign up</button>
           </div>
         )}
       </div>
 
-      {/* Hero - bold and unapologetic */}
+      {/* Hero - Madison Avenue elegance */}
       <div className="flex-1 flex flex-col justify-center py-16 md:py-24">
-        <div className="max-w-5xl">
+        <div className="max-w-4xl">
           {/* Eyebrow */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-[2px] w-12 bg-[#f7ff00]"></div>
-            <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">YOUR VIRTUAL AGENCY ROOM</span>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-px w-16 bg-[var(--pantone-red)]"></div>
+            <span className="label-accent">Your Virtual Agency Room</span>
           </div>
 
-          {/* Main headline - massive and loud */}
-          <h1 className="headline-xl text-white mb-2">
-            AMPLIFY
+          {/* Main headline - set, not typed */}
+          <h1 className="headline-hero mb-4">
+            Amplify
           </h1>
-          <h2 className="headline-lg text-[#ff1493] mb-8 -mt-2">
-            START WITH STRATEGY,<br/>NOT CHANNELS.
+          <h2 className="font-serif text-3xl md:text-4xl text-[var(--ink)] font-normal leading-tight mb-8">
+            Start with strategy,<br/>
+            <span className="italic text-[var(--pantone-red)]">not channels.</span>
           </h2>
 
-          {/* Subtext */}
-          <p className="text-xl md:text-2xl text-[#999] max-w-2xl mb-12 leading-relaxed">
-            The smoke-filled war room where AI meets advertising's golden age.
-            <span className="text-white"> Planning → Creative → Results.</span>
+          {/* Subtext - editorial voice */}
+          <p className="subhead max-w-xl mb-12">
+            Where artificial intelligence meets advertising's golden age.
+            The planning room where serious marketers craft brave work.
           </p>
 
-          {/* Mode toggle - punk style */}
-          <div className="flex flex-wrap items-center gap-4 mb-12">
-            <div className="inline-flex border-3 border-white">
-              <div className="px-6 py-3 bg-[#f7ff00] text-black font-display text-lg tracking-wide flex items-center gap-2">
-                <span className="text-xl">📋</span> PLANNING
+          {/* Mode indicator - sophisticated */}
+          <div className="flex flex-wrap items-center gap-6 mb-12">
+            <div className="inline-flex border-2 border-[var(--ink)]">
+              <div className="px-5 py-3 bg-[var(--ink)] text-[var(--paper)] font-display text-sm tracking-wider flex items-center gap-2">
+                Planning
               </div>
-              <div className="px-6 py-3 bg-transparent text-[#666] font-display text-lg tracking-wide flex items-center gap-2 border-l-3 border-white">
-                <span className="text-xl">🎨</span> CREATIVE
+              <div className="px-5 py-3 bg-transparent text-[var(--gray-muted)] font-display text-sm tracking-wider flex items-center gap-2">
+                Creative
               </div>
             </div>
-            <span className="text-[#666] font-mono text-sm">// TOGGLE YOUR DEPARTMENT</span>
+            <span className="text-sm text-[var(--gray-muted)] italic font-editorial">Two modes. One workflow.</span>
           </div>
 
-          {/* CTA - bold and dangerous */}
+          {/* CTA - confident but not aggressive */}
           <div className="flex flex-wrap items-center gap-6">
             <button
               onClick={onStart}
-              className="btn-primary text-xl px-10 py-5 flex items-center gap-4"
+              className="btn-accent text-lg px-8 py-4 flex items-center gap-3"
             >
-              ENTER THE WAR ROOM
-              <span className="text-2xl">→</span>
+              Enter the Agency
+              <span className="text-xl">→</span>
             </button>
-            <span className="text-[#666] font-mono text-sm">FREE TO START</span>
+            <span className="text-sm text-[var(--gray-muted)]">Free to start</span>
           </div>
         </div>
       </div>
 
-      {/* How it works - industrial grid */}
-      <div className="py-16 border-t-2 border-[#333]">
-        <div className="flex items-center gap-4 mb-12">
-          <h2 className="headline-md text-white">THE PROCESS</h2>
-          <div className="flex-1 h-[2px] bg-[#333]"></div>
+      {/* How it works - editorial grid */}
+      <div className="py-16 border-t border-[var(--gray-warm)]">
+        <div className="flex items-center gap-6 mb-12">
+          <h2 className="headline-section">The Process</h2>
+          <div className="flex-1 h-px bg-[var(--gray-warm)]"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-0">
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#f7ff00] mb-4">01</div>
-            <h3 className="font-display text-xl mb-2 text-white">BRIEF IN</h3>
-            <p className="text-[#666] text-sm leading-relaxed">Brand, industry, challenge. Set the battlefield.</p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-[var(--gray-warm)]">
+          <div className="p-8 bg-[var(--paper)]">
+            <div className="text-5xl font-serif text-[var(--pantone-red)] mb-4 font-light">01</div>
+            <h3 className="headline-card mb-3">Brief In</h3>
+            <p className="text-[var(--gray-text)] text-sm leading-relaxed">Brand, industry, challenge. The foundation of any great campaign.</p>
           </div>
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#ff1493] mb-4">02</div>
-            <h3 className="font-display text-xl mb-2 text-white">PLANNING</h3>
-            <p className="text-[#666] text-sm leading-relaxed">Define the problem. Develop strategy. Pick your angle.</p>
+          <div className="p-8 bg-[var(--paper)]">
+            <div className="text-5xl font-serif text-[var(--pantone-red)] mb-4 font-light">02</div>
+            <h3 className="headline-card mb-3">Planning</h3>
+            <p className="text-[var(--gray-text)] text-sm leading-relaxed">Define the problem. Develop strategy. Find your angle.</p>
           </div>
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#ff3333] mb-4">03</div>
-            <h3 className="font-display text-xl mb-2 text-white">REVIEW</h3>
-            <p className="text-[#666] text-sm leading-relaxed">AI sanity-check. Is your brief ready for prime time?</p>
+          <div className="p-8 bg-[var(--paper)]">
+            <div className="text-5xl font-serif text-[var(--pantone-red)] mb-4 font-light">03</div>
+            <h3 className="headline-card mb-3">Review</h3>
+            <p className="text-[var(--gray-text)] text-sm leading-relaxed">AI assessment. Is your brief ready for the creative department?</p>
           </div>
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#00ff66] mb-4">04</div>
-            <h3 className="font-display text-xl mb-2 text-white">CREATIVE</h3>
-            <p className="text-[#666] text-sm leading-relaxed">Generate. Remix. Launch. Win.</p>
+          <div className="p-8 bg-[var(--paper)]">
+            <div className="text-5xl font-serif text-[var(--pantone-red)] mb-4 font-light">04</div>
+            <h3 className="headline-card mb-3">Creative</h3>
+            <p className="text-[var(--gray-text)] text-sm leading-relaxed">Generate. Remix with legends. Execute brilliantly.</p>
           </div>
         </div>
       </div>
 
-      {/* Footer - minimal and raw */}
-      <div className="py-8 border-t-2 border-[#333] flex flex-wrap justify-between items-center gap-4">
-        <p className="text-sm text-[#666]">
-          Built by <a href="https://fabricacollective.com" target="_blank" className="text-[#f7ff00] hover:underline">FABRICA COLLECTIVE</a>
+      {/* Footer - refined and quiet */}
+      <div className="py-8 border-t border-[var(--gray-warm)] flex flex-wrap justify-between items-center gap-4">
+        <p className="text-sm text-[var(--gray-muted)]">
+          Built by <a href="https://fabricacollective.com" target="_blank" className="text-[var(--pantone-red)] hover:underline">Fabrica Collective</a>
         </p>
-        <p className="text-xs text-[#444] font-mono">REFORGE × DEMAND CURVE × CXL × HUBSPOT</p>
+        <p className="text-xs text-[var(--gray-muted)] tracking-wider">REFORGE · DEMAND CURVE · CXL · HUBSPOT</p>
       </div>
     </div>
   );
@@ -2554,29 +2549,29 @@ function ProjectsList({
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-[2px] w-8 bg-[#f7ff00]"></div>
-          <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">SELECT OR CREATE</span>
+          <div className="h-px w-12 bg-[var(--pantone-red)]"></div>
+          <span className="label-accent">Select or Create</span>
         </div>
-        <h2 className="headline-lg text-white">YOUR PROJECTS</h2>
+        <h2 className="headline-section">Your Projects</h2>
       </div>
 
       {state.projectsLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-[#f7ff00] border-t-transparent animate-spin" />
+          <div className="w-8 h-8 border-2 border-[var(--pantone-red)] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="space-y-4">
           {/* Create New Project Button */}
           <button
             onClick={onCreateNew}
-            className="w-full p-6 border-2 border-dashed border-[#333] hover:border-[#f7ff00] bg-[#1a1a1a] transition-all flex items-center gap-4 group"
+            className="w-full p-6 border-2 border-dashed border-[var(--gray-warm)] hover:border-[var(--pantone-red)] bg-[var(--cream)] transition-all flex items-center gap-4 group"
           >
-            <div className="w-14 h-14 bg-[#f7ff00] flex items-center justify-center text-black font-display text-3xl group-hover:bg-white transition-colors">
+            <div className="w-14 h-14 bg-[var(--pantone-red)] flex items-center justify-center text-white font-serif text-3xl group-hover:bg-[var(--ink)] transition-colors">
               +
             </div>
             <div className="text-left">
-              <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors">NEW PROJECT</div>
-              <div className="text-sm text-[#666]">Add a new brand or client</div>
+              <div className="headline-card group-hover:text-[var(--pantone-red)] transition-colors">New Project</div>
+              <div className="text-sm text-[var(--gray-text)]">Add a new brand or client</div>
             </div>
           </button>
 
@@ -2585,7 +2580,7 @@ function ProjectsList({
             state.projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-[#1a1a1a] border-2 border-[#333] overflow-hidden hover:border-[#666] transition-colors group"
+                className="bg-[var(--cream)] border border-[var(--gray-warm)] overflow-hidden hover:border-[var(--ink)] transition-colors group"
               >
                 <div
                   className="p-5 cursor-pointer"
@@ -2593,32 +2588,32 @@ function ProjectsList({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-[#ff1493] flex items-center justify-center text-white font-display text-2xl">
+                      <div className="w-14 h-14 bg-[var(--ink)] flex items-center justify-center text-[var(--paper)] font-serif text-2xl">
                         {project.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors">
-                          {project.name.toUpperCase()}
+                        <h3 className="headline-card group-hover:text-[var(--pantone-red)] transition-colors">
+                          {project.name}
                         </h3>
-                        <div className="flex items-center gap-2 text-xs text-[#666] mt-1 font-mono">
+                        <div className="flex items-center gap-2 text-xs text-[var(--gray-muted)] mt-1">
                           <span>{project.industry}</span>
                           {project.website && (
                             <>
-                              <span className="text-[#333]">//</span>
+                              <span className="text-[var(--gray-warm)]">·</span>
                               <span>{project.website}</span>
                             </>
                           )}
                         </div>
-                        <p className="text-sm text-[#999] mt-2 line-clamp-2">{project.challenge}</p>
+                        <p className="text-sm text-[var(--gray-text)] mt-2 line-clamp-2">{project.challenge}</p>
                       </div>
                     </div>
-                    <div className="text-xs text-[#444] font-mono whitespace-nowrap">
+                    <div className="text-xs text-[var(--gray-muted)] whitespace-nowrap">
                       {formatDate(project.updated_at)}
                     </div>
                   </div>
                 </div>
 
-                <div className="px-5 py-3 border-t-2 border-[#333] bg-[#0a0a0a] flex items-center justify-between">
+                <div className="px-5 py-3 border-t border-[var(--gray-warm)] bg-[var(--paper-warm)] flex items-center justify-between">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -2626,7 +2621,7 @@ function ProjectsList({
                     }}
                     className="btn-primary btn-sm flex items-center gap-2"
                   >
-                    CONTINUE →
+                    Continue →
                   </button>
                   <div className="flex items-center gap-2">
                     <button
@@ -2634,31 +2629,31 @@ function ProjectsList({
                         e.stopPropagation();
                         onEditProject(project);
                       }}
-                      className="px-3 py-2 text-[#666] hover:text-white text-xs font-display tracking-wider transition-colors"
+                      className="px-3 py-2 text-[var(--gray-muted)] hover:text-[var(--ink)] text-xs label transition-colors"
                     >
-                      EDIT
+                      Edit
                     </button>
                     {deleteConfirm === project.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#666] font-display">DELETE?</span>
+                        <span className="text-xs text-[var(--gray-text)]">Delete?</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(project.id);
                           }}
                           disabled={isDeleting}
-                          className="px-3 py-1.5 bg-[#ff3333] text-white text-xs font-display tracking-wider transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 bg-[var(--pantone-red)] text-white text-xs label transition-colors disabled:opacity-50"
                         >
-                          {isDeleting ? '...' : 'YES'}
+                          {isDeleting ? '...' : 'Yes'}
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setDeleteConfirm(null);
                           }}
-                          className="px-3 py-1.5 bg-[#333] text-white text-xs font-display tracking-wider transition-colors"
+                          className="px-3 py-1.5 bg-[var(--gray-warm)] text-[var(--ink)] text-xs label transition-colors"
                         >
-                          NO
+                          No
                         </button>
                       </div>
                     ) : (
@@ -2667,9 +2662,9 @@ function ProjectsList({
                           e.stopPropagation();
                           setDeleteConfirm(project.id);
                         }}
-                        className="px-3 py-2 text-[#ff3333] hover:text-[#ff1493] text-xs font-display tracking-wider transition-colors"
+                        className="px-3 py-2 text-[var(--pantone-red)] hover:text-[var(--pantone-red-dark)] text-xs label transition-colors"
                       >
-                        DELETE
+                        Delete
                       </button>
                     )}
                   </div>
@@ -2677,17 +2672,17 @@ function ProjectsList({
               </div>
             ))
           ) : (
-            <div className="text-center py-12 text-[#666] border-2 border-dashed border-[#333]">
-              <p className="font-display text-lg">NO PROJECTS YET</p>
-              <p className="text-sm mt-2">Create your first one to get started</p>
+            <div className="text-center py-12 text-[var(--gray-text)] border-2 border-dashed border-[var(--gray-warm)]">
+              <p className="headline-card">No projects yet</p>
+              <p className="text-sm mt-2 text-[var(--gray-muted)]">Create your first one to get started</p>
             </div>
           )}
         </div>
       )}
 
-      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[var(--gray-muted)] hover:text-[var(--pantone-red)] transition-colors label">
         <span>←</span>
-        BACK TO HOME
+        Back to Home
       </button>
     </div>
   );
@@ -2791,99 +2786,99 @@ function BrandInput({
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-[2px] w-8 bg-[#f7ff00]"></div>
-          <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">
-            {isEditing ? 'EDIT PROFILE' : isLoggedIn ? 'NEW PROJECT' : 'BRIEF IN'}
+          <div className="h-px w-12 bg-[var(--pantone-red)]"></div>
+          <span className="label-accent">
+            {isEditing ? 'Edit Profile' : isLoggedIn ? 'New Project' : 'Brief In'}
           </span>
         </div>
-        <h2 className="headline-lg text-white">
-          {isEditing ? 'UPDATE YOUR' : isLoggedIn ? 'CREATE YOUR' : 'TELL US ABOUT YOUR'}
+        <h2 className="headline-section">
+          {isEditing ? 'Update your' : isLoggedIn ? 'Create your' : 'Tell us about your'}
         </h2>
-        <h2 className="headline-lg text-[#ff1493] -mt-2">BRAND</h2>
+        <h2 className="headline-section text-[var(--pantone-red)] -mt-1">Brand</h2>
       </div>
 
       {/* First-time user tip */}
       {!isEditing && !isLoggedIn && (
-        <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#f7ff00]">
+        <div className="mb-8 p-4 bg-[var(--cream)] border-l-4 border-[var(--pantone-red)]">
           <div className="flex gap-3">
-            <div className="text-[#f7ff00] font-display text-2xl">!</div>
+            <div className="text-[var(--pantone-red)] font-serif text-2xl">*</div>
             <div>
-              <p className="text-sm text-[#f7ff00] font-display tracking-wide">THE MORE CONTEXT, THE BETTER</p>
-              <p className="text-xs text-[#666] mt-1">Complete profiles generate 3x more relevant content. Fill everything.</p>
+              <p className="text-sm text-[var(--ink)] font-medium">The more context, the better</p>
+              <p className="text-xs text-[var(--gray-text)] mt-1">Complete profiles generate 3x more relevant content. Fill everything.</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="bg-[#1a1a1a] border-2 border-[#333] p-6 space-y-6">
+      <div className="card p-6 space-y-6">
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">{isLoggedIn ? 'PROJECT NAME *' : 'BRAND NAME *'}</label>
-          <input type="text" id="brand" defaultValue={state.brand} placeholder="e.g., Acme Inc." className="input-raw w-full" />
+          <label className="block label text-[var(--pantone-red)] mb-2">{isLoggedIn ? 'Project Name *' : 'Brand Name *'}</label>
+          <input type="text" id="brand" defaultValue={state.brand} placeholder="e.g., Acme Inc." className="input w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">WEBSITE</label>
-          <input type="text" id="website" defaultValue={state.website} placeholder="e.g., acme.com" className="input-raw w-full" />
+          <label className="block label mb-2">Website</label>
+          <input type="text" id="website" defaultValue={state.website} placeholder="e.g., acme.com" className="input w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">INDUSTRY / NICHE *</label>
-          <input type="text" id="industry" defaultValue={state.industry} placeholder="e.g., B2B SaaS, E-commerce, Healthcare" className="input-raw w-full" />
+          <label className="block label text-[var(--pantone-red)] mb-2">Industry / Niche *</label>
+          <input type="text" id="industry" defaultValue={state.industry} placeholder="e.g., B2B SaaS, E-commerce, Healthcare" className="input w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">BUSINESS CHALLENGE *</label>
-          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="e.g., We need to increase organic traffic by 50% in Q1..." className="input-raw w-full resize-none" />
-          <p className="text-xs text-[#666] mt-2 font-mono">// Be specific. This context makes prompts 10x better.</p>
+          <label className="block label text-[var(--pantone-red)] mb-2">Business Challenge *</label>
+          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="e.g., We need to increase organic traffic by 50% in Q1..." className="input w-full resize-none" />
+          <p className="text-xs text-[var(--gray-muted)] mt-2 italic">Be specific. This context makes prompts significantly better.</p>
         </div>
 
         {/* Brand Voice Section */}
-        <div className="pt-6 border-t-2 border-[#333]">
+        <div className="pt-6 border-t border-[var(--gray-warm)]">
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center justify-between w-full text-left group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-xs font-display tracking-[0.2em] text-white group-hover:text-[#f7ff00] transition-colors">BRAND VOICE & AUDIENCE</span>
-              <span className="tag tag-yellow text-[10px]">RECOMMENDED</span>
+              <span className="label group-hover:text-[var(--pantone-red)] transition-colors">Brand Voice & Audience</span>
+              <span className="tag-accent text-[10px]">Recommended</span>
             </div>
-            <span className={`text-[#666] transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>▼</span>
+            <span className={`text-[var(--gray-muted)] transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>▼</span>
           </button>
 
           {showAdvanced && (
             <div className="mt-6 space-y-6">
               <div>
-                <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">TARGET AUDIENCE</label>
+                <label className="block label mb-2">Target Audience</label>
                 <textarea
                   id="targetAudience"
                   rows={2}
                   defaultValue={state.targetAudience}
                   placeholder="e.g., Marketing managers at B2B SaaS companies with 50-500 employees..."
-                  className="input-raw w-full resize-none"
+                  className="input w-full resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">BRAND VOICE & TONE</label>
+                <label className="block label mb-2">Brand Voice & Tone</label>
                 <textarea
                   id="brandVoice"
                   rows={2}
                   defaultValue={state.brandVoice}
                   placeholder="e.g., Professional but warm. Clear language, no jargon..."
-                  className="input-raw w-full resize-none"
+                  className="input w-full resize-none"
                 />
               </div>
 
               {/* Profile Completion Indicator */}
-              <div className="bg-[#0a0a0a] border-2 border-[#333] p-4">
+              <div className="bg-[var(--paper-warm)] border border-[var(--gray-warm)] p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-display tracking-wider text-[#666]">PROFILE COMPLETION</span>
-                  <span className="text-sm font-mono text-[#f7ff00]">{getProfileCompletion()}%</span>
+                  <span className="label">Profile Completion</span>
+                  <span className="text-sm font-medium text-[var(--pantone-red)]">{getProfileCompletion()}%</span>
                 </div>
-                <div className="h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
+                <div className="h-2 bg-[var(--gray-warm)] overflow-hidden">
                   <div
-                    className="h-full bg-[#f7ff00] transition-all duration-300"
+                    className="h-full bg-[var(--pantone-red)] transition-all duration-300"
                     style={{ width: `${getProfileCompletion()}%` }}
                   />
                 </div>
@@ -2892,35 +2887,35 @@ function BrandInput({
           )}
         </div>
 
-        <div id="apiKeySection" className="pt-6 border-t-2 border-[#333]">
-          <label className="block text-xs font-display tracking-[0.2em] text-white mb-4">AI PROVIDER</label>
+        <div id="apiKeySection" className="pt-6 border-t border-[var(--gray-warm)]">
+          <label className="block label mb-4">AI Provider</label>
           <div className="flex gap-2 mb-4">
-            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>GEMINI (FREE)</button>
-            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#f7ff00] bg-[#f7ff00]/10 text-[#f7ff00]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>OPENAI</button>
-            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#ff1493] bg-[#ff1493]/10 text-[#ff1493]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>ANTHROPIC</button>
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[var(--success)] bg-[var(--success)]/10 text-[var(--success)]' : 'border-[var(--gray-warm)] text-[var(--gray-muted)] hover:border-[var(--ink)]'}`}>Gemini (Free)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[var(--ink)] bg-[var(--ink)]/5 text-[var(--ink)]' : 'border-[var(--gray-warm)] text-[var(--gray-muted)] hover:border-[var(--ink)]'}`}>OpenAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[var(--pantone-red)] bg-[var(--pantone-red)]/10 text-[var(--pantone-red)]' : 'border-[var(--gray-warm)] text-[var(--gray-muted)] hover:border-[var(--ink)]'}`}>Anthropic</button>
           </div>
           {state.llmProvider === 'gemini' ? (
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
+              <div className="flex-1 h-2 bg-[var(--gray-warm)] overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 ${
                     state.freePromptsUsed >= state.promptsLimit
-                      ? 'bg-[#ff3333]'
+                      ? 'bg-[var(--error)]'
                       : state.freePromptsUsed >= state.promptsLimit * 0.8
-                        ? 'bg-[#f7ff00]'
-                        : 'bg-[#00ff66]'
+                        ? 'bg-[var(--warning)]'
+                        : 'bg-[var(--success)]'
                   }`}
                   style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                 />
               </div>
-              <span className={`text-xs font-mono ${
+              <span className={`text-xs font-medium ${
                 state.freePromptsUsed >= state.promptsLimit
-                  ? 'text-[#ff3333]'
+                  ? 'text-[var(--error)]'
                   : state.freePromptsUsed >= state.promptsLimit * 0.8
-                    ? 'text-[#f7ff00]'
-                    : 'text-[#00ff66]'
+                    ? 'text-[var(--warning)]'
+                    : 'text-[var(--success)]'
               }`}>
-                {state.promptsLimit - state.freePromptsUsed} LEFT
+                {state.promptsLimit - state.freePromptsUsed} left
               </span>
             </div>
           ) : (
@@ -2931,9 +2926,9 @@ function BrandInput({
                 value={state.apiKey}
                 onChange={(e) => updateState({ apiKey: e.target.value })}
                 placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
-                className="input-raw w-full"
+                className="input w-full"
               />
-              <p className="text-xs text-[#666] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
+              <p className="text-xs text-[var(--gray-muted)] mt-2 italic">Stored locally. Never leaves your browser.</p>
             </>
           )}
         </div>
@@ -2941,16 +2936,16 @@ function BrandInput({
         <button
           onClick={handleSubmit}
           disabled={isSaving}
-          className="btn-primary w-full flex items-center justify-center gap-3 disabled:opacity-50"
+          className="btn-accent w-full flex items-center justify-center gap-3 disabled:opacity-50"
         >
           {isSaving ? (
             <>
-              <div className="w-5 h-5 border-2 border-black/30 border-t-black animate-spin" />
-              SAVING...
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Saving...
             </>
           ) : (
             <>
-              {isEditing ? 'SAVE & CONTINUE' : isLoggedIn ? 'CREATE PROJECT' : 'CONTINUE'} →
+              {isEditing ? 'Save & Continue' : isLoggedIn ? 'Create Project' : 'Continue'} →
             </>
           )}
         </button>
@@ -2958,9 +2953,9 @@ function BrandInput({
         {goBack && (
           <button
             onClick={goBack}
-            className="w-full py-3 text-[#666] hover:text-[#f7ff00] flex items-center justify-center gap-2 transition-colors font-display tracking-wider"
+            className="w-full py-3 text-[var(--gray-muted)] hover:text-[var(--pantone-red)] flex items-center justify-center gap-2 transition-colors label"
           >
-            ← {isLoggedIn ? 'BACK TO PROJECTS' : 'BACK'}
+            ← {isLoggedIn ? 'Back to Projects' : 'Back'}
           </button>
         )}
       </div>
@@ -2975,36 +2970,36 @@ function DisciplineSelect({ state, selectDiscipline, goBack }: { state: State; s
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div className="tag tag-pink">{state.brand.toUpperCase()}</div>
-          <span className="text-[#333] font-display">//</span>
-          <span className="text-[#666] text-sm font-display tracking-wider">{state.industry.toUpperCase()}</span>
+          <div className="tag-accent">{state.brand}</div>
+          <span className="text-[var(--gray-warm)]">·</span>
+          <span className="text-[var(--gray-muted)] text-sm">{state.industry}</span>
         </div>
-        <h2 className="headline-lg text-white">CHOOSE YOUR</h2>
-        <h2 className="headline-lg text-[#f7ff00] -mt-2">WEAPON</h2>
-        <p className="text-[#666] mt-4">Select a discipline. Each one is loaded with specialized prompts.</p>
+        <h2 className="headline-section">Choose your</h2>
+        <h2 className="headline-section text-[var(--pantone-red)] -mt-1">Discipline</h2>
+        <p className="subhead mt-4">Select a discipline. Each one is loaded with specialized prompts.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--gray-warm)]">
         {disciplines.map((d, index) => (
           <button
             key={d.value}
             onClick={() => selectDiscipline(d.value)}
-            className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#f7ff00] group relative overflow-hidden"
+            className="p-6 transition-all text-left bg-[var(--cream)] hover:bg-[var(--paper-warm)] group relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 font-display text-6xl text-[#1a1a1a] group-hover:text-[#222] transition-colors">
+            <div className="absolute top-2 right-4 font-serif text-5xl text-[var(--gray-warm)] group-hover:text-[var(--pantone-red)]/20 transition-colors font-light">
               {String(index + 1).padStart(2, '0')}
             </div>
             <div className="relative z-10">
               <div className="text-4xl mb-4">{d.icon}</div>
-              <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors tracking-wide">{d.label.toUpperCase()}</div>
-              <div className="text-sm text-[#666] mt-2 group-hover:text-[#999] transition-colors">{d.desc}</div>
+              <div className="headline-card group-hover:text-[var(--pantone-red)] transition-colors">{d.label}</div>
+              <div className="text-sm text-[var(--gray-text)] mt-2 group-hover:text-[var(--ink)] transition-colors">{d.desc}</div>
             </div>
           </button>
         ))}
       </div>
 
-      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
-        ← EDIT BRIEF
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[var(--gray-muted)] hover:text-[var(--pantone-red)] transition-colors label">
+        ← Edit Brief
       </button>
     </div>
   );
@@ -3018,42 +3013,42 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
     <div className="space-y-8">
       {/* Top bar */}
       <div className="flex items-center justify-between">
-        <button onClick={goBack} className="flex items-center gap-2 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
-          ← BACK
+        <button onClick={goBack} className="flex items-center gap-2 text-[var(--gray-muted)] hover:text-[var(--pantone-red)] transition-colors label">
+          ← Back
         </button>
-        <div className="tag tag-pink">{state.brand.toUpperCase()}</div>
+        <div className="tag-accent">{state.brand}</div>
       </div>
 
-      {/* Mode toggle - punk style */}
+      {/* Mode toggle - sophisticated */}
       <div className="flex justify-center">
-        <div className="inline-flex border-2 border-white">
+        <div className="inline-flex border-2 border-[var(--ink)]">
           <button
             onClick={() => setMode('strategy')}
-            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-[#f7ff00] text-black' : 'bg-transparent text-[#666] hover:text-white'}`}
+            className={`px-6 py-3 font-display text-sm tracking-wider flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-[var(--ink)] text-[var(--paper)]' : 'bg-transparent text-[var(--gray-muted)] hover:text-[var(--ink)]'}`}
           >
-            📋 PLANNING
+            Planning
           </button>
           <button
             onClick={() => setMode('execution')}
-            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all border-l-2 border-white ${state.mode === 'execution' ? 'bg-[#00ff66] text-black' : 'bg-transparent text-[#666] hover:text-white'}`}
+            className={`px-6 py-3 font-display text-sm tracking-wider flex items-center gap-2 transition-all border-l-2 border-[var(--ink)] ${state.mode === 'execution' ? 'bg-[var(--pantone-red)] text-white' : 'bg-transparent text-[var(--gray-muted)] hover:text-[var(--ink)]'}`}
           >
-            🎨 CREATIVE
+            Creative
           </button>
         </div>
       </div>
-      <p className="text-center text-xs text-[#666] font-mono">// {state.mode === 'strategy' ? 'Define strategy, validate briefs, develop message angles' : 'Execute within your approved strategic direction'}</p>
+      <p className="text-center text-sm text-[var(--gray-muted)] italic font-editorial">{state.mode === 'strategy' ? 'Define strategy, validate briefs, develop message angles' : 'Execute within your approved strategic direction'}</p>
 
       {/* Skipped Planning Review Warning */}
       {state.skippedPlanningReview && state.mode === 'execution' && (
-        <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
-          <span className="text-amber-400 text-xl">⚠️</span>
+        <div className="max-w-2xl mx-auto bg-[var(--warning)]/10 border-l-4 border-[var(--warning)] p-4 flex items-start gap-3">
+          <span className="text-[var(--warning)] text-xl">*</span>
           <div className="flex-1">
-            <p className="text-amber-300 font-medium">Strategy not reviewed</p>
-            <p className="text-sm text-amber-200/70 mt-1">
+            <p className="text-[var(--ink)] font-medium">Strategy not reviewed</p>
+            <p className="text-sm text-[var(--gray-text)] mt-1">
               You skipped Planning Review. Your creative outputs may not be strategically aligned.
               <button
                 onClick={() => setMode('strategy')}
-                className="ml-2 underline hover:text-amber-100"
+                className="ml-2 text-[var(--pantone-red)] underline hover:no-underline"
               >
                 Return to Planning
               </button>
@@ -3066,39 +3061,39 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
       <div className="flex justify-center">
         <button
           onClick={onOpenPersonas}
-          className={`px-4 py-2 rounded-xl border-2 transition-all flex items-center gap-3 ${
+          className={`px-4 py-3 border-2 transition-all flex items-center gap-3 ${
             state.selectedPersona
-              ? 'border-purple-500 bg-purple-500/10 hover:bg-purple-500/20'
-              : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+              ? 'border-[var(--pantone-red)] bg-[var(--pantone-red)]/5 hover:bg-[var(--pantone-red)]/10'
+              : 'border-[var(--gray-warm)] bg-[var(--cream)] hover:border-[var(--ink)]'
           }`}
         >
           <span className="text-2xl">
             {state.selectedPersona?.avatar_emoji || '👥'}
           </span>
           <div className="text-left">
-            <div className="text-xs text-slate-400">Target Persona</div>
-            <div className="font-medium">
+            <div className="label text-[10px]">Target Persona</div>
+            <div className="font-medium text-[var(--ink)]">
               {state.selectedPersona ? state.selectedPersona.name : 'General Audience'}
             </div>
           </div>
-          <svg className="w-4 h-4 text-slate-400 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-[var(--gray-muted)] ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
       </div>
 
       <div className="text-center max-w-3xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">{lib.title}</h2>
-        <p className="text-slate-400 leading-relaxed">{lib.summary}</p>
+        <h2 className="headline-section mb-4">{lib.title}</h2>
+        <p className="subhead">{lib.summary}</p>
       </div>
 
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center text-purple-400">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-8 flex items-center justify-center text-[var(--pantone-red)]">
             <span dangerouslySetInnerHTML={{ __html: icons.brain }} />
           </div>
-          <h3 className="text-xl font-bold">Mental Models</h3>
-          <span className="text-sm text-slate-500">({lib.mentalModels.length})</span>
+          <h3 className="headline-card">Mental Models</h3>
+          <span className="text-sm text-[var(--gray-muted)]">({lib.mentalModels.length})</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {lib.mentalModels.map((model: any, index: number) => (
@@ -3108,12 +3103,12 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
       </section>
 
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-cyan-600/20 flex items-center justify-center text-cyan-400">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-8 flex items-center justify-center text-[var(--pantone-red)]">
             <span dangerouslySetInnerHTML={{ __html: icons.zap }} />
           </div>
-          <h3 className="text-xl font-bold">Personalized Prompts</h3>
-          <span className="text-sm text-slate-500">(10)</span>
+          <h3 className="headline-card">Personalized Prompts</h3>
+          <span className="text-sm text-[var(--gray-muted)]">(10)</span>
         </div>
         <div className="space-y-4">
           {lib.prompts.map((prompt: any, index: number) => (
@@ -3127,28 +3122,28 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
 
 function MentalModelCard({ model, isOpen, onToggle }: { model: any; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+    <div className="card p-4">
       <div className="flex items-start justify-between cursor-pointer" onClick={onToggle}>
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center flex-shrink-0 text-purple-400">
+          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-[var(--pantone-red)]">
             <span dangerouslySetInnerHTML={{ __html: icons.brain }} />
           </div>
           <div>
-            <h4 className="font-semibold text-white">{model.name}</h4>
-            <p className="text-sm text-slate-400 mt-1">{model.description}</p>
+            <h4 className="font-medium text-[var(--ink)]">{model.name}</h4>
+            <p className="text-sm text-[var(--gray-text)] mt-1">{model.description}</p>
           </div>
         </div>
-        <button className="text-slate-500 hover:text-slate-300">
+        <button className="text-[var(--gray-muted)] hover:text-[var(--ink)]">
           <span dangerouslySetInnerHTML={{ __html: isOpen ? icons.chevronUp : icons.chevronDown }} />
         </button>
       </div>
       {isOpen && (
-        <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
+        <div className="mt-4 pt-4 border-t border-[var(--gray-warm)] space-y-3">
           <div className="flex items-start gap-2">
-            <span className="text-yellow-400 mt-1" dangerouslySetInnerHTML={{ __html: icons.lightbulb }} />
-            <p className="text-sm text-slate-300">{model.lesson}</p>
+            <span className="text-[var(--warning)] mt-1" dangerouslySetInnerHTML={{ __html: icons.lightbulb }} />
+            <p className="text-sm text-[var(--ink)]">{model.lesson}</p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-xs text-[var(--gray-muted)]">
             <span dangerouslySetInnerHTML={{ __html: icons.book }} />
             <span>{model.source}</span>
           </div>
@@ -3163,30 +3158,30 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
   const displayText = isExpanded ? personalized : personalized.length > 180 ? personalized.slice(0, 180) + '...' : personalized;
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <div className="card overflow-hidden">
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 font-bold text-white">{prompt.id}</div>
+            <div className="w-10 h-10 bg-[var(--ink)] flex items-center justify-center flex-shrink-0 font-serif text-lg text-[var(--paper)]">{prompt.id}</div>
             <div>
-              <span className="text-xs font-medium text-cyan-400 uppercase tracking-wide">Prompt {prompt.id}</span>
-              <h4 className="font-semibold text-white mt-1">{prompt.goal}</h4>
+              <span className="label-accent text-[10px]">Prompt {prompt.id}</span>
+              <h4 className="font-medium text-[var(--ink)] mt-1">{prompt.goal}</h4>
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => onCopy(personalized)} className={`p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors ${isCopied ? 'text-green-400' : 'text-slate-400'}`} title="Copy prompt">
+            <button onClick={() => onCopy(personalized)} className={`p-2 border border-[var(--gray-warm)] hover:border-[var(--ink)] transition-colors ${isCopied ? 'text-[var(--success)]' : 'text-[var(--gray-muted)]'}`} title="Copy prompt">
               <span dangerouslySetInnerHTML={{ __html: isCopied ? icons.check : icons.copy }} />
             </button>
-            <button onClick={onRun} className="px-3 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-sm font-medium flex items-center gap-1 transition-all" title="Run with AI">
+            <button onClick={onRun} className="btn-accent btn-sm flex items-center gap-1" title="Run with AI">
               <span dangerouslySetInnerHTML={{ __html: icons.play }} /> Run
             </button>
           </div>
         </div>
 
-        <div className="mt-4 p-4 bg-slate-900 rounded-lg">
-          <p className="text-sm text-slate-300 font-mono leading-relaxed">{displayText}</p>
+        <div className="mt-4 p-4 bg-[var(--paper-warm)] border border-[var(--gray-warm)]">
+          <p className="text-sm text-[var(--ink)] font-mono leading-relaxed">{displayText}</p>
           {personalized.length > 180 && (
-            <button onClick={onToggle} className="text-xs text-cyan-400 hover:text-cyan-300 mt-2 flex items-center gap-1">
+            <button onClick={onToggle} className="text-xs text-[var(--pantone-red)] hover:underline mt-2 flex items-center gap-1">
               {isExpanded ? 'Show less' : 'Show more'}
               <span dangerouslySetInnerHTML={{ __html: isExpanded ? icons.chevronUp : icons.chevronDown }} />
             </button>
@@ -3194,17 +3189,17 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-3 bg-slate-900/50 rounded-lg">
-            <div className="flex items-center gap-2 text-xs font-medium text-purple-400 mb-2">
+          <div className="p-3 bg-[var(--paper-warm)] border border-[var(--gray-warm)]">
+            <div className="flex items-center gap-2 label-accent text-[10px] mb-2">
               <span dangerouslySetInnerHTML={{ __html: icons.target }} /> Why this fits
             </div>
-            <p className="text-xs text-slate-400">{prompt.whyFits}</p>
+            <p className="text-xs text-[var(--gray-text)]">{prompt.whyFits}</p>
           </div>
-          <div className="p-3 bg-slate-900/50 rounded-lg">
-            <div className="flex items-center gap-2 text-xs font-medium text-green-400 mb-2">
+          <div className="p-3 bg-[var(--paper-warm)] border border-[var(--gray-warm)]">
+            <div className="flex items-center gap-2 label text-[10px] text-[var(--success)] mb-2">
               <span dangerouslySetInnerHTML={{ __html: icons.zap }} /> How to use it
             </div>
-            <p className="text-xs text-slate-400">{prompt.howUsed}</p>
+            <p className="text-xs text-[var(--gray-text)]">{prompt.howUsed}</p>
           </div>
         </div>
       </div>
@@ -4447,43 +4442,43 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div className="tag tag-pink">{(state.currentProject?.name || state.brand).toUpperCase()}</div>
-          <span className="text-[#333] font-display">//</span>
-          <span className="text-[#666] text-sm font-display tracking-wider">{(state.currentProject?.industry || state.industry).toUpperCase()}</span>
+          <div className="tag-accent">{state.currentProject?.name || state.brand}</div>
+          <span className="text-[var(--gray-warm)]">·</span>
+          <span className="text-[var(--gray-muted)] text-sm">{state.currentProject?.industry || state.industry}</span>
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className="ml-auto text-[#666] hover:text-[#f7ff00] font-display text-xs tracking-wider transition-colors"
+            className="ml-auto text-[var(--gray-muted)] hover:text-[var(--pantone-red)] label text-xs transition-colors"
             title="API Settings"
           >
-            ⚙ SETTINGS
+            Settings
           </button>
         </div>
-        <h2 className="headline-lg text-white">WHAT'S YOUR</h2>
-        <h2 className="headline-lg text-[#ff1493] -mt-2">SITUATION?</h2>
+        <h2 className="headline-section">What's your</h2>
+        <h2 className="headline-section text-[var(--pantone-red)] -mt-1">Situation?</h2>
       </div>
 
       {/* Collapsible API Settings */}
       {showSettings && (
-        <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#333]">
+        <div className="mb-8 p-4 card">
           <div className="flex items-center justify-between mb-4">
-            <label className="text-xs font-display tracking-[0.2em] text-white">AI PROVIDER</label>
-            <button onClick={() => setShowSettings(false)} className="text-[#666] hover:text-white font-display text-xs">✕ CLOSE</button>
+            <label className="label">AI Provider</label>
+            <button onClick={() => setShowSettings(false)} className="text-[var(--gray-muted)] hover:text-[var(--ink)] label text-xs">Close</button>
           </div>
           <div className="flex gap-2 mb-4">
-            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>GEMINI (FREE)</button>
-            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#f7ff00] bg-[#f7ff00]/10 text-[#f7ff00]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>OPENAI</button>
-            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#ff1493] bg-[#ff1493]/10 text-[#ff1493]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>ANTHROPIC</button>
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[var(--success)] bg-[var(--success)]/10 text-[var(--success)]' : 'border-[var(--gray-warm)] text-[var(--gray-muted)] hover:border-[var(--ink)]'}`}>Gemini (Free)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[var(--ink)] bg-[var(--ink)]/5 text-[var(--ink)]' : 'border-[var(--gray-warm)] text-[var(--gray-muted)] hover:border-[var(--ink)]'}`}>OpenAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[var(--pantone-red)] bg-[var(--pantone-red)]/10 text-[var(--pantone-red)]' : 'border-[var(--gray-warm)] text-[var(--gray-muted)] hover:border-[var(--ink)]'}`}>Anthropic</button>
           </div>
           {state.llmProvider === 'gemini' ? (
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
+              <div className="flex-1 h-2 bg-[var(--gray-warm)] overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-300 ${state.freePromptsUsed >= state.promptsLimit ? 'bg-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-[#f7ff00]' : 'bg-[#00ff66]'}`}
+                  className={`h-full transition-all duration-300 ${state.freePromptsUsed >= state.promptsLimit ? 'bg-[var(--error)]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-[var(--warning)]' : 'bg-[var(--success)]'}`}
                   style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                 />
               </div>
-              <span className={`text-xs font-mono ${state.freePromptsUsed >= state.promptsLimit ? 'text-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-[#f7ff00]' : 'text-[#00ff66]'}`}>
-                {state.promptsLimit - state.freePromptsUsed} LEFT
+              <span className={`text-xs font-medium ${state.freePromptsUsed >= state.promptsLimit ? 'text-[var(--error)]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
+                {state.promptsLimit - state.freePromptsUsed} left
               </span>
             </div>
           ) : (
@@ -4496,34 +4491,34 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
                   localStorage.setItem('amplify_api_key', e.target.value);
                 }}
                 placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
-                className="input-raw w-full text-sm"
+                className="input w-full text-sm"
               />
-              <p className="text-xs text-[#666] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
+              <p className="text-xs text-[var(--gray-muted)] mt-2 italic">Stored locally. Never leaves your browser.</p>
             </>
           )}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--gray-warm)]">
         {/* Discovery Mode */}
         <button
           onClick={() => onSelectMode('discovery')}
-          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#ff1493] group relative"
+          className="p-6 transition-all text-left bg-[var(--cream)] hover:bg-[var(--paper-warm)] group relative"
         >
-          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#ff1493]/20 transition-colors">01</div>
+          <div className="absolute top-4 right-4 font-serif text-5xl text-[var(--gray-warm)] group-hover:text-[var(--pantone-red)]/20 transition-colors font-light">01</div>
           <div className="relative z-10">
             <div className="text-4xl mb-4">🧭</div>
-            <div className="font-display text-xl text-white group-hover:text-[#ff1493] transition-colors tracking-wide">"I HAVE A PROBLEM"</div>
-            <div className="text-[#666] text-sm mt-2 mb-4">Guide me to the right strategy</div>
-            <div className="text-xs text-[#666] space-y-1 font-mono">
+            <div className="headline-card group-hover:text-[var(--pantone-red)] transition-colors">"I have a problem"</div>
+            <div className="text-[var(--gray-text)] text-sm mt-2 mb-4">Guide me to the right strategy</div>
+            <div className="text-xs text-[var(--gray-muted)] space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[#ff1493]">→</span> New campaigns
+                <span className="text-[var(--pantone-red)]">→</span> New campaigns
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#ff1493]">→</span> Uncertain goals
+                <span className="text-[var(--pantone-red)]">→</span> Uncertain goals
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#ff1493]">→</span> Strategic planning
+                <span className="text-[var(--pantone-red)]">→</span> Strategic planning
               </div>
             </div>
           </div>
@@ -4532,22 +4527,22 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         {/* Directed Mode */}
         <button
           onClick={() => onSelectMode('directed')}
-          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#00ff66] group relative"
+          className="p-6 transition-all text-left bg-[var(--cream)] hover:bg-[var(--paper-warm)] group relative"
         >
-          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#00ff66]/20 transition-colors">02</div>
+          <div className="absolute top-4 right-4 font-serif text-5xl text-[var(--gray-warm)] group-hover:text-[var(--success)]/20 transition-colors font-light">02</div>
           <div className="relative z-10">
             <div className="text-4xl mb-4">🚀</div>
-            <div className="font-display text-xl text-white group-hover:text-[#00ff66] transition-colors tracking-wide">"I KNOW WHAT I NEED"</div>
-            <div className="text-[#666] text-sm mt-2 mb-4">Let me execute quickly</div>
-            <div className="text-xs text-[#666] space-y-1 font-mono">
+            <div className="headline-card group-hover:text-[var(--success)] transition-colors">"I know what I need"</div>
+            <div className="text-[var(--gray-text)] text-sm mt-2 mb-4">Let me execute quickly</div>
+            <div className="text-xs text-[var(--gray-muted)] space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[#00ff66]">→</span> Repeat tasks
+                <span className="text-[var(--success)]">→</span> Repeat tasks
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#00ff66]">→</span> Clear objectives
+                <span className="text-[var(--success)]">→</span> Clear objectives
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#00ff66]">→</span> Fast turnaround
+                <span className="text-[var(--success)]">→</span> Fast turnaround
               </div>
             </div>
           </div>
@@ -4556,30 +4551,30 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         {/* Upload Mode */}
         <button
           onClick={() => onSelectMode('upload')}
-          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#f7ff00] group relative"
+          className="p-6 transition-all text-left bg-[var(--cream)] hover:bg-[var(--paper-warm)] group relative"
         >
-          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#f7ff00]/20 transition-colors">03</div>
+          <div className="absolute top-4 right-4 font-serif text-5xl text-[var(--gray-warm)] group-hover:text-[var(--ink)]/20 transition-colors font-light">03</div>
           <div className="relative z-10">
             <div className="text-4xl mb-4">📄</div>
-            <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors tracking-wide">"I HAVE A BRIEF"</div>
-            <div className="text-[#666] text-sm mt-2 mb-4">Upload your creative brief</div>
-            <div className="text-xs text-[#666] space-y-1 font-mono">
+            <div className="headline-card group-hover:text-[var(--ink)] transition-colors">"I have a brief"</div>
+            <div className="text-[var(--gray-text)] text-sm mt-2 mb-4">Upload your creative brief</div>
+            <div className="text-xs text-[var(--gray-muted)] space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[#f7ff00]">→</span> PDF, Word, or text
+                <span className="text-[var(--ink)]">→</span> PDF, Word, or text
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#f7ff00]">→</span> Auto-extract fields
+                <span className="text-[var(--ink)]">→</span> Auto-extract fields
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#f7ff00]">→</span> Agency workflows
+                <span className="text-[var(--ink)]">→</span> Agency workflows
               </div>
             </div>
           </div>
         </button>
       </div>
 
-      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
-        ← BACK
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[var(--gray-muted)] hover:text-[var(--pantone-red)] transition-colors label">
+        ← Back
       </button>
     </div>
   );
@@ -4588,12 +4583,12 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
 // Discovery Wizard Progress Bar
 function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
   const steps = [
-    { num: 1, label: 'PROBLEM' },
-    { num: 2, label: 'AUDIENCE' },
-    { num: 3, label: 'PROPOSITION' },
-    { num: 4, label: 'DETAILS' },
-    { num: 5, label: 'MEASURES' },
-    { num: 6, label: 'REVIEW' },
+    { num: 1, label: 'Problem' },
+    { num: 2, label: 'Audience' },
+    { num: 3, label: 'Proposition' },
+    { num: 4, label: 'Details' },
+    { num: 5, label: 'Measures' },
+    { num: 6, label: 'Review' },
   ];
 
   return (
@@ -4603,24 +4598,24 @@ function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
           <div key={step.num} className="flex items-center">
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 flex items-center justify-center font-display text-lg transition-all border-2 ${
+                className={`w-10 h-10 flex items-center justify-center font-serif text-lg transition-all border-2 ${
                   step.num < currentStep
-                    ? 'bg-[#00ff66] text-black border-[#00ff66]'
+                    ? 'bg-[var(--success)] text-white border-[var(--success)]'
                     : step.num === currentStep
-                    ? 'bg-[#f7ff00] text-black border-[#f7ff00]'
-                    : 'bg-[#1a1a1a] text-[#444] border-[#333]'
+                    ? 'bg-[var(--pantone-red)] text-white border-[var(--pantone-red)]'
+                    : 'bg-[var(--cream)] text-[var(--gray-muted)] border-[var(--gray-warm)]'
                 }`}
               >
                 {step.num < currentStep ? '✓' : step.num}
               </div>
-              <span className={`text-[10px] mt-2 font-display tracking-wider ${step.num === currentStep ? 'text-[#f7ff00]' : step.num < currentStep ? 'text-[#00ff66]' : 'text-[#444]'}`}>
+              <span className={`text-[10px] mt-2 label ${step.num === currentStep ? 'text-[var(--pantone-red)]' : step.num < currentStep ? 'text-[var(--success)]' : 'text-[var(--gray-muted)]'}`}>
                 {step.label}
               </span>
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-6 md:w-10 h-[2px] mx-1 ${
-                  step.num < currentStep ? 'bg-[#00ff66]' : 'bg-[#333]'
+                className={`w-6 md:w-10 h-px mx-1 ${
+                  step.num < currentStep ? 'bg-[var(--success)]' : 'bg-[var(--gray-warm)]'
                 }`}
               />
             )}
