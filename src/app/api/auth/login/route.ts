@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { email } = await request.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     const supabase = createClient(
@@ -14,9 +14,12 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    // Use magic link (passwordless) authentication
+    const { error } = await supabase.auth.signInWithOtp({
       email,
-      password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+      },
     });
 
     if (error) {
@@ -24,9 +27,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: 'Logged in successfully',
-      user: data.user,
-      session: data.session,
+      message: 'Magic link sent! Check your email.',
+      success: true,
     });
   } catch (error: any) {
     console.error('Login error:', error);

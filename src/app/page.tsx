@@ -500,13 +500,13 @@ export default function Home() {
     }
   };
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (email: string) => {
     updateState({ authLoading: true, authError: null });
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email }),
       });
       const data = await response.json();
 
@@ -515,11 +515,8 @@ export default function Home() {
         return;
       }
 
-      if (data.session && supabase) {
-        await supabase.auth.setSession(data.session);
-      }
-
-      updateState({ authModal: 'none', authLoading: false });
+      // Show success message - user needs to check email for magic link
+      updateState({ authModal: 'reset-sent', authLoading: false });
     } catch (error: any) {
       updateState({ authError: error.message, authLoading: false });
     }
@@ -1400,99 +1397,95 @@ Important: Address this specific feedback while maintaining the core brief requi
 
       {/* Usage Limit Modal */}
       {state.showLimitModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center">
-              <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold mb-2">Monthly Limit Reached</h2>
-            <p className="text-slate-400 mb-6">
-              You've used all {state.promptsLimit} free prompts this month. Choose an option below to continue creating.
-            </p>
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border-3 border-[#ff3333] p-8 w-full max-w-md relative">
+            {/* Corner accents */}
+            <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-[#f7ff00]"></div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-[#f7ff00]"></div>
+            <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-[#f7ff00]"></div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-[#f7ff00]"></div>
 
-            <div className="space-y-3 mb-6">
-              <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-purple-300">Premium</span>
-                  <span className="text-sm text-purple-400">$29/month</span>
+            <div className="text-center">
+              <div className="font-display text-6xl text-[#ff3333] mb-4">!</div>
+              <h2 className="headline-md text-[#ff3333] mb-2">LIMIT REACHED</h2>
+              <p className="text-[#666] mb-8">
+                You've burned through all {state.promptsLimit} free prompts. Time to level up.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                <div className="p-4 bg-[#1a1a1a] border-2 border-[#f7ff00]">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-display text-lg text-[#f7ff00]">PREMIUM</span>
+                    <span className="font-mono text-[#f7ff00]">$29/mo</span>
+                  </div>
+                  <ul className="text-sm text-[#999] text-left space-y-2 mb-4 font-mono">
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00ff66]">✓</span> Unlimited prompts
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00ff66]">✓</span> Priority AI responses
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#00ff66]">✓</span> All 26 creative personas
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => {
+                      updateState({ showLimitModal: false });
+                      alert('Premium checkout coming soon!');
+                    }}
+                    className="btn-primary w-full"
+                  >
+                    UPGRADE NOW
+                  </button>
                 </div>
-                <ul className="text-sm text-slate-400 text-left space-y-1 mb-3">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Unlimited prompts
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Priority AI responses
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    All creative personas
-                  </li>
-                </ul>
-                <button
-                  onClick={() => {
-                    updateState({ showLimitModal: false });
-                    // TODO: Implement Stripe checkout
-                    alert('Premium checkout coming soon!');
-                  }}
-                  className="w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium rounded-lg transition-all"
-                >
-                  Upgrade to Premium
-                </button>
+
+                <div className="font-display text-[#333] tracking-[0.3em]">OR</div>
+
+                <div className="p-4 bg-[#1a1a1a] border-2 border-[#333]">
+                  <p className="text-sm text-white mb-2 font-display">BRING YOUR OWN KEY</p>
+                  <p className="text-xs text-[#666] mb-3">Use your OpenAI or Anthropic API key</p>
+                  <button
+                    onClick={() => {
+                      updateState({ showLimitModal: false, step: 'brand-input' });
+                      setTimeout(() => {
+                        document.getElementById('apiKeySection')?.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    }}
+                    className="btn-secondary btn-sm w-full"
+                  >
+                    ADD API KEY
+                  </button>
+                </div>
               </div>
 
-              <div className="text-slate-500 text-sm">or</div>
-
-              <div className="p-4 bg-slate-700/50 border border-slate-600 rounded-xl">
-                <p className="text-sm text-slate-300 mb-2 font-medium">Bring Your Own API Key</p>
-                <p className="text-xs text-slate-400 mb-3">Use your OpenAI or Anthropic API key for unlimited access</p>
-                <button
-                  onClick={() => {
-                    updateState({ showLimitModal: false, step: 'brand-input' });
-                    setTimeout(() => {
-                      document.getElementById('apiKeySection')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  }}
-                  className="w-full py-2 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-all text-sm"
-                >
-                  Add API Key
-                </button>
-              </div>
+              <button
+                onClick={() => updateState({ showLimitModal: false })}
+                className="text-xs text-[#444] hover:text-[#666] font-display tracking-wider"
+              >
+                MAYBE LATER
+              </button>
             </div>
-
-            <button
-              onClick={() => updateState({ showLimitModal: false })}
-              className="text-sm text-slate-500 hover:text-slate-300"
-            >
-              Maybe later
-            </button>
           </div>
         </div>
       )}
 
       {state.step !== 'landing' && (
-        <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
-          <div className="max-w-6xl mx-auto px-4 py-4">
+        <header className="border-b-2 border-[#333] bg-[#0a0a0a] sticky top-0 z-10">
+          <div className="max-w-6xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 cursor-pointer" onClick={resetAll}>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                  <span dangerouslySetInnerHTML={{ __html: icons.sparkles }} />
+              {/* Logo - bold and stark */}
+              <div className="flex items-center gap-4 cursor-pointer group" onClick={resetAll}>
+                <div className="w-10 h-10 bg-[#f7ff00] flex items-center justify-center">
+                  <span className="font-display text-black text-xl">A</span>
                 </div>
                 <div>
-                  <h1 className="font-bold text-lg">Amplify</h1>
-                  <p className="text-xs text-slate-400">AI-powered marketing</p>
+                  <h1 className="font-display text-xl tracking-wide text-white group-hover:text-[#f7ff00] transition-colors">AMPLIFY</h1>
                 </div>
               </div>
+
               <div className="flex items-center gap-4">
+                {/* Current project badge */}
                 {state.currentProject && (() => {
                   const project = state.currentProject!;
                   return (
@@ -1507,91 +1500,84 @@ Important: Address this specific feedback while maintaining the core brief requi
                         brandVoice: project.brand_voice || '',
                         step: 'brand-input'
                       })}
-                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm hover:bg-purple-500/30 transition-colors"
+                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] border-2 border-[#333] text-[#f7ff00] text-xs font-display tracking-wider hover:border-[#f7ff00] transition-colors"
                       title="Edit brand profile"
                     >
-                      <span className="font-medium">{project.name}</span>
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
+                      <span>{project.name.toUpperCase()}</span>
+                      <span className="text-[#666]">✎</span>
                     </button>
                   );
                 })()}
+
+                {/* Usage meter - industrial style */}
                 {state.llmProvider === 'gemini' && !state.apiKey && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-300 rounded-full ${
+                          className={`h-full transition-all duration-300 ${
                             state.freePromptsUsed >= state.promptsLimit
-                              ? 'bg-red-500'
+                              ? 'bg-[#ff3333]'
                               : state.freePromptsUsed >= state.promptsLimit * 0.8
-                                ? 'bg-amber-500'
-                                : 'bg-emerald-500'
+                                ? 'bg-[#f7ff00]'
+                                : 'bg-[#00ff66]'
                           }`}
                           style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                         />
                       </div>
-                      <span className={`text-xs font-medium ${
+                      <span className={`text-xs font-mono ${
                         state.freePromptsUsed >= state.promptsLimit
-                          ? 'text-red-400'
+                          ? 'text-[#ff3333]'
                           : state.freePromptsUsed >= state.promptsLimit * 0.8
-                            ? 'text-amber-400'
-                            : 'text-slate-400'
+                            ? 'text-[#f7ff00]'
+                            : 'text-[#666]'
                       }`}>
                         {state.freePromptsUsed}/{state.promptsLimit}
                       </span>
                     </div>
-                    {state.freePromptsUsed >= state.promptsLimit * 0.8 && state.freePromptsUsed < state.promptsLimit && (
-                      <span className="text-xs text-amber-400 hidden sm:inline">
-                        {state.promptsLimit - state.freePromptsUsed} left
-                      </span>
-                    )}
                     {state.freePromptsUsed >= state.promptsLimit && (
                       <button
                         onClick={() => updateState({ showLimitModal: true })}
-                        className="text-xs text-red-400 hover:text-red-300 underline"
+                        className="text-xs text-[#ff3333] hover:text-[#ff1493] uppercase tracking-wider font-display"
                       >
-                        Upgrade
+                        UPGRADE
                       </button>
                     )}
                   </div>
                 )}
+
+                {/* Nav links */}
                 {state.user && (
                   <>
                     <button
                       onClick={openProjects}
-                      className="text-sm text-slate-400 hover:text-purple-300 flex items-center gap-1"
+                      className="text-xs text-[#666] hover:text-[#f7ff00] uppercase tracking-wider font-display flex items-center gap-1"
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                      Projects
+                      PROJECTS
                     </button>
                     <button
                       onClick={openMyLibrary}
-                      className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                      className="text-xs text-[#f7ff00] hover:text-white uppercase tracking-wider font-display flex items-center gap-1"
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                      </svg>
-                      My Library
+                      LIBRARY
                     </button>
                   </>
                 )}
+
+                {/* Auth */}
                 {state.user ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-slate-400">{state.user.email}</span>
-                    <button onClick={handleLogout} className="text-xs text-slate-500 hover:text-white">
-                      Logout
+                    <span className="text-xs text-[#666] font-mono hidden sm:inline">{state.user.email}</span>
+                    <button onClick={handleLogout} className="text-xs text-[#666] hover:text-white uppercase tracking-wider">
+                      EXIT
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => updateState({ authModal: 'login' })}
-                    className="text-sm text-purple-400 hover:text-purple-300"
+                    className="text-xs text-[#f7ff00] hover:text-white uppercase tracking-wider font-display"
                   >
-                    Login
+                    LOGIN
                   </button>
                 )}
               </div>
@@ -1600,7 +1586,7 @@ Important: Address this specific feedback while maintaining the core brief requi
         </header>
       )}
 
-      <main className={`max-w-6xl mx-auto px-4 ${state.step !== 'landing' ? 'py-8' : 'py-4'}`}>
+      <main className={`max-w-6xl mx-auto px-4 ${state.step !== 'landing' ? 'py-12' : 'py-4'}`}>
         {state.step === 'landing' && (
           <LandingPage
             onStart={() => {
@@ -2074,7 +2060,7 @@ function AuthModal({
 }: {
   mode: AuthModal;
   onClose: () => void;
-  onLogin: (email: string, password: string) => void;
+  onLogin: (email: string) => void;
   onSignup: (email: string, password: string) => void;
   onForgotPassword: (email: string) => void;
   onSwitchMode: (mode: AuthModal) => void;
@@ -2089,7 +2075,7 @@ function AuthModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === 'login') {
-      onLogin(email, password);
+      onLogin(email); // Magic link - no password needed
     } else if (mode === 'signup') {
       onSignup(email, password);
     } else if (mode === 'forgot-password') {
@@ -2166,13 +2152,33 @@ function AuthModal({
 
           <h2 className="text-2xl font-bold mb-2">Check your email</h2>
           <p className="text-slate-400 mb-6">
-            We sent a password reset link to<br />
+            We sent a magic link to<br />
             <span className="text-white font-medium">{signupEmail}</span>
           </p>
 
+          <div className="bg-slate-900/50 rounded-xl p-4 mb-6 text-left">
+            <p className="text-sm text-slate-400">
+              <span className="text-purple-400 font-medium">Next steps:</span>
+            </p>
+            <ol className="text-sm text-slate-400 mt-2 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span>Open the email from Amplify</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span>Click the magic link</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span>You'll be automatically signed in</span>
+              </li>
+            </ol>
+          </div>
+
           <p className="text-xs text-slate-500 mb-4">
             Didn't receive the email? Check your spam folder or{' '}
-            <button onClick={() => onSwitchMode('forgot-password')} className="text-purple-400 hover:text-purple-300">
+            <button onClick={() => onSwitchMode('login')} className="text-purple-400 hover:text-purple-300">
               try again
             </button>
           </p>
@@ -2292,50 +2298,49 @@ function AuthModal({
             />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-slate-300">Password</label>
-              {mode === 'login' && (
+          {/* Password field - only show for signup (login uses magic link) */}
+          {mode === 'signup' && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-300">Password</label>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pr-12"
+                  required
+                  minLength={6}
+                />
                 <button
                   type="button"
-                  onClick={() => onSwitchMode('forgot-password')}
-                  className="text-xs text-purple-400 hover:text-purple-300"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
                 >
-                  Forgot password?
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
                 </button>
-              )}
-            </div>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pr-12"
-                required
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
-              >
-                {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                )}
-              </button>
-            </div>
-            {mode === 'signup' && (
+              </div>
               <p className="text-xs text-slate-500 mt-2">Must be at least 6 characters</p>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Magic link hint for login */}
+          {mode === 'login' && (
+            <p className="text-xs text-slate-400 -mt-2">
+              We'll send you a magic link to sign in - no password needed.
+            </p>
+          )}
 
           <button
             type="submit"
@@ -2345,10 +2350,10 @@ function AuthModal({
             {isLoading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {mode === 'login' ? 'Signing in...' : 'Creating account...'}
+                {mode === 'login' ? 'Sending magic link...' : 'Creating account...'}
               </>
             ) : (
-              mode === 'login' ? 'Sign in' : 'Create account'
+              mode === 'login' ? 'Send magic link' : 'Create account'
             )}
           </button>
         </form>
@@ -2397,87 +2402,113 @@ function LandingPage({
   onLogout: () => void;
 }) {
   return (
-    <div className="min-h-[80vh] flex flex-col">
-      {/* Top right auth buttons */}
-      <div className="flex justify-end py-4">
+    <div className="min-h-[90vh] flex flex-col texture-grain">
+      {/* Top nav - raw and direct */}
+      <div className="flex justify-between items-center py-6 border-b-2 border-[#333]">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 bg-[#f7ff00]"></div>
+          <span className="font-display text-sm tracking-[0.2em] text-[#999]">FABRICA COLLECTIVE</span>
+        </div>
         {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-400">{user.email}</span>
-            <button onClick={onLogout} className="text-sm text-slate-500 hover:text-white">Logout</button>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-[#666] font-mono">{user.email}</span>
+            <button onClick={onLogout} className="text-sm text-[#999] hover:text-white uppercase tracking-wider">Exit</button>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
-            <button onClick={onLogin} className="text-sm text-slate-400 hover:text-white">Log in</button>
-            <button onClick={onSignup} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-medium">Sign up</button>
+          <div className="flex items-center gap-4">
+            <button onClick={onLogin} className="text-sm text-[#999] hover:text-white uppercase tracking-wider">Log in</button>
+            <button onClick={onSignup} className="btn-primary btn-sm">Sign up</button>
           </div>
         )}
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-300 text-sm mb-8">
-          <span dangerouslySetInnerHTML={{ __html: icons.sparkles }} />
-          <span>By Fabrica Collective</span>
-        </div>
-
-        <h1 className="text-5xl md:text-7xl font-bold mb-4 max-w-4xl leading-tight">
-          <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Amplify</span>
-        </h1>
-        <p className="text-2xl md:text-3xl font-semibold text-white mb-3">AI-powered marketing</p>
-        <p className="text-xl text-slate-400 mb-8 max-w-2xl">Your AI marketing team in a browser — from strategy to send</p>
-
-        <p className="text-base text-slate-500 max-w-2xl mb-8 leading-relaxed">
-          Your virtual agency room. Start with strategy, not channels. Planning → Creative → Results.
-        </p>
-
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="inline-flex items-center bg-slate-800 rounded-xl p-1.5 border border-slate-700">
-            <div className="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium flex items-center gap-2">📋 Talk to Planning</div>
-            <div className="px-4 py-2 rounded-lg text-slate-400 text-sm font-medium flex items-center gap-2">🎨 Talk to Creative</div>
+      {/* Hero - bold and unapologetic */}
+      <div className="flex-1 flex flex-col justify-center py-16 md:py-24">
+        <div className="max-w-5xl">
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-[2px] w-12 bg-[#f7ff00]"></div>
+            <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">YOUR VIRTUAL AGENCY ROOM</span>
           </div>
-        </div>
 
-        <button
-          onClick={onStart}
-          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold text-lg flex items-center gap-3 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
-        >
-          Get Started — It's Free
-          <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
-        </button>
+          {/* Main headline - massive and loud */}
+          <h1 className="headline-xl text-white mb-2">
+            AMPLIFY
+          </h1>
+          <h2 className="headline-lg text-[#ff1493] mb-8 -mt-2">
+            START WITH STRATEGY,<br/>NOT CHANNELS.
+          </h2>
 
-        <p className="text-xs text-slate-600 mt-4">Free to start • Full strategic workflow included</p>
-      </div>
+          {/* Subtext */}
+          <p className="text-xl md:text-2xl text-[#999] max-w-2xl mb-12 leading-relaxed">
+            The smoke-filled war room where AI meets advertising's golden age.
+            <span className="text-white"> Planning → Creative → Results.</span>
+          </p>
 
-      <div className="py-16 border-t border-slate-800">
-        <h2 className="text-2xl font-bold text-center mb-12">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-purple-500/20">1</div>
-            <h3 className="font-semibold text-lg mb-2">Add Your Context</h3>
-            <p className="text-slate-400 text-sm">Enter your brand, website, industry, and business challenge</p>
+          {/* Mode toggle - punk style */}
+          <div className="flex flex-wrap items-center gap-4 mb-12">
+            <div className="inline-flex border-3 border-white">
+              <div className="px-6 py-3 bg-[#f7ff00] text-black font-display text-lg tracking-wide flex items-center gap-2">
+                <span className="text-xl">📋</span> PLANNING
+              </div>
+              <div className="px-6 py-3 bg-transparent text-[#666] font-display text-lg tracking-wide flex items-center gap-2 border-l-3 border-white">
+                <span className="text-xl">🎨</span> CREATIVE
+              </div>
+            </div>
+            <span className="text-[#666] font-mono text-sm">// TOGGLE YOUR DEPARTMENT</span>
           </div>
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-cyan-500/20">2</div>
-            <h3 className="font-semibold text-lg mb-2">Talk to Planning</h3>
-            <p className="text-slate-400 text-sm">Explore your problem, validate your brief, develop message strategy</p>
-          </div>
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-pink-500/20">3</div>
-            <h3 className="font-semibold text-lg mb-2">Planning Review</h3>
-            <p className="text-slate-400 text-sm">Get AI assessment of your brief strength before execution</p>
-          </div>
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center mx-auto mb-4 text-2xl border border-green-500/20">4</div>
-            <h3 className="font-semibold text-lg mb-2">Talk to Creative</h3>
-            <p className="text-slate-400 text-sm">Generate content aligned to your approved strategy</p>
+
+          {/* CTA - bold and dangerous */}
+          <div className="flex flex-wrap items-center gap-6">
+            <button
+              onClick={onStart}
+              className="btn-primary text-xl px-10 py-5 flex items-center gap-4"
+            >
+              ENTER THE WAR ROOM
+              <span className="text-2xl">→</span>
+            </button>
+            <span className="text-[#666] font-mono text-sm">FREE TO START</span>
           </div>
         </div>
       </div>
 
-      <div className="py-8 border-t border-slate-800 text-center">
-        <p className="text-sm text-slate-400 mb-2">
-          Powered by <a href="https://fabricacollective.com" target="_blank" className="text-purple-400 hover:text-purple-300">Fabrica Collective</a>
+      {/* How it works - industrial grid */}
+      <div className="py-16 border-t-2 border-[#333]">
+        <div className="flex items-center gap-4 mb-12">
+          <h2 className="headline-md text-white">THE PROCESS</h2>
+          <div className="flex-1 h-[2px] bg-[#333]"></div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0">
+          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
+            <div className="text-6xl font-display text-[#f7ff00] mb-4">01</div>
+            <h3 className="font-display text-xl mb-2 text-white">BRIEF IN</h3>
+            <p className="text-[#666] text-sm leading-relaxed">Brand, industry, challenge. Set the battlefield.</p>
+          </div>
+          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
+            <div className="text-6xl font-display text-[#ff1493] mb-4">02</div>
+            <h3 className="font-display text-xl mb-2 text-white">PLANNING</h3>
+            <p className="text-[#666] text-sm leading-relaxed">Define the problem. Develop strategy. Pick your angle.</p>
+          </div>
+          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
+            <div className="text-6xl font-display text-[#ff3333] mb-4">03</div>
+            <h3 className="font-display text-xl mb-2 text-white">REVIEW</h3>
+            <p className="text-[#666] text-sm leading-relaxed">AI sanity-check. Is your brief ready for prime time?</p>
+          </div>
+          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
+            <div className="text-6xl font-display text-[#00ff66] mb-4">04</div>
+            <h3 className="font-display text-xl mb-2 text-white">CREATIVE</h3>
+            <p className="text-[#666] text-sm leading-relaxed">Generate. Remix. Launch. Win.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer - minimal and raw */}
+      <div className="py-8 border-t-2 border-[#333] flex flex-wrap justify-between items-center gap-4">
+        <p className="text-sm text-[#666]">
+          Built by <a href="https://fabricacollective.com" target="_blank" className="text-[#f7ff00] hover:underline">FABRICA COLLECTIVE</a>
         </p>
-        <p className="text-xs text-slate-600">Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design</p>
+        <p className="text-xs text-[#444] font-mono">REFORGE × DEMAND CURVE × CXL × HUBSPOT</p>
       </div>
     </div>
   );
@@ -2520,30 +2551,32 @@ function ProjectsList({
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-4">Your Projects</h2>
-        <p className="text-slate-400">Select a project to continue or create a new one</p>
+      {/* Header */}
+      <div className="mb-12">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="h-[2px] w-8 bg-[#f7ff00]"></div>
+          <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">SELECT OR CREATE</span>
+        </div>
+        <h2 className="headline-lg text-white">YOUR PROJECTS</h2>
       </div>
 
       {state.projectsLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#f7ff00] border-t-transparent animate-spin" />
         </div>
       ) : (
         <div className="space-y-4">
           {/* Create New Project Button */}
           <button
             onClick={onCreateNew}
-            className="w-full p-6 rounded-xl border-2 border-dashed border-slate-600 hover:border-purple-500 bg-slate-800/50 hover:bg-slate-800 transition-all flex items-center justify-center gap-3 group"
+            className="w-full p-6 border-2 border-dashed border-[#333] hover:border-[#f7ff00] bg-[#1a1a1a] transition-all flex items-center gap-4 group"
           >
-            <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-600/30">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+            <div className="w-14 h-14 bg-[#f7ff00] flex items-center justify-center text-black font-display text-3xl group-hover:bg-white transition-colors">
+              +
             </div>
             <div className="text-left">
-              <div className="font-semibold text-lg group-hover:text-purple-300">Create New Project</div>
-              <div className="text-sm text-slate-400">Add a new brand or client</div>
+              <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors">NEW PROJECT</div>
+              <div className="text-sm text-[#666]">Add a new brand or client</div>
             </div>
           </button>
 
@@ -2552,7 +2585,7 @@ function ProjectsList({
             state.projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden hover:border-slate-600 transition-colors"
+                className="bg-[#1a1a1a] border-2 border-[#333] overflow-hidden hover:border-[#666] transition-colors group"
               >
                 <div
                   className="p-5 cursor-pointer"
@@ -2560,41 +2593,40 @@ function ProjectsList({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-2xl border border-purple-500/20">
+                      <div className="w-14 h-14 bg-[#ff1493] flex items-center justify-center text-white font-display text-2xl">
                         {project.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg text-white hover:text-purple-300 transition-colors">
-                          {project.name}
+                        <h3 className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors">
+                          {project.name.toUpperCase()}
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-slate-400 mt-1">
+                        <div className="flex items-center gap-2 text-xs text-[#666] mt-1 font-mono">
                           <span>{project.industry}</span>
                           {project.website && (
                             <>
-                              <span>•</span>
+                              <span className="text-[#333]">//</span>
                               <span>{project.website}</span>
                             </>
                           )}
                         </div>
-                        <p className="text-sm text-slate-500 mt-2 line-clamp-2">{project.challenge}</p>
+                        <p className="text-sm text-[#999] mt-2 line-clamp-2">{project.challenge}</p>
                       </div>
                     </div>
-                    <div className="text-xs text-slate-500 whitespace-nowrap">
+                    <div className="text-xs text-[#444] font-mono whitespace-nowrap">
                       {formatDate(project.updated_at)}
                     </div>
                   </div>
                 </div>
 
-                <div className="px-5 py-3 border-t border-slate-700 bg-slate-900/50 flex items-center justify-between">
+                <div className="px-5 py-3 border-t-2 border-[#333] bg-[#0a0a0a] flex items-center justify-between">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectProject(project);
                     }}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                    className="btn-primary btn-sm flex items-center gap-2"
                   >
-                    <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
-                    Continue
+                    CONTINUE →
                   </button>
                   <div className="flex items-center gap-2">
                     <button
@@ -2602,31 +2634,31 @@ function ProjectsList({
                         e.stopPropagation();
                         onEditProject(project);
                       }}
-                      className="px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg text-sm transition-colors"
+                      className="px-3 py-2 text-[#666] hover:text-white text-xs font-display tracking-wider transition-colors"
                     >
-                      Edit
+                      EDIT
                     </button>
                     {deleteConfirm === project.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400">Delete?</span>
+                        <span className="text-xs text-[#666] font-display">DELETE?</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(project.id);
                           }}
                           disabled={isDeleting}
-                          className="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 bg-[#ff3333] text-white text-xs font-display tracking-wider transition-colors disabled:opacity-50"
                         >
-                          {isDeleting ? '...' : 'Yes'}
+                          {isDeleting ? '...' : 'YES'}
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setDeleteConfirm(null);
                           }}
-                          className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                          className="px-3 py-1.5 bg-[#333] text-white text-xs font-display tracking-wider transition-colors"
                         >
-                          No
+                          NO
                         </button>
                       </div>
                     ) : (
@@ -2635,9 +2667,9 @@ function ProjectsList({
                           e.stopPropagation();
                           setDeleteConfirm(project.id);
                         }}
-                        className="px-3 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg text-sm transition-colors"
+                        className="px-3 py-2 text-[#ff3333] hover:text-[#ff1493] text-xs font-display tracking-wider transition-colors"
                       >
-                        Delete
+                        DELETE
                       </button>
                     )}
                   </div>
@@ -2645,16 +2677,17 @@ function ProjectsList({
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-slate-500">
-              <p>No projects yet. Create your first one to get started!</p>
+            <div className="text-center py-12 text-[#666] border-2 border-dashed border-[#333]">
+              <p className="font-display text-lg">NO PROJECTS YET</p>
+              <p className="text-sm mt-2">Create your first one to get started</p>
             </div>
           )}
         </div>
       )}
 
-      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-        Back to Home
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+        <span>←</span>
+        BACK TO HOME
       </button>
     </div>
   );
@@ -2755,154 +2788,139 @@ function BrandInput({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-4">
-          {isEditing ? 'Edit Brand Profile' : isLoggedIn ? 'Create New Project' : 'Tell us about your business'}
+      {/* Header */}
+      <div className="mb-10">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="h-[2px] w-8 bg-[#f7ff00]"></div>
+          <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">
+            {isEditing ? 'EDIT PROFILE' : isLoggedIn ? 'NEW PROJECT' : 'BRIEF IN'}
+          </span>
+        </div>
+        <h2 className="headline-lg text-white">
+          {isEditing ? 'UPDATE YOUR' : isLoggedIn ? 'CREATE YOUR' : 'TELL US ABOUT YOUR'}
         </h2>
-        <p className="text-slate-400">
-          {isLoggedIn
-            ? isEditing
-              ? 'Update your brand details for better AI outputs'
-              : 'Save this as a project to access it anytime'
-            : "We'll personalize every prompt to your specific context"}
-        </p>
+        <h2 className="headline-lg text-[#ff1493] -mt-2">BRAND</h2>
       </div>
 
       {/* First-time user tip */}
       {!isEditing && !isLoggedIn && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl">
+        <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#f7ff00]">
           <div className="flex gap-3">
-            <div className="text-purple-400 mt-0.5">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <div className="text-[#f7ff00] font-display text-2xl">!</div>
             <div>
-              <p className="text-sm text-purple-200 font-medium">The more context you provide, the better your results</p>
-              <p className="text-xs text-slate-400 mt-1">Complete profiles generate up to 3x more relevant marketing content. Expand "Brand Voice & Audience" for best results.</p>
+              <p className="text-sm text-[#f7ff00] font-display tracking-wide">THE MORE CONTEXT, THE BETTER</p>
+              <p className="text-xs text-[#666] mt-1">Complete profiles generate 3x more relevant content. Fill everything.</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-6">
+      <div className="bg-[#1a1a1a] border-2 border-[#333] p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">{isLoggedIn ? 'Project Name *' : 'Brand Name *'}</label>
-          <input type="text" id="brand" defaultValue={state.brand} placeholder="e.g., Acme Inc." className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500" />
+          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">{isLoggedIn ? 'PROJECT NAME *' : 'BRAND NAME *'}</label>
+          <input type="text" id="brand" defaultValue={state.brand} placeholder="e.g., Acme Inc." className="input-raw w-full" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Website</label>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500" dangerouslySetInnerHTML={{ __html: icons.globe }} />
-            <input type="text" id="website" defaultValue={state.website} placeholder="e.g., acme.com" className="flex-1 px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500" />
-          </div>
+          <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">WEBSITE</label>
+          <input type="text" id="website" defaultValue={state.website} placeholder="e.g., acme.com" className="input-raw w-full" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Industry / Niche *</label>
-          <input type="text" id="industry" defaultValue={state.industry} placeholder="e.g., B2B SaaS, E-commerce, Healthcare" className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500" />
+          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">INDUSTRY / NICHE *</label>
+          <input type="text" id="industry" defaultValue={state.industry} placeholder="e.g., B2B SaaS, E-commerce, Healthcare" className="input-raw w-full" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Business Challenge *</label>
-          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="e.g., We need to increase organic traffic by 50% in Q1..." className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none" />
-          <p className="text-xs text-slate-500 mt-2">Be specific—this context makes the prompts 10x more useful</p>
+          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">BUSINESS CHALLENGE *</label>
+          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="e.g., We need to increase organic traffic by 50% in Q1..." className="input-raw w-full resize-none" />
+          <p className="text-xs text-[#666] mt-2 font-mono">// Be specific. This context makes prompts 10x better.</p>
         </div>
 
         {/* Brand Voice Section */}
-        <div className="pt-4 border-t border-slate-700">
+        <div className="pt-6 border-t-2 border-[#333]">
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center justify-between w-full text-left"
+            className="flex items-center justify-between w-full text-left group"
           >
-            <div>
-              <span className="text-sm font-medium text-slate-300">Brand Voice & Audience</span>
-              <span className="text-xs text-slate-500 ml-2">(Recommended for better outputs)</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-display tracking-[0.2em] text-white group-hover:text-[#f7ff00] transition-colors">BRAND VOICE & AUDIENCE</span>
+              <span className="tag tag-yellow text-[10px]">RECOMMENDED</span>
             </div>
-            <span className={`text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </span>
+            <span className={`text-[#666] transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>▼</span>
           </button>
 
           {showAdvanced && (
-            <div className="mt-4 space-y-4">
+            <div className="mt-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Target Audience
-                  <span className="text-xs text-purple-400 ml-2">Makes outputs more relevant</span>
-                </label>
+                <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">TARGET AUDIENCE</label>
                 <textarea
                   id="targetAudience"
                   rows={2}
                   defaultValue={state.targetAudience}
-                  placeholder="e.g., Marketing managers at B2B SaaS companies with 50-500 employees who are overwhelmed by manual reporting..."
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                  placeholder="e.g., Marketing managers at B2B SaaS companies with 50-500 employees..."
+                  className="input-raw w-full resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Brand Voice & Tone
-                  <span className="text-xs text-purple-400 ml-2">Shapes the writing style</span>
-                </label>
+                <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">BRAND VOICE & TONE</label>
                 <textarea
                   id="brandVoice"
                   rows={2}
                   defaultValue={state.brandVoice}
-                  placeholder="e.g., Professional but warm. We're experts who don't talk down to people. Clear language, no jargon, occasionally dry humor..."
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                  placeholder="e.g., Professional but warm. Clear language, no jargon..."
+                  className="input-raw w-full resize-none"
                 />
               </div>
 
               {/* Profile Completion Indicator */}
-              <div className="bg-slate-900/50 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-slate-400">Brand Profile Completeness</span>
-                  <span className="text-xs font-medium text-purple-400">{getProfileCompletion()}%</span>
+              <div className="bg-[#0a0a0a] border-2 border-[#333] p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-display tracking-wider text-[#666]">PROFILE COMPLETION</span>
+                  <span className="text-sm font-mono text-[#f7ff00]">{getProfileCompletion()}%</span>
                 </div>
-                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+                    className="h-full bg-[#f7ff00] transition-all duration-300"
                     style={{ width: `${getProfileCompletion()}%` }}
                   />
                 </div>
-                <p className="text-xs text-slate-500 mt-2">Complete profiles generate up to 3x more relevant content</p>
               </div>
             </div>
           )}
         </div>
 
-        <div id="apiKeySection" className="pt-4 border-t border-slate-700">
-          <label className="block text-sm font-medium text-slate-300 mb-2">AI Provider</label>
-          <div className="flex gap-3 mb-3">
-            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'gemini' ? 'border-green-500 bg-green-500/20 text-green-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Gemini (Free)</button>
-            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'openai' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>OpenAI</button>
-            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-2 rounded-lg border ${state.llmProvider === 'anthropic' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Anthropic</button>
+        <div id="apiKeySection" className="pt-6 border-t-2 border-[#333]">
+          <label className="block text-xs font-display tracking-[0.2em] text-white mb-4">AI PROVIDER</label>
+          <div className="flex gap-2 mb-4">
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>GEMINI (FREE)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#f7ff00] bg-[#f7ff00]/10 text-[#f7ff00]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>OPENAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#ff1493] bg-[#ff1493]/10 text-[#ff1493]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>ANTHROPIC</button>
           </div>
           {state.llmProvider === 'gemini' ? (
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-300 rounded-full ${
+                  className={`h-full transition-all duration-300 ${
                     state.freePromptsUsed >= state.promptsLimit
-                      ? 'bg-red-500'
+                      ? 'bg-[#ff3333]'
                       : state.freePromptsUsed >= state.promptsLimit * 0.8
-                        ? 'bg-amber-500'
-                        : 'bg-emerald-500'
+                        ? 'bg-[#f7ff00]'
+                        : 'bg-[#00ff66]'
                   }`}
                   style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                 />
               </div>
-              <span className={`text-xs font-medium ${
+              <span className={`text-xs font-mono ${
                 state.freePromptsUsed >= state.promptsLimit
-                  ? 'text-red-400'
+                  ? 'text-[#ff3333]'
                   : state.freePromptsUsed >= state.promptsLimit * 0.8
-                    ? 'text-amber-400'
-                    : 'text-emerald-400'
+                    ? 'text-[#f7ff00]'
+                    : 'text-[#00ff66]'
               }`}>
-                {state.promptsLimit - state.freePromptsUsed} left
+                {state.promptsLimit - state.freePromptsUsed} LEFT
               </span>
             </div>
           ) : (
@@ -2913,9 +2931,9 @@ function BrandInput({
                 value={state.apiKey}
                 onChange={(e) => updateState({ apiKey: e.target.value })}
                 placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="input-raw w-full"
               />
-              <p className="text-xs text-slate-500 mt-2">Stored locally in your browser only</p>
+              <p className="text-xs text-[#666] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
             </>
           )}
         </div>
@@ -2923,17 +2941,16 @@ function BrandInput({
         <button
           onClick={handleSubmit}
           disabled={isSaving}
-          className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+          className="btn-primary w-full flex items-center justify-center gap-3 disabled:opacity-50"
         >
           {isSaving ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Saving...
+              <div className="w-5 h-5 border-2 border-black/30 border-t-black animate-spin" />
+              SAVING...
             </>
           ) : (
             <>
-              {isEditing ? 'Save Changes & Continue' : isLoggedIn ? 'Save Project & Continue' : 'Continue to Prompt Library'}
-              <span dangerouslySetInnerHTML={{ __html: icons.arrowRight }} />
+              {isEditing ? 'SAVE & CONTINUE' : isLoggedIn ? 'CREATE PROJECT' : 'CONTINUE'} →
             </>
           )}
         </button>
@@ -2941,10 +2958,9 @@ function BrandInput({
         {goBack && (
           <button
             onClick={goBack}
-            className="w-full py-3 text-slate-400 hover:text-white flex items-center justify-center gap-2 transition-colors"
+            className="w-full py-3 text-[#666] hover:text-[#f7ff00] flex items-center justify-center gap-2 transition-colors font-display tracking-wider"
           >
-            <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-            {isLoggedIn ? 'Back to Projects' : 'Back'}
+            ← {isLoggedIn ? 'BACK TO PROJECTS' : 'BACK'}
           </button>
         )}
       </div>
@@ -2955,30 +2971,40 @@ function BrandInput({
 // Discipline Select Component
 function DisciplineSelect({ state, selectDiscipline, goBack }: { state: State; selectDiscipline: (v: string) => void; goBack: () => void }) {
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
-          <span className="font-medium">{state.brand}</span>
-          <span className="text-slate-500">•</span>
-          <span>{state.industry}</span>
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="tag tag-pink">{state.brand.toUpperCase()}</div>
+          <span className="text-[#333] font-display">//</span>
+          <span className="text-[#666] text-sm font-display tracking-wider">{state.industry.toUpperCase()}</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Choose Your Marketing Focus</h2>
-        <p className="text-slate-400">Select a discipline to get personalized prompts for {state.brand}</p>
+        <h2 className="headline-lg text-white">CHOOSE YOUR</h2>
+        <h2 className="headline-lg text-[#f7ff00] -mt-2">WEAPON</h2>
+        <p className="text-[#666] mt-4">Select a discipline. Each one is loaded with specialized prompts.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {disciplines.map((d) => (
-          <button key={d.value} onClick={() => selectDiscipline(d.value)} className="p-6 rounded-xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-700 group">
-            <div className="text-3xl mb-3">{d.icon}</div>
-            <div className="font-semibold text-lg mb-1 group-hover:text-purple-300">{d.label}</div>
-            <div className="text-sm text-slate-400">{d.desc}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+        {disciplines.map((d, index) => (
+          <button
+            key={d.value}
+            onClick={() => selectDiscipline(d.value)}
+            className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#f7ff00] group relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 font-display text-6xl text-[#1a1a1a] group-hover:text-[#222] transition-colors">
+              {String(index + 1).padStart(2, '0')}
+            </div>
+            <div className="relative z-10">
+              <div className="text-4xl mb-4">{d.icon}</div>
+              <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors tracking-wide">{d.label.toUpperCase()}</div>
+              <div className="text-sm text-[#666] mt-2 group-hover:text-[#999] transition-colors">{d.desc}</div>
+            </div>
           </button>
         ))}
       </div>
 
-      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-        Edit business info
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+        ← EDIT BRIEF
       </button>
     </div>
   );
@@ -2990,22 +3016,32 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
 
   return (
     <div className="space-y-8">
+      {/* Top bar */}
       <div className="flex items-center justify-between">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} /> Back
+        <button onClick={goBack} className="flex items-center gap-2 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+          ← BACK
         </button>
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
-          <span className="font-medium">{state.brand}</span>
-        </div>
+        <div className="tag tag-pink">{state.brand.toUpperCase()}</div>
       </div>
 
+      {/* Mode toggle - punk style */}
       <div className="flex justify-center">
-        <div className="inline-flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
-          <button onClick={() => setMode('strategy')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📋 Talk to Planning</button>
-          <button onClick={() => setMode('execution')} className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}`}>🎨 Talk to Creative</button>
+        <div className="inline-flex border-2 border-white">
+          <button
+            onClick={() => setMode('strategy')}
+            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-[#f7ff00] text-black' : 'bg-transparent text-[#666] hover:text-white'}`}
+          >
+            📋 PLANNING
+          </button>
+          <button
+            onClick={() => setMode('execution')}
+            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all border-l-2 border-white ${state.mode === 'execution' ? 'bg-[#00ff66] text-black' : 'bg-transparent text-[#666] hover:text-white'}`}
+          >
+            🎨 CREATIVE
+          </button>
         </div>
       </div>
-      <p className="text-center text-sm text-slate-500">{state.mode === 'strategy' ? 'Define strategy, validate briefs, and get recommendations' : 'Generate content within your approved strategic direction'}</p>
+      <p className="text-center text-xs text-[#666] font-mono">// {state.mode === 'strategy' ? 'Define strategy, validate briefs, develop message angles' : 'Execute within your approved strategic direction'}</p>
 
       {/* Skipped Planning Review Warning */}
       {state.skippedPlanningReview && state.mode === 'execution' && (
@@ -4408,56 +4444,46 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
-          <span className="font-medium">{state.currentProject?.name || state.brand}</span>
-          <span className="text-slate-500">•</span>
-          <span>{state.currentProject?.industry || state.industry}</span>
-          <span className="text-slate-500">•</span>
+      {/* Header */}
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="tag tag-pink">{(state.currentProject?.name || state.brand).toUpperCase()}</div>
+          <span className="text-[#333] font-display">//</span>
+          <span className="text-[#666] text-sm font-display tracking-wider">{(state.currentProject?.industry || state.industry).toUpperCase()}</span>
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className="flex items-center gap-1 hover:text-purple-200 transition-colors"
+            className="ml-auto text-[#666] hover:text-[#f7ff00] font-display text-xs tracking-wider transition-colors"
             title="API Settings"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Settings
+            ⚙ SETTINGS
           </button>
         </div>
-        <h2 className="text-3xl font-bold mb-4">What would you like to do?</h2>
-        <p className="text-slate-400">Choose the path that fits your needs</p>
+        <h2 className="headline-lg text-white">WHAT'S YOUR</h2>
+        <h2 className="headline-lg text-[#ff1493] -mt-2">SITUATION?</h2>
       </div>
 
       {/* Collapsible API Settings */}
       {showSettings && (
-        <div className="mb-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-          <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium text-slate-300">AI Provider</label>
-            <button onClick={() => setShowSettings(false)} className="text-slate-500 hover:text-white">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+        <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#333]">
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-xs font-display tracking-[0.2em] text-white">AI PROVIDER</label>
+            <button onClick={() => setShowSettings(false)} className="text-[#666] hover:text-white font-display text-xs">✕ CLOSE</button>
           </div>
-          <div className="flex gap-3 mb-3">
-            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-2 rounded-lg border text-sm ${state.llmProvider === 'gemini' ? 'border-green-500 bg-green-500/20 text-green-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Gemini (Free)</button>
-            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-2 rounded-lg border text-sm ${state.llmProvider === 'openai' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>OpenAI</button>
-            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-2 rounded-lg border text-sm ${state.llmProvider === 'anthropic' ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-slate-600 text-slate-400 hover:border-slate-500'}`}>Anthropic</button>
+          <div className="flex gap-2 mb-4">
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>GEMINI (FREE)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#f7ff00] bg-[#f7ff00]/10 text-[#f7ff00]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>OPENAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#ff1493] bg-[#ff1493]/10 text-[#ff1493]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>ANTHROPIC</button>
           </div>
           {state.llmProvider === 'gemini' ? (
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-300 rounded-full ${
-                    state.freePromptsUsed >= state.promptsLimit ? 'bg-red-500' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-amber-500' : 'bg-emerald-500'
-                  }`}
+                  className={`h-full transition-all duration-300 ${state.freePromptsUsed >= state.promptsLimit ? 'bg-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-[#f7ff00]' : 'bg-[#00ff66]'}`}
                   style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                 />
               </div>
-              <span className={`text-xs font-medium ${state.freePromptsUsed >= state.promptsLimit ? 'text-red-400' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                {state.promptsLimit - state.freePromptsUsed} free prompts left
+              <span className={`text-xs font-mono ${state.freePromptsUsed >= state.promptsLimit ? 'text-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-[#f7ff00]' : 'text-[#00ff66]'}`}>
+                {state.promptsLimit - state.freePromptsUsed} LEFT
               </span>
             </div>
           ) : (
@@ -4470,106 +4496,90 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
                   localStorage.setItem('amplify_api_key', e.target.value);
                 }}
                 placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
-                className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+                className="input-raw w-full text-sm"
               />
-              <p className="text-xs text-slate-500 mt-2">Stored locally in your browser only</p>
+              <p className="text-xs text-[#666] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
             </>
           )}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+        {/* Discovery Mode */}
         <button
           onClick={() => onSelectMode('discovery')}
-          className="p-6 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-purple-500 hover:bg-slate-800/80 group"
+          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#ff1493] group relative"
         >
-          <div className="text-4xl mb-4">🧭</div>
-          <div className="text-lg font-bold mb-2 group-hover:text-purple-300">"I have a problem"</div>
-          <div className="text-slate-400 text-sm mb-4">Guide me to the right strategy</div>
-          <div className="text-sm text-slate-500 space-y-1">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              New campaigns
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Uncertain goals
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Strategic planning
+          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#ff1493]/20 transition-colors">01</div>
+          <div className="relative z-10">
+            <div className="text-4xl mb-4">🧭</div>
+            <div className="font-display text-xl text-white group-hover:text-[#ff1493] transition-colors tracking-wide">"I HAVE A PROBLEM"</div>
+            <div className="text-[#666] text-sm mt-2 mb-4">Guide me to the right strategy</div>
+            <div className="text-xs text-[#666] space-y-1 font-mono">
+              <div className="flex items-center gap-2">
+                <span className="text-[#ff1493]">→</span> New campaigns
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#ff1493]">→</span> Uncertain goals
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#ff1493]">→</span> Strategic planning
+              </div>
             </div>
           </div>
         </button>
 
+        {/* Directed Mode */}
         <button
           onClick={() => onSelectMode('directed')}
-          className="p-6 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-green-500 hover:bg-slate-800/80 group"
+          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#00ff66] group relative"
         >
-          <div className="text-4xl mb-4">🚀</div>
-          <div className="text-lg font-bold mb-2 group-hover:text-green-300">"I know what I need"</div>
-          <div className="text-slate-400 text-sm mb-4">Let me execute quickly</div>
-          <div className="text-sm text-slate-500 space-y-1">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Repeat tasks
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Clear objectives
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Fast turnaround
+          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#00ff66]/20 transition-colors">02</div>
+          <div className="relative z-10">
+            <div className="text-4xl mb-4">🚀</div>
+            <div className="font-display text-xl text-white group-hover:text-[#00ff66] transition-colors tracking-wide">"I KNOW WHAT I NEED"</div>
+            <div className="text-[#666] text-sm mt-2 mb-4">Let me execute quickly</div>
+            <div className="text-xs text-[#666] space-y-1 font-mono">
+              <div className="flex items-center gap-2">
+                <span className="text-[#00ff66]">→</span> Repeat tasks
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#00ff66]">→</span> Clear objectives
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#00ff66]">→</span> Fast turnaround
+              </div>
             </div>
           </div>
         </button>
 
+        {/* Upload Mode */}
         <button
           onClick={() => onSelectMode('upload')}
-          className="p-6 rounded-2xl border-2 transition-all text-left border-slate-700 bg-slate-800 hover:border-amber-500 hover:bg-slate-800/80 group"
+          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#f7ff00] group relative"
         >
-          <div className="text-4xl mb-4">📄</div>
-          <div className="text-lg font-bold mb-2 group-hover:text-amber-300">"I have a brief"</div>
-          <div className="text-slate-400 text-sm mb-4">Upload your creative brief</div>
-          <div className="text-sm text-slate-500 space-y-1">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              PDF, Word, or text
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Auto-extract fields
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Agency workflows
+          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#f7ff00]/20 transition-colors">03</div>
+          <div className="relative z-10">
+            <div className="text-4xl mb-4">📄</div>
+            <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors tracking-wide">"I HAVE A BRIEF"</div>
+            <div className="text-[#666] text-sm mt-2 mb-4">Upload your creative brief</div>
+            <div className="text-xs text-[#666] space-y-1 font-mono">
+              <div className="flex items-center gap-2">
+                <span className="text-[#f7ff00]">→</span> PDF, Word, or text
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#f7ff00]">→</span> Auto-extract fields
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#f7ff00]">→</span> Agency workflows
+              </div>
             </div>
           </div>
         </button>
       </div>
 
-      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-        <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-        Back
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+        ← BACK
       </button>
     </div>
   );
@@ -4578,45 +4588,39 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
 // Discovery Wizard Progress Bar
 function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
   const steps = [
-    { num: 1, label: 'Problem' },
-    { num: 2, label: 'Audience' },
-    { num: 3, label: 'Proposition' },
-    { num: 4, label: 'Details' },
-    { num: 5, label: 'Measures' },
-    { num: 6, label: 'Review' },
+    { num: 1, label: 'PROBLEM' },
+    { num: 2, label: 'AUDIENCE' },
+    { num: 3, label: 'PROPOSITION' },
+    { num: 4, label: 'DETAILS' },
+    { num: 5, label: 'MEASURES' },
+    { num: 6, label: 'REVIEW' },
   ];
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between max-w-xl mx-auto">
+    <div className="mb-10">
+      <div className="flex items-center justify-between max-w-2xl mx-auto">
         {steps.map((step, index) => (
           <div key={step.num} className="flex items-center">
             <div className="flex flex-col items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                className={`w-10 h-10 flex items-center justify-center font-display text-lg transition-all border-2 ${
                   step.num < currentStep
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-[#00ff66] text-black border-[#00ff66]'
                     : step.num === currentStep
-                    ? 'bg-purple-500 text-white ring-4 ring-purple-500/30'
-                    : 'bg-slate-700 text-slate-400'
+                    ? 'bg-[#f7ff00] text-black border-[#f7ff00]'
+                    : 'bg-[#1a1a1a] text-[#444] border-[#333]'
                 }`}
               >
-                {step.num < currentStep ? (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  step.num
-                )}
+                {step.num < currentStep ? '✓' : step.num}
               </div>
-              <span className={`text-xs mt-1 ${step.num === currentStep ? 'text-purple-300' : 'text-slate-500'}`}>
+              <span className={`text-[10px] mt-2 font-display tracking-wider ${step.num === currentStep ? 'text-[#f7ff00]' : step.num < currentStep ? 'text-[#00ff66]' : 'text-[#444]'}`}>
                 {step.label}
               </span>
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-8 md:w-12 h-0.5 mx-1 ${
-                  step.num < currentStep ? 'bg-purple-600' : 'bg-slate-700'
+                className={`w-6 md:w-10 h-[2px] mx-1 ${
+                  step.num < currentStep ? 'bg-[#00ff66]' : 'bg-[#333]'
                 }`}
               />
             )}
@@ -4657,12 +4661,12 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
   };
 
   const stepTitles: Record<number, { title: string; subtitle: string }> = {
-    1: { title: 'The Problem', subtitle: "Let's understand what you're trying to solve" },
-    2: { title: 'The Audience', subtitle: 'Who are you trying to reach?' },
-    3: { title: 'The Proposition', subtitle: 'What are you offering them?' },
-    4: { title: 'The Brief Details', subtitle: 'How should this feel?' },
-    5: { title: 'The Measures', subtitle: 'How will you measure success?' },
-    6: { title: 'Review Your Brief', subtitle: 'Make sure everything looks right' },
+    1: { title: 'THE PROBLEM', subtitle: "What are we fighting?" },
+    2: { title: 'THE AUDIENCE', subtitle: 'Who are we talking to?' },
+    3: { title: 'THE PROPOSITION', subtitle: 'What are we selling?' },
+    4: { title: 'THE DETAILS', subtitle: 'How should it feel?' },
+    5: { title: 'THE MEASURES', subtitle: 'How do we win?' },
+    6: { title: 'THE REVIEW', subtitle: 'Final sanity check' },
   };
 
   const canProceed = () => {
