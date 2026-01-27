@@ -1,8 +1,8 @@
 # Product Requirements Document (PRD)
 # Amplify — AI-Powered Marketing Platform
 
-**Document Version:** 1.0
-**Last Updated:** January 2025
+**Document Version:** 2.0 (Agency Model)
+**Last Updated:** January 2026
 **Product Owner:** Fabrica Collective
 **Status:** Active Development
 
@@ -34,26 +34,31 @@
 **Amplify** by Fabrica Collective
 
 ### One-Liner
-> "Your AI marketing team in a browser — from strategy to send."
+> "Your virtual agency room. Start with strategy, not channels."
 
 ### Tagline
 > "The marketing team you can't afford to hire."
 
 ### What It Is
-Amplify is an AI-powered marketing platform that gives solo marketers and small teams access to strategic thinking from legendary marketing minds. Unlike generic AI tools that just generate copy, Amplify helps users think like David Ogilvy, Steve Jobs, and Seth Godin — for $29/month.
+Amplify is a **virtual agency platform** that guides marketers through the strategic process real agencies use: Planning → Creative → Media. Unlike generic AI tools that start with "what channel?", Amplify starts with "what's the real problem?" — capturing the workflow that makes great marketing.
 
 ### Core Value Proposition
-- **90 expert prompts** across 9 marketing disciplines
-- **26 creative personas** based on legendary marketers and strategists
-- **Strategy + Execution modes** — think first, then produce
-- **Brand personalization** — every output is contextually relevant
-- **Learn while you create** — understand the "why" behind the output
+- **Agency workflow** — Planning Review checkpoint before creative execution
+- **Strategic threads** — All decisions linked from brief to final output
+- **26 creative personas** — Legendary marketers and strategists as your team
+- **Discovery mode** — AI-guided problem definition and strategy development
+- **Brand intelligence** — Every output is contextually relevant
 
 ### Current Status
 - **v1.0 (HTML prototype):** Shipped
-- **v2.0 (SaaS platform):** In development
-- Authentication, prompt library, personas, and personal library are built
-- Monetization and enhanced features in progress
+- **v2.0 (Agency Model):** Live
+  - Planning/Creative role-based navigation
+  - Discovery mode with strategy generation
+  - Creative Ideas exploration
+  - Planning Review checkpoint with AI assessment
+  - Strategic thread lifecycle management
+  - Target personas (audience personas)
+  - Upload Brief feature
 
 ---
 
@@ -99,17 +104,23 @@ Help every marketer think strategically and produce excellent content — regard
 
 ### Strategic Pillars
 
-1. **Expert Personas**
+1. **Agency Workflow Model**
+   - Talk to Planning — Define problem, develop strategy, select creative idea
+   - Planning Review — AI-assessed quality gate before execution
+   - Talk to Creative — Generate outputs with strategic context preserved
+   - Future: Talk to Media — Channel recommendations and distribution strategy
+
+2. **Strategic Threads**
+   - Problem → Strategy → Creative Idea → Approved Brief → Outputs
+   - All decisions linked and visible throughout the process
+   - Thread state machine: `draft → in_planning → pending_review → approved → active`
+
+3. **Expert Personas**
    - 26 legendary marketing minds
    - Not just tone of voice — strategic thinking frameworks
-   - Learn while you create
+   - Target personas for audience definition
 
-2. **Strategy-First Approach**
-   - Strategy mode explains the thinking
-   - Execution mode produces the output
-   - Both modes, one workflow
-
-3. **Brand Intelligence**
+4. **Brand Intelligence**
    - Define once, use everywhere
    - Every output is contextually relevant
    - Builds institutional knowledge
@@ -175,12 +186,15 @@ Help every marketer think strategically and produce excellent content — regard
 - **90 expert prompts:** 10 per discipline
 - **50+ mental models:** Strategic frameworks from Reforge, CXL, Demand Curve, and more
 
-#### 5.2 Output Modes
+#### 5.2 Agency Roles (Output Modes)
 
-| Mode | Purpose | Output Type |
-|------|---------|-------------|
-| **Strategy Mode** | Get frameworks, analysis, and recommendations | Planning documents, audits, strategies |
-| **Execution Mode** | Get ready-to-use content you can copy and publish | Posts, emails, ad copy, headlines |
+| Role | UI Label | Purpose | Output Type |
+|------|----------|---------|-------------|
+| **Planning** | "Talk to Planning" | Define problem, develop strategy, get recommendations | Strategic briefs, message strategies, creative ideas |
+| **Creative** | "Talk to Creative" | Execute on approved strategy with creative excellence | Posts, emails, ad copy, headlines |
+
+**Planning Review Checkpoint:**
+Before switching to Creative, users go through a Planning Review where AI assesses the brief (1-10 score) and provides suggestions. Users can approve, refine, or skip (with warning).
 
 #### 5.3 Creative Personas
 
@@ -297,38 +311,50 @@ Help every marketer think strategically and produce excellent content — regard
 
 ## 7. User Experience
 
-### 7.1 MVP User Journey
+### 7.1 Agency Model User Journey
 
 ```
-1. LAND → Marketing page explains value prop
-         "AI-powered marketing team in your browser"
+1. LAND → Marketing page explains agency model
+         "Your virtual agency room. Start with strategy, not channels."
+         How It Works: Planning → Review → Creative → Media
 
 2. SIGN UP → Email/password, verify email
 
 3. ONBOARD → Define brand context
-             - Brand name
-             - Website
-             - Industry
-             - Main challenge
-             - Target audience
-             - Brand voice
+             - Brand name, website, industry
+             - Target audience, brand voice
+             - Value proposition
 
-4. EXPLORE → Browse 9 disciplines, 90 prompts
-             See what's possible
+4. CHOOSE ENTRY POINT:
+   a) "I have a problem" → Discovery Mode
+   b) "I have a strategy" → Strategy Selection
+   c) "I have a brief" → Upload/Parse Brief
 
-5. GENERATE → Pick a prompt, run it
-              Get strategic output
+5. DISCOVERY MODE (if selected):
+   - Define business problem
+   - Set success metrics, timeline, constraints
+   - AI generates 3 message strategies
+   - User selects and refines strategy
 
-6. REMIX → Apply a creative persona lens
-           See how Ogilvy/Jobs/Godin would approach it
+6. CREATIVE IDEAS:
+   - AI generates 3 creative concepts based on strategy
+   - Each includes name, summary, tone, visual direction
+   - User selects and optionally refines
 
-7. SAVE → Save best outputs to library
-          Build a content bank
+7. PLANNING REVIEW (Checkpoint):
+   - AI assesses brief completeness (1-10 score)
+   - Shows strategic summary: problem, audience, strategy, idea
+   - Options: Approve → Creative, Refine, or Skip (with warning)
 
-8. HIT LIMIT → "You've used 10/10 free prompts"
-               Upgrade to Premium for unlimited
+8. CREATIVE EXECUTION:
+   - Select discipline (SEO, Social, Email, etc.)
+   - Select prompt from library
+   - Generate content with full strategic context
+   - Remix through creative personas
 
-9. CONVERT → Stripe checkout → Premium unlocked
+9. SAVE → Save outputs to library with thread context
+
+10. CONVERT → Premium unlocks unlimited access
 ```
 
 ### 7.2 Key UX Principles
@@ -373,33 +399,60 @@ Help every marketer think strategically and produce excellent content — regard
 | `subscriptions` | Tier, usage tracking, Stripe IDs |
 | `brands` | Brand profiles per user |
 | `personas` | 26 creative personas (read-only) |
-| `outputs` | Saved AI-generated content |
+| `target_personas` | AI-generated audience personas per project |
+| `campaigns` | Strategic threads (problem → strategy → outputs) |
+| `strategic_threads` | Links Planning decisions to Creative outputs |
+| `planning_reviews` | AI brief assessments (score, suggestions) |
+| `outputs` | Saved AI-generated content (linked to threads) |
 | `folders` | Organization for outputs |
 | `tags` | User-defined tags |
 | `integrations` | Connected platforms (future) |
 | `prompt_history` | All prompt runs for analytics |
 
-### 8.3 System Prompt Architecture
+**Campaign/Thread State Machine:**
+```
+draft → in_planning → pending_review → approved → active
+```
+
+### 8.3 Agency Model API Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/planning-review` | POST | AI assessment of brief (1-10 score, suggestions) |
+| `/api/campaigns/message-strategy` | POST | Generate 3 message strategy options |
+| `/api/personas` | POST | Generate/manage target personas |
+| `/api/briefs/parse` | POST | Parse uploaded PDF/Word briefs |
+| `/api/remix` | POST | Creative persona remix |
+| `/api/generate` | POST | Main content generation |
+
+### 8.4 System Prompt Architecture
 
 ```
-1. Persona prompt (if selected)
+1. Strategic context (from thread)
+   "STRATEGIC FOUNDATION:
+    Problem: [from discovery brief]
+    Strategy: [selected message strategy + refinements]
+    Creative Idea: [selected concept]
+    Mandatories: [from brief]"
+
+2. Persona prompt (if selected)
    "You are David Ogilvy, the legendary advertising executive..."
 
-2. Mode instructions
+3. Mode instructions
    "EXECUTION MODE: Output actual content that can be copied..."
 
-3. Brand context
+4. Brand context
    "BRAND CONTEXT:
     Brand: Acme Inc
     Industry: B2B SaaS
     Target Audience: Marketing managers at mid-size companies
     Brand Voice: Professional but approachable..."
 
-4. User's selected prompt
+5. User's selected prompt
    "Write a LinkedIn post announcing our new feature..."
 ```
 
-### 8.4 Security Requirements
+### 8.5 Security Requirements
 
 - [x] API keys server-side only
 - [x] Origin checking on API routes
@@ -408,7 +461,7 @@ Help every marketer think strategically and produce excellent content — regard
 - [ ] Input sanitization
 - [ ] Token encryption at rest (integrations)
 
-### 8.5 Performance Targets
+### 8.6 Performance Targets
 
 | Metric | Target |
 |--------|--------|
@@ -680,9 +733,12 @@ David Ogilvy, Leo Burnett, Mary Wells Lawrence, Rory Sutherland, Helen Lansdowne
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | January 2025 | Product Team | Initial PRD compilation |
+| 2.0 | January 2026 | Product Team | Agency Model update: Planning/Creative roles, strategic threads, Planning Review checkpoint, discovery mode, creative ideas exploration |
 
 ---
 
 *This PRD is a living document and will be updated as the product evolves.*
+
+**See Also:** [CHANGELOG_AGENCY_MODEL.md](./CHANGELOG_AGENCY_MODEL.md) for detailed implementation changes.
 
 **Built with care by [Fabrica Collective](https://fabricacollective.com)**

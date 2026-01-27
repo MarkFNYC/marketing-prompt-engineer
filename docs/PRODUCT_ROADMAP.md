@@ -8,34 +8,59 @@ Amplify is a **virtual agency room** where marketers access the strategic thinki
 
 ---
 
-## Phase 0: Agency Model Foundation (Current Sprint)
+## Phase 0: Agency Model Foundation ✅ COMPLETE
 
 ### Epic: Strategic Thread & Planning Review
 
 **Overview**: Establish the core agency operating model with Planning and Creative roles, strategic threads as the north star object, and Planning Review as the quality gate.
 
-#### What's Already Built ✅
+**Status:** ✅ Complete (January 2026)
+
+#### What's Built ✅
 - [x] Brand context system
-- [x] Campaign context system (becomes Strategic Thread)
+- [x] Campaign context system (Strategic Thread)
 - [x] AI-generated target personas
-- [x] Strategy/Execution mode toggle (becomes Planning/Creative)
-- [x] Discovery mode for problem exploration
+- [x] **Role-based navigation** — "Talk to Planning" / "Talk to Creative"
+- [x] Discovery mode with problem exploration
+- [x] **Message Strategy generation** — AI generates 3 strategic options
+- [x] **Creative Ideas exploration** — AI generates 3 creative concepts
+- [x] **Planning Review checkpoint** — AI assesses brief (1-10 score)
+- [x] **Soft gate** — Creative mode triggers Planning Review if not approved
+- [x] **Thread state machine** — `draft → in_planning → pending_review → approved → active`
+- [x] Upload Brief feature — Parse PDF/Word documents
 - [x] Creative Remix with 26 advertising legends
 - [x] Collapsible output sections
 - [x] Dual save (Original/Remix)
+- [x] Warning banner for skipped Planning Review
 
-#### New Work (P0)
-- [ ] **Planning Review checkpoint** — Gate before Creative execution
-- [ ] **Strategic Thread object** — Links all Planning decisions to Creative outputs
-- [ ] **Brief validator** — "Sanity-check this brief" entry point
-- [ ] **Role-based navigation** — "Talk to Planning" / "Talk to Creative"
-- [ ] Soft gate Creative behind approved thread
+#### API Endpoints Implemented
+- `/api/planning-review` — AI brief assessment
+- `/api/campaigns/message-strategy` — Strategy generation (Gemini 2.0 Flash)
+- `/api/personas` — Target persona management
+- `/api/briefs/parse` — Brief document parsing
 
-#### Technical Requirements
-- Add `strategic_threads` table to database
-- Add `planning_reviews` table to database
-- Implement thread state machine (draft → in_planning → pending_review → approved → active)
-- Update outputs to link to threads
+#### Documentation
+- See [CHANGELOG_AGENCY_MODEL.md](./CHANGELOG_AGENCY_MODEL.md) for full implementation details
+
+---
+
+## Phase 0.5: Agency Model Enhancements (Next Sprint)
+
+### Epic: Refine Agency Workflow
+
+**Overview**: Polish and extend the agency model based on user feedback from Phase 0.
+
+#### Planned Work
+- [ ] **Brief Enhancement** — Add deliverables, format, media fields to brief parsing
+- [ ] **Smart Routing** — Skip discipline selection when brief specifies deliverable (e.g., "15-second video" → Video discipline)
+- [ ] **Thread Summary Sidebar** — Show strategic context persistently during Creative mode
+- [ ] **Output Tracking** — Link generated content back to threads for audit trail
+- [ ] **Quick Generate Mode** — Allow one-off generations without full thread (with warning)
+
+#### Future Considerations
+- [ ] **Media Role** — Add "Talk to Media" for distribution/channel strategy
+- [ ] **Budget-based recommendations** — Suggest channels based on budget constraints
+- [ ] **Timeline awareness** — Adjust recommendations based on campaign timing
 
 ---
 
@@ -305,11 +330,12 @@ Amplify is a **virtual agency room** where marketers access the strategic thinki
 
 ---
 
-## Sprint Timeline (Updated)
+## Sprint Timeline (Updated January 2026)
 
 | Phase | Sprints | Duration | Milestone | Status |
 |-------|---------|----------|-----------|--------|
-| Phase 0: Agency Model | 0 | 2 weeks | Planning Review + Strategic Threads | 🔄 In Progress |
+| Phase 0: Agency Model | 0 | 2 weeks | Planning Review + Strategic Threads | ✅ Complete |
+| Phase 0.5: Agency Enhancements | — | Ongoing | Brief fields, smart routing | 🔄 Next |
 | Phase 1: Personas | 1-2 | 4 weeks | Creative Personas Live | ✅ Complete |
 | Phase 1.5: Target Personas | 2 | 1 week | AI-generated audience personas | ✅ Complete |
 | Phase 2: Auth | 3-4 | 4 weeks | User Accounts Live | ✅ Complete |
@@ -317,7 +343,7 @@ Amplify is a **virtual agency room** where marketers access the strategic thinki
 | Phase 4: Library | 7-8 | 4 weeks | Content Library Live | 🔄 Partial |
 | Phase 5: Integrations | 9-12 | 8 weeks | LinkedIn + Twitter Live | 📋 Planned |
 | Phase 6: Analytics | 13-14 | 4 weeks | Analytics Dashboard | 📋 Planned |
-| Phase 7: Media Role | 15-16 | 4 weeks | Channel Recommendations | 📋 Planned |
+| Phase 7: Media Role | 15-16 | 4 weeks | "Talk to Media" + Channel Recs | 📋 Planned |
 
 **Total Estimated Timeline**: 32 weeks (~8 months)
 
@@ -368,6 +394,6 @@ See [PRD_AGENCY_MODEL_ADDENDUM.md](./PRD_AGENCY_MODEL_ADDENDUM.md) for detailed 
 
 ---
 
-*Last Updated: January 2025*
-*Updated for Agency Model: January 2025*
+*Last Updated: January 2026*
+*Agency Model Phase 0: Complete*
 *Document Owner: Product Team*
