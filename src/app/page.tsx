@@ -826,33 +826,29 @@ export default function Home() {
   };
 
   const handlePlanningApprove = () => {
-    // Update campaign/thread state to approved
+    // Update campaign/thread state to approved and move to discipline selection
+    const updates: Partial<State> = {
+      showPlanningReview: false,
+      mode: 'execution' as Mode,
+      skippedPlanningReview: false,
+      step: 'discipline-select' as Step,
+    };
+
     if (state.currentCampaign) {
       const updatedCampaign = { ...state.currentCampaign, threadState: 'approved' as ThreadState };
-      updateState({
-        currentCampaign: updatedCampaign,
-        showPlanningReview: false,
-        mode: 'execution',
-        skippedPlanningReview: false,
-        step: 'discipline-select', // Move to Creative execution
-      });
-      // Save to localStorage
+      updates.currentCampaign = updatedCampaign;
       saveCampaignState(updatedCampaign);
-    } else {
-      updateState({
-        showPlanningReview: false,
-        mode: 'execution',
-        skippedPlanningReview: false,
-        step: 'discipline-select', // Move to Creative execution
-      });
     }
+
+    updateState(updates);
   };
 
   const handlePlanningRefine = () => {
-    // Go back to Planning mode with suggestions
+    // Go back to Creative Ideas to pick a different approach
     updateState({
       showPlanningReview: false,
       mode: 'strategy',
+      step: 'creative-ideas', // Go back to creative ideas to refine
     });
   };
 
@@ -1828,7 +1824,7 @@ export default function Home() {
             onApprove={handlePlanningApprove}
             onRefine={handlePlanningRefine}
             onSkip={handlePlanningSkip}
-            onClose={() => updateState({ showPlanningReview: false })}
+            onClose={() => updateState({ showPlanningReview: false, step: 'creative-ideas' })}
           />
         )}
         {state.step === 'my-library' && (
@@ -3637,7 +3633,7 @@ function PlanningReviewModal({
                 Planning Review
               </h2>
               <p className="text-slate-400 mt-1">
-                Review your strategic foundation before moving to Creative
+                Review your strategy and creative idea before selecting media channels
               </p>
             </div>
             <button onClick={onClose} className="text-slate-400 hover:text-white p-2" disabled={isLoading}>
@@ -3678,6 +3674,23 @@ function PlanningReviewModal({
                   <p className="text-slate-500 italic mt-1">No strategy selected</p>
                 )}
               </div>
+
+              {state.selectedCreativeIdea && (
+                <div>
+                  <span className="text-slate-500">Creative Idea:</span>
+                  <div className="mt-1 bg-pink-500/10 rounded-lg p-3 border border-pink-500/30">
+                    <p className="text-pink-300 font-medium">{state.selectedCreativeIdea.name}</p>
+                    <p className="text-slate-300 text-xs mt-1">{state.selectedCreativeIdea.summary}</p>
+                    {state.selectedCreativeIdea.tone_and_feel?.length > 0 && (
+                      <div className="flex gap-2 mt-2">
+                        {state.selectedCreativeIdea.tone_and_feel.slice(0, 3).map((tone, i) => (
+                          <span key={i} className="text-xs text-pink-400">#{tone}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {mandatories.length > 0 && (
                 <div>
@@ -3751,7 +3764,7 @@ function PlanningReviewModal({
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Approve & Continue to Creative
+              Approve & Select Media
             </button>
 
             <button
@@ -3762,7 +3775,7 @@ function PlanningReviewModal({
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              Refine Strategy
+              Refine Creative Idea
             </button>
           </div>
 
