@@ -11,6 +11,12 @@ interface PlanningReviewRequest {
     name: string;
     core_message: string;
     angle: string;
+    user_refinements?: string;
+  } | null;
+  creativeIdea?: {
+    name: string;
+    summary: string;
+    tone_and_feel?: string[];
   } | null;
   mandatories: string[];
   brandContext?: {
@@ -46,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: PlanningReviewRequest = await request.json();
-    const { problemStatement, targetAudience, strategy, mandatories, brandContext } = body;
+    const { problemStatement, targetAudience, strategy, creativeIdea, mandatories, brandContext } = body;
 
     // Build the assessment prompt
     const assessmentPrompt = `You are a senior Planning Director at a top advertising agency (like DDB, Grey, or McCann). Your job is to review creative briefs before they go to the Creative team.
@@ -68,18 +74,29 @@ ${strategy ? `
 Name: ${strategy.name}
 Core Message: ${strategy.core_message}
 Angle: ${strategy.angle}
+${strategy.user_refinements ? `User Refinements: ${strategy.user_refinements}` : ''}
 ` : 'No strategy selected'}
+
+CREATIVE IDEA:
+${creativeIdea ? `
+Name: ${creativeIdea.name}
+Concept: ${creativeIdea.summary}
+${creativeIdea.tone_and_feel?.length ? `Tone: ${creativeIdea.tone_and_feel.join(', ')}` : ''}
+` : 'No creative idea selected yet'}
 
 MANDATORIES:
 ${mandatories?.length ? mandatories.map((m, i) => `${i + 1}. ${m}`).join('\n') : 'None specified'}
 ---
 
+Note: "User Refinements" may contain additional context about the target audience or strategic direction that should be factored into your assessment.
+
 Evaluate this brief against these criteria:
 1. Is there a clear, single-minded proposition?
 2. Is the strategy distinctive vs. competition?
-3. Is it relevant to the target audience?
-4. Are the mandatories achievable and clear?
-5. Is there enough direction for Creative to execute well?
+3. Is it relevant to the target audience (including any refinements)?
+4. Does the creative idea bring the strategy to life in a compelling way?
+5. Are the mandatories achievable and clear?
+6. Is there enough direction for Creative to execute well?
 
 Respond in this exact JSON format:
 {
