@@ -6,7 +6,7 @@ import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { getCreativePersonas, getStrategyPersonas, type Persona as RemixPersona } from '@/lib/personas';
 
-type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'directed-brief' | 'strategy-check' | 'campaigns' | 'upload-brief' | 'brief-review';
+type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'creative-ideas' | 'directed-brief' | 'strategy-check' | 'campaigns' | 'upload-brief' | 'brief-review';
 type Mode = 'strategy' | 'execution';
 type CampaignMode = 'discovery' | 'directed' | 'upload';
 type CampaignGoalType = 'awareness' | 'consideration' | 'conversion' | 'retention';
@@ -22,6 +22,16 @@ interface MessageStrategy {
   rationale: string;
   best_for?: string[];
   user_refinements?: string;
+}
+
+interface CreativeIdea {
+  id: string;
+  name: string;
+  summary: string;
+  why_it_fits: string;
+  tone_and_feel: string[];
+  creative_risk_level: 'low' | 'medium' | 'high';
+  what_it_sacrifices: string;
 }
 
 interface Campaign {
@@ -156,6 +166,10 @@ interface State {
   messageStrategies: MessageStrategy[];
   messageStrategiesLoading: boolean;
   selectedStrategy: MessageStrategy | null;
+  // Creative Ideas (Phase 1 - Agency Model)
+  creativeIdeas: CreativeIdea[];
+  creativeIdeasLoading: boolean;
+  selectedCreativeIdea: CreativeIdea | null;
   strategyCheckResult: {
     aligned: boolean;
     severity: 'none' | 'mild' | 'strong';
@@ -268,6 +282,10 @@ export default function Home() {
     messageStrategies: [],
     messageStrategiesLoading: false,
     selectedStrategy: null,
+    // Creative Ideas
+    creativeIdeas: [],
+    creativeIdeasLoading: false,
+    selectedCreativeIdea: null,
     strategyCheckResult: null,
     // Discovery brief form
     discoveryBrief: {
@@ -783,6 +801,7 @@ export default function Home() {
           problemStatement,
           targetAudience,
           strategy: state.selectedStrategy,
+          creativeIdea: state.selectedCreativeIdea,
           mandatories,
           brandContext: {
             name: state.currentProject?.name || state.brand,
@@ -1023,6 +1042,8 @@ export default function Home() {
           : uploadedBrief.mandatories || undefined,
         // Strategy anchor (from Discovery mode)
         selectedStrategy: state.selectedStrategy || undefined,
+        // Creative idea (from Creative Ideas step)
+        selectedCreativeIdea: state.selectedCreativeIdea || undefined,
         // Uploaded brief specific fields
         proposition: uploadedBrief.proposition || undefined,
         support: uploadedBrief.support || undefined,
@@ -1524,9 +1545,9 @@ export default function Home() {
         {state.step === 'message-strategy' && (
           <MessageStrategySelect
             state={state}
-            onSelect={(strategy) => {
+            onSelect={async (strategy) => {
               // Save the selected strategy
-              updateState({ selectedStrategy: strategy });
+              updateState({ selectedStrategy: strategy, creativeIdeasLoading: true });
               // Update campaign with selected strategy
               if (state.currentCampaign?.id) {
                 fetch('/api/campaigns', {
@@ -1539,8 +1560,35 @@ export default function Home() {
                   }),
                 });
               }
-              // Trigger Planning Review before moving to Creative
-              triggerPlanningReview();
+              // Generate creative ideas and move to creative-ideas step
+              try {
+                const ideasRes = await fetch('/api/creative-ideas', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    brandContext: {
+                      name: state.currentProject?.name || state.brand,
+                      industry: state.currentProject?.industry || state.industry,
+                      valueProposition: state.currentProject?.value_proposition,
+                    },
+                    businessProblem: state.discoveryBrief.businessProblem,
+                    selectedStrategy: strategy,
+                    constraints: state.discoveryBrief.constraints,
+                    targetAudience: state.currentProject?.target_audience || state.targetAudience,
+                  }),
+                });
+                const ideasData = await ideasRes.json();
+                if (ideasData.ideas) {
+                  updateState({ creativeIdeas: ideasData.ideas, step: 'creative-ideas' });
+                } else {
+                  alert('Error generating creative ideas: ' + (ideasData.error || 'Unknown error'));
+                }
+              } catch (error: any) {
+                console.error('Error generating creative ideas:', error);
+                alert('Error generating creative ideas');
+              } finally {
+                updateState({ creativeIdeasLoading: false });
+              }
             }}
             onRegenerate={async () => {
               updateState({ messageStrategiesLoading: true });
@@ -1574,6 +1622,45 @@ export default function Home() {
               }
             }}
             goBack={() => updateState({ step: 'discovery-brief' })}
+          />
+        )}
+        {state.step === 'creative-ideas' && (
+          <CreativeIdeasSelect
+            state={state}
+            onSelect={(idea) => {
+              updateState({ selectedCreativeIdea: idea });
+              // Now trigger Planning Review before moving to Creative
+              triggerPlanningReview();
+            }}
+            onRegenerate={async () => {
+              updateState({ creativeIdeasLoading: true });
+              try {
+                const ideasRes = await fetch('/api/creative-ideas', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    brandContext: {
+                      name: state.currentProject?.name || state.brand,
+                      industry: state.currentProject?.industry || state.industry,
+                      valueProposition: state.currentProject?.value_proposition,
+                    },
+                    businessProblem: state.discoveryBrief.businessProblem,
+                    selectedStrategy: state.selectedStrategy,
+                    constraints: state.discoveryBrief.constraints,
+                    targetAudience: state.currentProject?.target_audience || state.targetAudience,
+                  }),
+                });
+                const ideasData = await ideasRes.json();
+                if (ideasData.ideas) {
+                  updateState({ creativeIdeas: ideasData.ideas });
+                }
+              } catch (error) {
+                console.error('Error regenerating creative ideas:', error);
+              } finally {
+                updateState({ creativeIdeasLoading: false });
+              }
+            }}
+            goBack={() => updateState({ step: 'message-strategy' })}
           />
         )}
         {state.step === 'directed-brief' && (
@@ -4333,6 +4420,154 @@ function MessageStrategySelect({ state, onSelect, onRegenerate, goBack }: {
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Creative Ideas Selection Component (v1.0 - Agency Model Phase 1)
+function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
+  state: State;
+  onSelect: (idea: CreativeIdea) => void;
+  onRegenerate: () => void;
+  goBack: () => void;
+}) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const handleConfirm = () => {
+    const idea = state.creativeIdeas.find(i => i.id === selectedId);
+    if (idea) {
+      onSelect(idea);
+    }
+  };
+
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'low': return 'text-green-400 bg-green-500/20';
+      case 'medium': return 'text-amber-400 bg-amber-500/20';
+      case 'high': return 'text-red-400 bg-red-500/20';
+      default: return 'text-slate-400 bg-slate-500/20';
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-500/20 text-pink-300 rounded-full text-sm mb-4">
+          <span>🎨 Creative Director</span>
+          <span className="text-slate-500">•</span>
+          <span>Idea Exploration</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Explore Creative Territories</h2>
+        <p className="text-slate-400">How could your strategy come to life? These are big ideas, not executions.</p>
+
+        {/* Show selected strategy context */}
+        {state.selectedStrategy && (
+          <div className="mt-4 inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+            <p className="text-xs text-purple-400 uppercase tracking-wide">Building on strategy</p>
+            <p className="text-sm text-purple-300 font-medium">"{state.selectedStrategy.core_message}"</p>
+          </div>
+        )}
+      </div>
+
+      {state.creativeIdeasLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <svg className="animate-spin w-12 h-12 text-pink-500 mb-4" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <p className="text-slate-400">Generating creative territories...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {state.creativeIdeas.map((idea) => (
+            <button
+              key={idea.id}
+              onClick={() => setSelectedId(idea.id)}
+              className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
+                selectedId === idea.id
+                  ? 'border-pink-500 bg-pink-500/10'
+                  : 'border-slate-700 bg-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="text-lg font-bold text-white">{idea.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${getRiskColor(idea.creative_risk_level)}`}>
+                      {idea.creative_risk_level} risk
+                    </span>
+                    {idea.tone_and_feel.slice(0, 3).map((tone, i) => (
+                      <span key={i} className="text-xs text-slate-500">#{tone}</span>
+                    ))}
+                  </div>
+                </div>
+                {selectedId === idea.id && (
+                  <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-pink-300 font-medium mb-3">{idea.summary}</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-900/50 rounded-lg p-3">
+                  <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Why it fits the strategy</p>
+                  <p className="text-sm text-slate-300">{idea.why_it_fits}</p>
+                </div>
+                <div className="bg-slate-900/50 rounded-lg p-3">
+                  <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">What it sacrifices</p>
+                  <p className="text-sm text-slate-400">{idea.what_it_sacrifices}</p>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-8">
+        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
+          Back to Strategy
+        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onRegenerate}
+            disabled={state.creativeIdeasLoading}
+            className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+          >
+            Show different ideas
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={!selectedId || state.creativeIdeasLoading}
+            className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+              selectedId && !state.creativeIdeasLoading
+                ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+            }`}
+          >
+            {state.creativeIdeasLoading ? (
+              <>
+                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Loading...
+              </>
+            ) : (
+              <>
+                Select This Idea
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </>
+            )}
           </button>
         </div>
       </div>

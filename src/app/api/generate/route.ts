@@ -119,12 +119,27 @@ export async function POST(request: NextRequest) {
       // Message strategy anchor (from Discovery mode)
       if (campaignContext.selectedStrategy) {
         parts.push('');
-        parts.push('STRATEGY ANCHOR:');
+        parts.push('📋 STRATEGY ANCHOR:');
         parts.push(`Strategy: ${campaignContext.selectedStrategy.name}`);
         parts.push(`Core Message: ${campaignContext.selectedStrategy.core_message}`);
         parts.push(`Angle: ${campaignContext.selectedStrategy.angle}`);
         parts.push('');
         parts.push('IMPORTANT: All outputs must serve and reinforce this strategy.');
+      }
+
+      // Creative idea (from Creative Ideas step - Agency Model)
+      if (campaignContext.selectedCreativeIdea) {
+        const idea = campaignContext.selectedCreativeIdea;
+        parts.push('');
+        parts.push('🎨 CREATIVE IDEA (Your execution MUST express this idea):');
+        parts.push(`Idea: "${idea.name}"`);
+        parts.push(`Concept: ${idea.summary}`);
+        parts.push(`Why it works: ${idea.why_it_fits}`);
+        if (idea.tone_and_feel?.length) {
+          parts.push(`Tone & Feel: ${idea.tone_and_feel.join(', ')}`);
+        }
+        parts.push('');
+        parts.push('⚡ CRITICAL: Your execution is NOT just content - it is an expression of this creative idea. The idea should be recognizable in your output. Ask yourself: "Does this feel like the idea, or just generic content?"');
       }
       parts.push('');
       parts.push('⚠️ CRITICAL INSTRUCTION: Your ENTIRE output must be about this specific campaign. Do NOT create generic brand content - focus specifically on the campaign name, goal, and details provided above. Every piece of content should directly reference or relate to this campaign topic.');
