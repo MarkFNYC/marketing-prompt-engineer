@@ -2,6 +2,337 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =====================================================
+   AMPLIFY — MAD DAYS REDESIGN
+   60s Madison Avenue × 70s Punk × 80s MTV Energy
+   "We're going to change everything tomorrow"
+   ===================================================== */
+
+/* Import Bold, Condensed Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* =====================================================
+   CSS VARIABLES — THE PALETTE
+   ===================================================== */
+:root {
+  /* Base Colors */
+  --black: #0a0a0a;
+  --white: #fafafa;
+  --off-white: #f5f5f0;
+
+  /* Punk Accent Colors */
+  --electric-yellow: #f7ff00;
+  --hot-pink: #ff1493;
+  --vibrant-red: #ff3333;
+  --acid-green: #00ff66;
+  --bruise-purple: #8b00ff;
+
+  /* Grays for texture */
+  --gray-dark: #1a1a1a;
+  --gray-mid: #333333;
+  --gray-light: #666666;
+  --gray-pale: #999999;
+
+  /* Gradients */
+  --gradient-fire: linear-gradient(135deg, var(--hot-pink) 0%, var(--electric-yellow) 100%);
+  --gradient-danger: linear-gradient(135deg, var(--vibrant-red) 0%, var(--hot-pink) 100%);
+  --gradient-acid: linear-gradient(135deg, var(--acid-green) 0%, var(--electric-yellow) 100%);
+}
+
+/* =====================================================
+   BASE STYLES
+   ===================================================== */
+html {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+body {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--black);
+  color: var(--white);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =====================================================
+   TYPOGRAPHY — LOUD AND UNAPOLOGETIC
+   ===================================================== */
+.font-display {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Giant Headlines */
+.headline-xl {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: clamp(3rem, 12vw, 10rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
+}
+
+.headline-lg {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: clamp(2rem, 8vw, 5rem);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+}
+
+.headline-md {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* =====================================================
+   TEXTURES — XEROX GRAIN, HALFTONE, DIY
+   ===================================================== */
+
+/* Noise/Grain Overlay */
+.texture-grain {
+  position: relative;
+}
+
+.texture-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Halftone Pattern */
+.texture-halftone {
+  background-image: radial-gradient(circle, var(--gray-mid) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+/* Xerox/Photocopy Effect */
+.texture-xerox {
+  filter: contrast(1.1) brightness(1.05);
+  image-rendering: pixelated;
+}
+
+/* Torn Paper Edge Effect */
+.edge-torn {
+  clip-path: polygon(
+    0% 2%, 3% 0%, 7% 1%, 12% 0%, 18% 2%, 25% 0%,
+    33% 1%, 40% 0%, 48% 2%, 55% 0%, 63% 1%, 70% 0%,
+    78% 2%, 85% 0%, 92% 1%, 100% 0%, 100% 98%, 97% 100%,
+    92% 99%, 85% 100%, 78% 98%, 70% 100%, 63% 99%, 55% 100%,
+    48% 98%, 40% 100%, 33% 99%, 25% 100%, 18% 98%, 12% 100%,
+    7% 99%, 3% 100%, 0% 98%
+  );
+}
+
+/* =====================================================
+   BUTTONS — BOLD AND DANGEROUS
+   ===================================================== */
+.btn-primary {
+  background: var(--electric-yellow);
+  color: var(--black);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: 3px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.btn-primary:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--black);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--white);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: 3px solid var(--white);
+  box-shadow: 4px 4px 0 var(--white);
+  transition: all 0.1s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--white);
+  color: var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--white);
+}
+
+.btn-danger {
+  background: var(--hot-pink);
+  color: var(--white);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: 3px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.1s ease;
+}
+
+.btn-danger:hover {
+  background: var(--vibrant-red);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+/* Small Button Variant */
+.btn-sm {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.btn-sm:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--black);
+}
+
+/* =====================================================
+   CARDS — RAW AND INDUSTRIAL
+   ===================================================== */
+.card {
+  background: var(--gray-dark);
+  border: 2px solid var(--gray-mid);
+  position: relative;
+}
+
+.card-elevated {
+  background: var(--gray-dark);
+  border: 3px solid var(--white);
+  box-shadow: 6px 6px 0 var(--black), 8px 8px 0 var(--white);
+}
+
+.card-highlight {
+  background: var(--black);
+  border: 3px solid var(--electric-yellow);
+  box-shadow: 6px 6px 0 var(--electric-yellow);
+}
+
+.card-danger {
+  background: var(--black);
+  border: 3px solid var(--hot-pink);
+  box-shadow: 6px 6px 0 var(--hot-pink);
+}
+
+/* =====================================================
+   INPUTS — RAW AND DIRECT
+   ===================================================== */
+.input-raw {
+  background: var(--black);
+  border: 2px solid var(--gray-mid);
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  padding: 1rem;
+  transition: border-color 0.15s ease;
+}
+
+.input-raw:focus {
+  outline: none;
+  border-color: var(--electric-yellow);
+  box-shadow: 0 0 0 2px var(--electric-yellow);
+}
+
+.input-raw::placeholder {
+  color: var(--gray-pale);
+}
+
+/* =====================================================
+   LABELS AND TAGS
+   ===================================================== */
+.tag {
+  display: inline-block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  background: var(--gray-mid);
+  border: 1px solid var(--gray-light);
+}
+
+.tag-yellow {
+  background: var(--electric-yellow);
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.tag-pink {
+  background: var(--hot-pink);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+.tag-outline {
+  background: transparent;
+  border: 2px solid var(--white);
+  color: var(--white);
+}
+
+/* =====================================================
+   DIVIDERS AND DECORATIVE ELEMENTS
+   ===================================================== */
+.divider-slash {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.divider-slash::before,
+.divider-slash::after {
+  content: '//';
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--gray-light);
+}
+
+.strike-through {
+  position: relative;
+}
+
+.strike-through::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 3px;
+  background: var(--hot-pink);
+  transform: rotate(-3deg);
+}
+
+/* =====================================================
+   ANIMATIONS — URGENT AND CHAOTIC
+   ===================================================== */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -17,6 +348,31 @@
   }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 1; }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.5; }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .animate-spin {
   animation: spin 1s linear infinite;
 }
@@ -25,89 +381,286 @@
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Markdown Output Styles */
-.markdown-output h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }
 
-.markdown-output h2 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  color: #94a3b8;
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out infinite;
 }
 
-.markdown-output h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+.animate-flicker {
+  animation: flicker 3s linear infinite;
 }
 
-.markdown-output p {
-  margin-bottom: 0.75rem;
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+/* =====================================================
+   SPECIAL EFFECTS
+   ===================================================== */
+
+/* Neon Glow */
+.glow-yellow {
+  text-shadow:
+    0 0 5px var(--electric-yellow),
+    0 0 10px var(--electric-yellow),
+    0 0 20px var(--electric-yellow);
+}
+
+.glow-pink {
+  text-shadow:
+    0 0 5px var(--hot-pink),
+    0 0 10px var(--hot-pink),
+    0 0 20px var(--hot-pink);
+}
+
+/* Stencil/Spray Paint Effect */
+.text-stencil {
+  font-family: 'Bebas Neue', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  -webkit-text-stroke: 1px var(--white);
+  color: transparent;
+}
+
+.text-stencil-fill {
+  font-family: 'Bebas Neue', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  -webkit-text-stroke: 2px var(--black);
+  color: var(--electric-yellow);
+}
+
+/* Offset/Misregistration Effect */
+.offset-print {
+  position: relative;
+}
+
+.offset-print::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  color: var(--hot-pink);
+  z-index: -1;
+}
+
+/* =====================================================
+   MARKDOWN OUTPUT — STYLED FOR THE REBELLION
+   ===================================================== */
+.markdown-output {
+  font-family: 'Space Grotesk', sans-serif;
   line-height: 1.7;
 }
 
+.markdown-output h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 1rem;
+  color: var(--electric-yellow);
+  border-bottom: 3px solid var(--electric-yellow);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-output h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--hot-pink);
+}
+
+.markdown-output h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--white);
+}
+
+.markdown-output p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+  color: var(--off-white);
+}
+
 .markdown-output ul {
-  list-style-type: disc;
-  margin-left: 1.5rem;
+  list-style-type: none;
+  margin-left: 0;
   margin-bottom: 1rem;
 }
 
-.markdown-output ol {
-  list-style-type: decimal;
-  margin-left: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.markdown-output li {
+.markdown-output ul li {
+  position: relative;
+  padding-left: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
-.markdown-output strong {
-  font-weight: 600;
-  color: #e2e8f0;
+.markdown-output ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--electric-yellow);
+  font-weight: bold;
 }
 
-.markdown-output code {
-  background: #1e293b;
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
-  font-size: 0.9em;
-}
-
-.markdown-output pre {
-  background: #1e293b;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
+.markdown-output ol {
+  list-style-type: none;
+  counter-reset: item;
+  margin-left: 0;
   margin-bottom: 1rem;
 }
 
+.markdown-output ol li {
+  counter-increment: item;
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-output ol li::before {
+  content: counter(item);
+  position: absolute;
+  left: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  color: var(--hot-pink);
+  font-weight: bold;
+}
+
+.markdown-output strong {
+  font-weight: 700;
+  color: var(--white);
+}
+
+.markdown-output code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--gray-dark);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85em;
+  border: 1px solid var(--gray-mid);
+}
+
+.markdown-output pre {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--gray-dark);
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  border: 2px solid var(--gray-mid);
+}
+
 .markdown-output blockquote {
-  border-left: 3px solid #6366f1;
+  border-left: 4px solid var(--electric-yellow);
   padding-left: 1rem;
-  margin: 1rem 0;
-  color: #94a3b8;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--gray-pale);
+  background: var(--gray-dark);
+  padding: 1rem;
+  padding-left: 1.5rem;
 }
 
 .markdown-output table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
+  font-size: 0.9em;
 }
 
 .markdown-output th,
 .markdown-output td {
-  border: 1px solid #334155;
-  padding: 0.5rem;
+  border: 2px solid var(--gray-mid);
+  padding: 0.75rem;
   text-align: left;
 }
 
 .markdown-output th {
-  background: #1e293b;
+  background: var(--gray-dark);
+  font-family: 'Bebas Neue', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--electric-yellow);
+}
+
+/* =====================================================
+   SCROLLBAR — BRUTAL BUT FUNCTIONAL
+   ===================================================== */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--black);
+  border-left: 2px solid var(--gray-mid);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-mid);
+  border: 2px solid var(--black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-light);
+}
+
+/* =====================================================
+   UTILITY CLASSES — THE TOOLKIT
+   ===================================================== */
+.text-yellow { color: var(--electric-yellow); }
+.text-pink { color: var(--hot-pink); }
+.text-red { color: var(--vibrant-red); }
+.text-green { color: var(--acid-green); }
+.text-purple { color: var(--bruise-purple); }
+.text-gray { color: var(--gray-pale); }
+
+.bg-yellow { background-color: var(--electric-yellow); }
+.bg-pink { background-color: var(--hot-pink); }
+.bg-red { background-color: var(--vibrant-red); }
+.bg-green { background-color: var(--acid-green); }
+.bg-dark { background-color: var(--gray-dark); }
+
+.border-yellow { border-color: var(--electric-yellow); }
+.border-pink { border-color: var(--hot-pink); }
+.border-red { border-color: var(--vibrant-red); }
+.border-white { border-color: var(--white); }
+
+/* Skew for that punk energy */
+.skew-left { transform: skewX(-3deg); }
+.skew-right { transform: skewX(3deg); }
+.skew-text { display: inline-block; transform: rotate(-2deg); }
+
+/* High contrast selection */
+::selection {
+  background: var(--electric-yellow);
+  color: var(--black);
+}
+
+/* =====================================================
+   RESPONSIVE ADJUSTMENTS
+   ===================================================== */
+@media (max-width: 768px) {
+  .headline-xl {
+    font-size: clamp(2.5rem, 15vw, 5rem);
+  }
+
+  .headline-lg {
+    font-size: clamp(1.75rem, 10vw, 3rem);
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
 }
