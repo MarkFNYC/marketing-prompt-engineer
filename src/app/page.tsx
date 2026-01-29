@@ -4606,7 +4606,11 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
 }
 
 // Discovery Wizard Progress Bar
-function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
+function DiscoveryProgressBar({ currentStep, onStepClick, completedSteps }: {
+  currentStep: number;
+  onStepClick?: (step: number) => void;
+  completedSteps?: Set<number>;
+}) {
   const steps = [
     { num: 1, label: 'PROBLEM' },
     { num: 2, label: 'AUDIENCE' },
@@ -4616,31 +4620,36 @@ function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
     { num: 6, label: 'REVIEW' },
   ];
 
+  const isStepComplete = (stepNum: number) => completedSteps?.has(stepNum) ?? false;
+
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between max-w-2xl mx-auto">
         {steps.map((step, index) => (
           <div key={step.num} className="flex items-center">
-            <div className="flex flex-col items-center">
+            <button
+              onClick={() => onStepClick?.(step.num)}
+              className="flex flex-col items-center group"
+            >
               <div
                 className={`w-10 h-10 flex items-center justify-center font-display text-lg transition-all border-2 ${
-                  step.num < currentStep
+                  isStepComplete(step.num)
                     ? 'bg-[#00ff66] text-black border-[#00ff66]'
                     : step.num === currentStep
                     ? 'bg-[#FFFF00] text-black border-[#FFFF00]'
-                    : 'bg-[#1a1a1a] text-[#777] border-[#333]'
+                    : 'bg-[#1a1a1a] text-[#777] border-[#333] group-hover:border-[#666]'
                 }`}
               >
-                {step.num < currentStep ? '✓' : step.num}
+                {isStepComplete(step.num) ? '✓' : step.num}
               </div>
-              <span className={`text-[10px] mt-2 font-display tracking-wider ${step.num === currentStep ? 'text-[#FFFF00]' : step.num < currentStep ? 'text-[#00ff66]' : 'text-[#777]'}`}>
+              <span className={`text-[10px] mt-2 font-display tracking-wider ${step.num === currentStep ? 'text-[#FFFF00]' : isStepComplete(step.num) ? 'text-[#00ff66]' : 'text-[#777] group-hover:text-[#aaa]'}`}>
                 {step.label}
               </span>
-            </div>
+            </button>
             {index < steps.length - 1 && (
               <div
                 className={`w-6 md:w-10 h-[2px] mx-1 ${
-                  step.num < currentStep ? 'bg-[#00ff66]' : 'bg-[#333]'
+                  isStepComplete(step.num) ? 'bg-[#00ff66]' : 'bg-[#333]'
                 }`}
               />
             )}
@@ -4658,23 +4667,35 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
   onComplete: () => void;
   goBack: () => void;
 }) {
+  const [validationError, setValidationError] = useState<string | null>(null);
   const step = state.discoveryWizardStep;
 
   const updateBrief = (field: keyof State['discoveryBrief'], value: string | string[]) => {
     updateState({
       discoveryBrief: { ...state.discoveryBrief, [field]: value }
     });
+    // Clear validation error when user starts typing
+    if (validationError) setValidationError(null);
+  };
+
+  const goToStep = (targetStep: number) => {
+    if (targetStep >= 1 && targetStep <= 6) {
+      updateState({ discoveryWizardStep: targetStep as 1 | 2 | 3 | 4 | 5 | 6 });
+      setValidationError(null);
+    }
   };
 
   const nextStep = () => {
     if (step < 6) {
       updateState({ discoveryWizardStep: (step + 1) as 1 | 2 | 3 | 4 | 5 | 6 });
+      setValidationError(null);
     }
   };
 
   const prevStep = () => {
     if (step > 1) {
       updateState({ discoveryWizardStep: (step - 1) as 1 | 2 | 3 | 4 | 5 | 6 });
+      setValidationError(null);
     } else {
       goBack();
     }
@@ -4689,15 +4710,50 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
     6: { title: 'THE REVIEW', subtitle: 'Last chance to sharpen it' },
   };
 
-  const canProceed = () => {
-    switch (step) {
-      case 1: return state.discoveryBrief.campaignName && state.discoveryBrief.businessProblem;
-      case 2: return state.discoveryBrief.targetAudience;
-      case 3: return state.discoveryBrief.proposition;
+  // Check if a specific step has its required fields filled
+  const isStepComplete = (stepNum: number): boolean => {
+    switch (stepNum) {
+      case 1: return !!(state.discoveryBrief.campaignName && state.discoveryBrief.businessProblem);
+      case 2: return !!state.discoveryBrief.targetAudience;
+      case 3: return !!state.discoveryBrief.proposition;
       case 4: return true; // All optional
       case 5: return true; // All optional
       case 6: return true; // Review
       default: return false;
+    }
+  };
+
+  // Get set of completed steps for the progress bar
+  const completedSteps = new Set<number>();
+  for (let i = 1; i <= 6; i++) {
+    if (isStepComplete(i)) completedSteps.add(i);
+  }
+
+  // Find first incomplete required step
+  const findFirstIncompleteStep = (): { step: number; message: string } | null => {
+    if (!state.discoveryBrief.campaignName) {
+      return { step: 1, message: "Hold up — you need a campaign name first." };
+    }
+    if (!state.discoveryBrief.businessProblem) {
+      return { step: 1, message: "What's the problem we're solving? Fill that in on Step 1." };
+    }
+    if (!state.discoveryBrief.targetAudience) {
+      return { step: 2, message: "Who are we talking to? Go back and define your audience." };
+    }
+    if (!state.discoveryBrief.proposition) {
+      return { step: 3, message: "What's your proposition? We need something to hang our hat on." };
+    }
+    return null;
+  };
+
+  // Handle submit with validation
+  const handleSubmit = () => {
+    const incomplete = findFirstIncompleteStep();
+    if (incomplete) {
+      setValidationError(incomplete.message);
+      updateState({ discoveryWizardStep: incomplete.step as 1 | 2 | 3 | 4 | 5 | 6 });
+    } else {
+      onComplete();
     }
   };
 
@@ -4735,8 +4791,19 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <DiscoveryProgressBar currentStep={step} />
+      {/* Progress Bar - clickable to navigate */}
+      <DiscoveryProgressBar currentStep={step} onStepClick={goToStep} completedSteps={completedSteps} />
+
+      {/* Validation Error Message */}
+      {validationError && (
+        <div className="max-w-xl mx-auto mb-6 p-4 bg-[#FF0066]/10 border border-[#FF0066]/30 rounded-xl flex items-start gap-3">
+          <span className="text-[#FF0066] text-xl">⚠️</span>
+          <div>
+            <p className="text-[#FF0066] font-medium">{validationError}</p>
+            <p className="text-[#888] text-sm mt-1">Fill in the required fields to continue.</p>
+          </div>
+        </div>
+      )}
 
       {/* Step Title */}
       <div className="text-center mb-6">
@@ -5062,20 +5129,15 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
         {step < 6 ? (
           <button
             onClick={nextStep}
-            disabled={!canProceed()}
-            className={`px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
-              canProceed()
-                ? 'bg-[#FFFF00] text-black hover:bg-white'
-                : 'bg-[#333] text-[#777] cursor-not-allowed'
-            }`}
+            className="px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all bg-[#FFFF00] text-black hover:bg-white"
           >
             NEXT →
           </button>
         ) : (
           <button
-            onClick={onComplete}
+            onClick={handleSubmit}
             disabled={state.messageStrategiesLoading}
-            className="px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all bg-[#FFFF00] text-black hover:bg-white"
+            className="px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all bg-[#FFFF00] text-black hover:bg-white disabled:opacity-50"
           >
             {state.messageStrategiesLoading ? (
               <>

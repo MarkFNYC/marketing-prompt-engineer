@@ -30,8 +30,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-[#0D0D0D] text-white min-h-screen`}>
+    <html
+      lang="en"
+      style={{
+        backgroundColor: '#0D0D0D',
+        backgroundImage: `
+          url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"),
+          repeating-linear-gradient(-3deg, transparent, transparent 80px, rgba(255, 0, 102, 0.02) 80px, rgba(255, 0, 102, 0.02) 81px)
+        `,
+      }}
+    >
+      <body className={`${inter.className} text-white min-h-screen`}>
         {children}
         <Analytics />
       </body>
