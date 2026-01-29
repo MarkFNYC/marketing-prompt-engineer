@@ -9,7 +9,7 @@ import { getCreativePersonas, getStrategyPersonas, type Persona as RemixPersona 
 type Step = 'landing' | 'projects' | 'brand-input' | 'discipline-select' | 'library-view' | 'llm-output' | 'my-library' | 'mode-select' | 'discovery-brief' | 'message-strategy' | 'creative-ideas' | 'directed-brief' | 'strategy-check' | 'campaigns' | 'upload-brief' | 'brief-review';
 type Mode = 'strategy' | 'execution';
 type CampaignMode = 'discovery' | 'directed' | 'upload';
-type CampaignGoalType = 'awareness' | 'consideration' | 'conversion' | 'retention';
+type CampaignGoalType = 'awareness' | 'consideration' | 'conversion' | 'retention' | 'acquisition' | 'onboarding' | 'activation' | 'expansion' | 'winback';
 type ThreadState = 'draft' | 'in_planning' | 'pending_review' | 'approved' | 'active';
 type Provider = 'gemini' | 'openai' | 'anthropic' | 'none';
 type AuthModal = 'none' | 'login' | 'signup' | 'signup-success' | 'forgot-password' | 'reset-sent';
@@ -205,6 +205,13 @@ interface State {
     goalType: CampaignGoalType;
     goalDescription: string;
     campaignMandatories: string[];
+    // Optimization fields (SEO, CRO)
+    targetMetric: string;
+    currentState: string;
+    // Content fields
+    contentType: string;
+    // Lifecycle fields
+    triggerEvent: string;
   };
   // Uploaded brief data
   uploadedBrief: {
@@ -338,6 +345,13 @@ export default function Home() {
       goalType: 'awareness',
       goalDescription: '',
       campaignMandatories: [],
+      // Optimization fields (SEO, CRO)
+      targetMetric: '',
+      currentState: '',
+      // Content fields
+      contentType: '',
+      // Lifecycle fields
+      triggerEvent: '',
     },
     // Uploaded brief data
     uploadedBrief: {
@@ -5339,7 +5353,7 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
   );
 }
 
-// Directed Brief Component (v1.1)
+// Directed Brief Component (v2.0 - Discipline-Specific)
 function DirectedBrief({ state, updateState, onSubmit, goBack }: {
   state: State;
   updateState: (updates: Partial<State>) => void;
@@ -5352,9 +5366,49 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
     });
   };
 
-  const isValid = state.directedBrief.campaignName && state.directedBrief.goalType;
-
   const disciplineLabel = disciplines.find(d => d.value === state.discipline)?.label || state.discipline;
+
+  // Determine discipline type for different form layouts
+  const getDisciplineType = (disc: string | null): 'campaign' | 'optimization' | 'content' | 'lifecycle' => {
+    if (!disc) return 'campaign';
+    if (['seo', 'conversion'].includes(disc)) return 'optimization';
+    if (['content', 'blog'].includes(disc)) return 'content';
+    if (['lifecycle', 'email'].includes(disc)) return 'lifecycle';
+    return 'campaign'; // paid, social, linkedin, television, ooh, podcast
+  };
+
+  const disciplineType = getDisciplineType(state.discipline);
+
+  // Validation based on discipline type
+  const isValid = (() => {
+    const hasName = !!state.directedBrief.campaignName;
+    switch (disciplineType) {
+      case 'optimization':
+        return hasName && !!state.directedBrief.goalDescription; // Need focus area
+      case 'content':
+        return hasName; // Just need a name for content
+      case 'lifecycle':
+        return hasName && !!state.directedBrief.goalType; // Need journey stage
+      default:
+        return hasName && !!state.directedBrief.goalType; // Campaign needs goal
+    }
+  })();
+
+  // Get title and subtitle based on discipline type
+  const getHeader = () => {
+    switch (disciplineType) {
+      case 'optimization':
+        return { title: 'THE OPTIMIZATION BRIEF', subtitle: "What are we fixing?" };
+      case 'content':
+        return { title: 'THE CONTENT BRIEF', subtitle: "What are we creating?" };
+      case 'lifecycle':
+        return { title: 'THE JOURNEY BRIEF', subtitle: "Where are they in the journey?" };
+      default:
+        return { title: 'THE CAMPAIGN BRIEF', subtitle: "Just the essentials. We'll handle the rest." };
+    }
+  };
+
+  const header = getHeader();
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -5364,58 +5418,234 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
           <span className="text-[#777]">•</span>
           <span>{disciplineLabel}</span>
         </div>
-        <h2 className="text-3xl font-display font-bold mb-4">THE QUICK SETUP</h2>
-        <p className="text-[#888]">Just the essentials. We'll handle the rest.</p>
+        <h2 className="text-3xl font-display font-bold mb-4">{header.title}</h2>
+        <p className="text-[#888]">{header.subtitle}</p>
       </div>
 
       <div className="space-y-6 bg-[#1a1a1a]/50 rounded-2xl p-6 border border-[#333]">
+        {/* Name field - always shown */}
         <div>
-          <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT ARE WE CALLING THIS? *</label>
+          <label className="block text-sm font-medium text-[#aaa] mb-2">
+            {disciplineType === 'optimization' ? 'PROJECT NAME *' :
+             disciplineType === 'content' ? 'CONTENT TITLE *' :
+             disciplineType === 'lifecycle' ? 'JOURNEY NAME *' :
+             'CAMPAIGN NAME *'}
+          </label>
           <input
             type="text"
             value={state.directedBrief.campaignName}
             onChange={(e) => updateBrief('campaignName', e.target.value)}
-            placeholder="Give it a name that'll stick"
+            placeholder={
+              disciplineType === 'optimization' ? 'e.g., Homepage Conversion Fix, Q2 Keyword Push' :
+              disciplineType === 'content' ? 'e.g., Ultimate Guide to X, Product Launch Post' :
+              disciplineType === 'lifecycle' ? 'e.g., Onboarding Flow, Win-back Sequence' :
+              "Give it a name that'll stick"
+            }
             className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S THE PLAY? *</label>
-          <div className="grid grid-cols-2 gap-3">
-            {(['awareness', 'consideration', 'conversion', 'retention'] as CampaignGoalType[]).map((goal) => (
-              <button
-                key={goal}
-                onClick={() => updateBrief('goalType', goal)}
-                className={`p-4 rounded-xl border-2 transition-all text-left ${
-                  state.directedBrief.goalType === goal
-                    ? 'border-[#00ff66] bg-[#00ff66]/10'
-                    : 'border-[#333] bg-[#0D0D0D] hover:border-[#444]'
-                }`}
-              >
-                <div className="font-medium capitalize">{goal}</div>
-                <div className="text-xs text-[#777]">
-                  {goal === 'awareness' && 'Make noise'}
-                  {goal === 'consideration' && 'Get them curious'}
-                  {goal === 'conversion' && 'Close the deal'}
-                  {goal === 'retention' && 'Keep them hooked'}
-                </div>
-              </button>
-            ))}
+        {/* CAMPAIGN disciplines: Goal type grid */}
+        {disciplineType === 'campaign' && (
+          <div>
+            <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S THE PLAY? *</label>
+            <div className="grid grid-cols-2 gap-3">
+              {(['awareness', 'consideration', 'conversion', 'retention'] as CampaignGoalType[]).map((goal) => (
+                <button
+                  key={goal}
+                  onClick={() => updateBrief('goalType', goal)}
+                  className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    state.directedBrief.goalType === goal
+                      ? 'border-[#00ff66] bg-[#00ff66]/10'
+                      : 'border-[#333] bg-[#0D0D0D] hover:border-[#444]'
+                  }`}
+                >
+                  <div className="font-medium capitalize">{goal}</div>
+                  <div className="text-xs text-[#777]">
+                    {goal === 'awareness' && 'Make noise'}
+                    {goal === 'consideration' && 'Get them curious'}
+                    {goal === 'conversion' && 'Close the deal'}
+                    {goal === 'retention' && 'Keep them hooked'}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div>
-          <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S THE WIN LOOK LIKE?</label>
-          <input
-            type="text"
-            value={state.directedBrief.goalDescription}
-            onChange={(e) => updateBrief('goalDescription', e.target.value)}
-            placeholder="500 demo requests, 10K page views, world domination..."
-            className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
-          />
-        </div>
+        {/* OPTIMIZATION disciplines (SEO, CRO): Different questions */}
+        {disciplineType === 'optimization' && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">
+                {state.discipline === 'seo' ? 'TARGET KEYWORDS / TOPICS *' : 'WHAT PAGE OR FLOW? *'}
+              </label>
+              <textarea
+                value={state.directedBrief.goalDescription}
+                onChange={(e) => updateBrief('goalDescription', e.target.value)}
+                placeholder={
+                  state.discipline === 'seo'
+                    ? 'What keywords or topics are we going after? What pages need to rank?'
+                    : 'Which page or user flow are we optimizing? What\'s the current conversion rate?'
+                }
+                rows={3}
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">
+                {state.discipline === 'seo' ? 'COMPETITORS TO BEAT' : 'YOUR HYPOTHESIS'}
+              </label>
+              <input
+                type="text"
+                value={state.directedBrief.targetMetric || ''}
+                onChange={(e) => updateBrief('targetMetric', e.target.value)}
+                placeholder={
+                  state.discipline === 'seo'
+                    ? 'Who\'s ranking where you want to be?'
+                    : 'What do you think will move the needle?'
+                }
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">
+                {state.discipline === 'seo' ? 'CURRENT SITUATION' : 'TRAFFIC VOLUME'}
+              </label>
+              <input
+                type="text"
+                value={state.directedBrief.currentState || ''}
+                onChange={(e) => updateBrief('currentState', e.target.value)}
+                placeholder={
+                  state.discipline === 'seo'
+                    ? 'Where do you currently rank? Any technical issues?'
+                    : 'How much traffic does this page/flow get?'
+                }
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
+              />
+            </div>
+          </>
+        )}
 
+        {/* CONTENT disciplines (Content, Blog): Content-focused questions */}
+        {disciplineType === 'content' && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">CONTENT TYPE</label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: 'blog', label: 'Blog Post', desc: 'Long-form article' },
+                  { value: 'guide', label: 'Guide', desc: 'How-to or tutorial' },
+                  { value: 'listicle', label: 'Listicle', desc: 'Top X, Best Y' },
+                  { value: 'case-study', label: 'Case Study', desc: 'Customer story' },
+                  { value: 'thought-leadership', label: 'Thought Piece', desc: 'POV / Opinion' },
+                  { value: 'news', label: 'News/Update', desc: 'Announcement' },
+                ].map((type) => (
+                  <button
+                    key={type.value}
+                    onClick={() => updateBrief('contentType', type.value)}
+                    className={`p-3 rounded-xl border-2 transition-all text-left ${
+                      state.directedBrief.contentType === type.value
+                        ? 'border-[#00ff66] bg-[#00ff66]/10'
+                        : 'border-[#333] bg-[#0D0D0D] hover:border-[#444]'
+                    }`}
+                  >
+                    <div className="font-medium text-sm">{type.label}</div>
+                    <div className="text-xs text-[#777]">{type.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">TARGET KEYWORD (IF SEO)</label>
+              <input
+                type="text"
+                value={state.directedBrief.targetMetric || ''}
+                onChange={(e) => updateBrief('targetMetric', e.target.value)}
+                placeholder="Primary keyword to rank for (optional)"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">KEY ANGLE / HOOK</label>
+              <textarea
+                value={state.directedBrief.goalDescription}
+                onChange={(e) => updateBrief('goalDescription', e.target.value)}
+                placeholder="What's the unique angle? What makes this worth reading?"
+                rows={2}
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none resize-none"
+              />
+            </div>
+          </>
+        )}
+
+        {/* LIFECYCLE disciplines (Lifecycle, Email): Journey-focused questions */}
+        {disciplineType === 'lifecycle' && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">JOURNEY STAGE *</label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: 'acquisition', label: 'Acquisition', desc: 'New signups' },
+                  { value: 'onboarding', label: 'Onboarding', desc: 'First-time users' },
+                  { value: 'activation', label: 'Activation', desc: 'Drive first value' },
+                  { value: 'retention', label: 'Retention', desc: 'Keep them engaged' },
+                  { value: 'expansion', label: 'Expansion', desc: 'Upsell / cross-sell' },
+                  { value: 'winback', label: 'Win-back', desc: 'Churned users' },
+                ].map((stage) => (
+                  <button
+                    key={stage.value}
+                    onClick={() => updateBrief('goalType', stage.value as CampaignGoalType)}
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      state.directedBrief.goalType === stage.value
+                        ? 'border-[#00ff66] bg-[#00ff66]/10'
+                        : 'border-[#333] bg-[#0D0D0D] hover:border-[#444]'
+                    }`}
+                  >
+                    <div className="font-medium">{stage.label}</div>
+                    <div className="text-xs text-[#777]">{stage.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">TRIGGER EVENT</label>
+              <input
+                type="text"
+                value={state.directedBrief.triggerEvent || ''}
+                onChange={(e) => updateBrief('triggerEvent', e.target.value)}
+                placeholder="What action triggers this sequence? (signup, purchase, inactivity...)"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">AUDIENCE SEGMENT</label>
+              <input
+                type="text"
+                value={state.directedBrief.goalDescription}
+                onChange={(e) => updateBrief('goalDescription', e.target.value)}
+                placeholder="Who gets this? (all users, enterprise only, churned in last 30 days...)"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Success metric - shown for campaign and optimization types */}
+        {(disciplineType === 'campaign') && (
+          <div>
+            <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S THE WIN LOOK LIKE?</label>
+            <input
+              type="text"
+              value={state.directedBrief.goalDescription}
+              onChange={(e) => updateBrief('goalDescription', e.target.value)}
+              placeholder="500 demo requests, 10K page views, world domination..."
+              className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
+            />
+          </div>
+        )}
+
+        {/* Mandatories - shown for all types */}
         <div>
           <label className="block text-sm font-medium text-[#aaa] mb-2">
             NON-NEGOTIABLES (OPTIONAL)
@@ -5430,7 +5660,6 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
               }
             }}
             onBlur={(e) => {
-              // Auto-add text when user leaves the field (in case they didn't press Enter)
               if (e.currentTarget.value.trim()) {
                 updateBrief('campaignMandatories', [...(state.directedBrief.campaignMandatories || []), e.currentTarget.value.trim()]);
                 e.currentTarget.value = '';
