@@ -2446,7 +2446,7 @@ function LandingPage({
           <span className="font-display text-sm tracking-[0.3em] text-[#FF0066] block mb-4">YOUR VIRTUAL AGENCY ROOM</span>
 
           {/* Main headline */}
-          <h1 className="text-[16vw] md:text-[12vw] lg:text-[10vw] font-display text-white leading-[0.9] tracking-[-0.02em] mb-2">
+          <h1 className="text-[16vw] md:text-[12vw] lg:text-[10vw] font-display text-white leading-[0.9] tracking-[-0.02em] mb-2 amplify-hover">
             AMPLIFY
           </h1>
 
@@ -2480,10 +2480,10 @@ function LandingPage({
           <div className="flex flex-wrap items-center gap-6">
             <button
               onClick={onStart}
-              className="bg-[#FFFF00] text-black font-display text-xl px-10 py-5 hover:bg-white transition-colors flex items-center gap-4"
+              className="group bg-[#FFFF00] text-black font-display text-xl px-10 py-5 hover:bg-white transition-all duration-200 flex items-center gap-4 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,0,0.3)]"
             >
               ENTER THE WAR ROOM
-              <span className="text-2xl">→</span>
+              <span className="text-2xl transition-transform duration-200 group-hover:translate-x-1">→</span>
             </button>
             <span className="text-[#888] font-mono text-sm">FREE TO START</span>
           </div>
