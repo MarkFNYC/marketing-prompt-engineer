@@ -1398,27 +1398,27 @@ Important: Address this specific feedback while maintaining the core brief requi
       {/* Usage Limit Modal */}
       {state.showLimitModal && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] border-3 border-[#ff3333] p-8 w-full max-w-md relative">
+          <div className="bg-[#0D0D0D] border-3 border-[#ff3333] p-8 w-full max-w-md relative">
             {/* Corner accents */}
-            <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-[#f7ff00]"></div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-[#f7ff00]"></div>
-            <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-[#f7ff00]"></div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-[#f7ff00]"></div>
+            <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-[#FFFF00]"></div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-[#FFFF00]"></div>
+            <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-[#FFFF00]"></div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-[#FFFF00]"></div>
 
             <div className="text-center">
               <div className="font-display text-6xl text-[#ff3333] mb-4">!</div>
               <h2 className="headline-md text-[#ff3333] mb-2">LIMIT REACHED</h2>
-              <p className="text-[#666] mb-8">
+              <p className="text-[#888] mb-8">
                 You've burned through all {state.promptsLimit} free prompts. Time to level up.
               </p>
 
               <div className="space-y-4 mb-8">
-                <div className="p-4 bg-[#1a1a1a] border-2 border-[#f7ff00]">
+                <div className="p-4 bg-[#1a1a1a] border-2 border-[#FFFF00]">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-display text-lg text-[#f7ff00]">PREMIUM</span>
-                    <span className="font-mono text-[#f7ff00]">$29/mo</span>
+                    <span className="font-display text-lg text-[#FFFF00]">PREMIUM</span>
+                    <span className="font-mono text-[#FFFF00]">$29/mo</span>
                   </div>
-                  <ul className="text-sm text-[#999] text-left space-y-2 mb-4 font-mono">
+                  <ul className="text-sm text-[#aaa] text-left space-y-2 mb-4 font-mono">
                     <li className="flex items-center gap-2">
                       <span className="text-[#00ff66]">✓</span> Unlimited prompts
                     </li>
@@ -1444,7 +1444,7 @@ Important: Address this specific feedback while maintaining the core brief requi
 
                 <div className="p-4 bg-[#1a1a1a] border-2 border-[#333]">
                   <p className="text-sm text-white mb-2 font-display">BRING YOUR OWN KEY</p>
-                  <p className="text-xs text-[#666] mb-3">Use your OpenAI or Anthropic API key</p>
+                  <p className="text-xs text-[#888] mb-3">Use your OpenAI or Anthropic API key</p>
                   <button
                     onClick={() => {
                       updateState({ showLimitModal: false, step: 'brand-input' });
@@ -1461,7 +1461,7 @@ Important: Address this specific feedback while maintaining the core brief requi
 
               <button
                 onClick={() => updateState({ showLimitModal: false })}
-                className="text-xs text-[#444] hover:text-[#666] font-display tracking-wider"
+                className="text-xs text-[#777] hover:text-[#888] font-display tracking-wider"
               >
                 MAYBE LATER
               </button>
@@ -1471,16 +1471,16 @@ Important: Address this specific feedback while maintaining the core brief requi
       )}
 
       {state.step !== 'landing' && (
-        <header className="border-b-2 border-[#333] bg-[#0a0a0a] sticky top-0 z-10">
+        <header className="border-b-2 border-[#333] bg-[#0D0D0D] sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               {/* Logo - bold and stark */}
               <div className="flex items-center gap-4 cursor-pointer group" onClick={resetAll}>
-                <div className="w-10 h-10 bg-[#f7ff00] flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#FFFF00] flex items-center justify-center">
                   <span className="font-display text-black text-xl">A</span>
                 </div>
                 <div>
-                  <h1 className="font-display text-xl tracking-wide text-white group-hover:text-[#f7ff00] transition-colors">AMPLIFY</h1>
+                  <h1 className="font-display text-xl tracking-wide text-white group-hover:text-[#FFFF00] transition-colors">AMPLIFY</h1>
                 </div>
               </div>
 
@@ -1500,11 +1500,11 @@ Important: Address this specific feedback while maintaining the core brief requi
                         brandVoice: project.brand_voice || '',
                         step: 'brand-input'
                       })}
-                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] border-2 border-[#333] text-[#f7ff00] text-xs font-display tracking-wider hover:border-[#f7ff00] transition-colors"
+                      className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] border-2 border-[#333] text-[#FFFF00] text-xs font-display tracking-wider hover:border-[#FFFF00] transition-colors"
                       title="Edit brand profile"
                     >
                       <span>{project.name.toUpperCase()}</span>
-                      <span className="text-[#666]">✎</span>
+                      <span className="text-[#888]">✎</span>
                     </button>
                   );
                 })()}
@@ -1519,7 +1519,7 @@ Important: Address this specific feedback while maintaining the core brief requi
                             state.freePromptsUsed >= state.promptsLimit
                               ? 'bg-[#ff3333]'
                               : state.freePromptsUsed >= state.promptsLimit * 0.8
-                                ? 'bg-[#f7ff00]'
+                                ? 'bg-[#FFFF00]'
                                 : 'bg-[#00ff66]'
                           }`}
                           style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
@@ -1529,8 +1529,8 @@ Important: Address this specific feedback while maintaining the core brief requi
                         state.freePromptsUsed >= state.promptsLimit
                           ? 'text-[#ff3333]'
                           : state.freePromptsUsed >= state.promptsLimit * 0.8
-                            ? 'text-[#f7ff00]'
-                            : 'text-[#666]'
+                            ? 'text-[#FFFF00]'
+                            : 'text-[#888]'
                       }`}>
                         {state.freePromptsUsed}/{state.promptsLimit}
                       </span>
@@ -1538,7 +1538,7 @@ Important: Address this specific feedback while maintaining the core brief requi
                     {state.freePromptsUsed >= state.promptsLimit && (
                       <button
                         onClick={() => updateState({ showLimitModal: true })}
-                        className="text-xs text-[#ff3333] hover:text-[#ff1493] uppercase tracking-wider font-display"
+                        className="text-xs text-[#ff3333] hover:text-[#FF0066] uppercase tracking-wider font-display"
                       >
                         UPGRADE
                       </button>
@@ -1551,13 +1551,13 @@ Important: Address this specific feedback while maintaining the core brief requi
                   <>
                     <button
                       onClick={openProjects}
-                      className="text-xs text-[#666] hover:text-[#f7ff00] uppercase tracking-wider font-display flex items-center gap-1"
+                      className="text-xs text-[#888] hover:text-[#FFFF00] uppercase tracking-wider font-display flex items-center gap-1"
                     >
                       PROJECTS
                     </button>
                     <button
                       onClick={openMyLibrary}
-                      className="text-xs text-[#f7ff00] hover:text-white uppercase tracking-wider font-display flex items-center gap-1"
+                      className="text-xs text-[#FFFF00] hover:text-white uppercase tracking-wider font-display flex items-center gap-1"
                     >
                       LIBRARY
                     </button>
@@ -1567,15 +1567,15 @@ Important: Address this specific feedback while maintaining the core brief requi
                 {/* Auth */}
                 {state.user ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-[#666] font-mono hidden sm:inline">{state.user.email}</span>
-                    <button onClick={handleLogout} className="text-xs text-[#666] hover:text-white uppercase tracking-wider">
+                    <span className="text-xs text-[#888] font-mono hidden sm:inline">{state.user.email}</span>
+                    <button onClick={handleLogout} className="text-xs text-[#888] hover:text-white uppercase tracking-wider">
                       EXIT
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => updateState({ authModal: 'login' })}
-                    className="text-xs text-[#f7ff00] hover:text-white uppercase tracking-wider font-display"
+                    className="text-xs text-[#FFFF00] hover:text-white uppercase tracking-wider font-display"
                   >
                     LOGIN
                   </button>
@@ -2030,15 +2030,15 @@ Important: Address this specific feedback while maintaining the core brief requi
       </main>
 
       {state.step !== 'landing' && (
-        <footer className="border-t border-slate-800 mt-12 py-6">
+        <footer className="border-t border-[#333] mt-12 py-6">
           <div className="max-w-6xl mx-auto px-4 text-center">
-            <p className="text-sm text-slate-400 mb-2">
+            <p className="text-sm text-[#888] mb-2">
               Powered by{' '}
-              <a href="https://fabricacollective.com" target="_blank" className="text-purple-400 hover:text-purple-300">
+              <a href="https://fabricacollective.com" target="_blank" className="text-[#FF0066] hover:text-[#FF0066]">
                 Fabrica Collective
               </a>
             </p>
-            <p className="text-xs text-slate-600">Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design</p>
+            <p className="text-xs text-[#666]">Sources: Reforge, Demand Curve, CXL, HubSpot, Semrush, Growth.Design</p>
           </div>
         </footer>
       )}
@@ -2087,50 +2087,50 @@ function AuthModal({
   if (mode === 'signup-success') {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+        <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-8 w-full max-w-md text-center">
           {/* Success Icon */}
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-16 h-16 rounded-full bg-[#00ff66]/20 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-[#00ff66]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
 
           <h2 className="text-2xl font-bold mb-2">Check your email</h2>
-          <p className="text-slate-400 mb-6">
+          <p className="text-[#888] mb-6">
             We sent a confirmation link to<br />
             <span className="text-white font-medium">{signupEmail}</span>
           </p>
 
-          <div className="bg-slate-900/50 rounded-xl p-4 mb-6 text-left">
-            <p className="text-sm text-slate-400">
-              <span className="text-purple-400 font-medium">Next steps:</span>
+          <div className="bg-[#0D0D0D]/50 rounded-xl p-4 mb-6 text-left">
+            <p className="text-sm text-[#888]">
+              <span className="text-[#FF0066] font-medium">Next steps:</span>
             </p>
-            <ol className="text-sm text-slate-400 mt-2 space-y-2">
+            <ol className="text-sm text-[#888] mt-2 space-y-2">
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span className="w-5 h-5 rounded-full bg-[#FF0066] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
                 <span>Open the email from Amplify</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span className="w-5 h-5 rounded-full bg-[#FF0066] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
                 <span>Click the confirmation link</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span className="w-5 h-5 rounded-full bg-[#FF0066] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
                 <span>You'll be automatically signed in</span>
               </li>
             </ol>
           </div>
 
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-[#777] mb-4">
             Didn't receive the email? Check your spam folder or{' '}
-            <button onClick={() => onSwitchMode('signup')} className="text-purple-400 hover:text-purple-300">
+            <button onClick={() => onSwitchMode('signup')} className="text-[#FF0066] hover:text-[#FF0066]">
               try again
             </button>
           </p>
 
           <button
             onClick={onClose}
-            className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all"
+            className="w-full py-3 bg-[#333] hover:bg-[#444] rounded-lg font-medium transition-all"
           >
             Got it
           </button>
@@ -2142,50 +2142,50 @@ function AuthModal({
   if (mode === 'reset-sent') {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8 w-full max-w-md text-center">
+        <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-8 w-full max-w-md text-center">
           {/* Email Icon */}
-          <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-16 h-16 rounded-full bg-[#FF0066]/20 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-[#FF0066]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
 
           <h2 className="text-2xl font-bold mb-2">Check your email</h2>
-          <p className="text-slate-400 mb-6">
+          <p className="text-[#888] mb-6">
             We sent a magic link to<br />
             <span className="text-white font-medium">{signupEmail}</span>
           </p>
 
-          <div className="bg-slate-900/50 rounded-xl p-4 mb-6 text-left">
-            <p className="text-sm text-slate-400">
-              <span className="text-purple-400 font-medium">Next steps:</span>
+          <div className="bg-[#0D0D0D]/50 rounded-xl p-4 mb-6 text-left">
+            <p className="text-sm text-[#888]">
+              <span className="text-[#FF0066] font-medium">Next steps:</span>
             </p>
-            <ol className="text-sm text-slate-400 mt-2 space-y-2">
+            <ol className="text-sm text-[#888] mt-2 space-y-2">
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span className="w-5 h-5 rounded-full bg-[#FF0066] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
                 <span>Open the email from Amplify</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span className="w-5 h-5 rounded-full bg-[#FF0066] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
                 <span>Click the magic link</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span className="w-5 h-5 rounded-full bg-[#FF0066] text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
                 <span>You'll be automatically signed in</span>
               </li>
             </ol>
           </div>
 
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-[#777] mb-4">
             Didn't receive the email? Check your spam folder or{' '}
-            <button onClick={() => onSwitchMode('login')} className="text-purple-400 hover:text-purple-300">
+            <button onClick={() => onSwitchMode('login')} className="text-[#FF0066] hover:text-[#FF0066]">
               try again
             </button>
           </p>
 
           <button
             onClick={() => onSwitchMode('login')}
-            className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-all"
+            className="w-full py-3 bg-[#333] hover:bg-[#444] rounded-lg font-medium transition-all"
           >
             Back to login
           </button>
@@ -2198,13 +2198,13 @@ function AuthModal({
   if (mode === 'forgot-password') {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
+        <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-6 w-full max-w-md">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold">Reset password</h2>
-              <p className="text-sm text-slate-400 mt-1">We'll send you a reset link</p>
+              <p className="text-sm text-[#888] mt-1">We'll send you a reset link</p>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+            <button onClick={onClose} className="text-[#888] hover:text-white p-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
@@ -2220,13 +2220,13 @@ function AuthModal({
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">Email address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-lg text-white placeholder-[#666] focus:outline-none focus:border-[#FF0066] focus:ring-1 focus:ring-[#FF0066]"
                 required
                 autoFocus
               />
@@ -2235,7 +2235,7 @@ function AuthModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -2248,9 +2248,9 @@ function AuthModal({
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-400 mt-4">
+          <p className="text-center text-sm text-[#888] mt-4">
             Remember your password?{' '}
-            <button onClick={() => onSwitchMode('login')} className="text-purple-400 hover:text-purple-300 font-medium">
+            <button onClick={() => onSwitchMode('login')} className="text-[#FF0066] hover:text-[#FF0066] font-medium">
               Log in
             </button>
           </p>
@@ -2262,15 +2262,15 @@ function AuthModal({
   // Login / Signup Forms
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-md">
+      <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-[#888] mt-1">
               {mode === 'login' ? 'Sign in to continue to Amplify' : 'Start creating amazing marketing content'}
             </p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+          <button onClick={onClose} className="text-[#888] hover:text-white p-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -2286,13 +2286,13 @@ function AuthModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email address</label>
+            <label className="block text-sm font-medium text-[#aaa] mb-2">Email address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+              className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-lg text-white placeholder-[#666] focus:outline-none focus:border-[#FF0066] focus:ring-1 focus:ring-[#FF0066]"
               required
               autoFocus
             />
@@ -2302,7 +2302,7 @@ function AuthModal({
           {mode === 'signup' && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-slate-300">Password</label>
+                <label className="block text-sm font-medium text-[#aaa]">Password</label>
               </div>
               <div className="relative">
                 <input
@@ -2310,14 +2310,14 @@ function AuthModal({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 pr-12"
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-lg text-white placeholder-[#666] focus:outline-none focus:border-[#FF0066] focus:ring-1 focus:ring-[#FF0066] pr-12"
                   required
                   minLength={6}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#888] hover:text-[#aaa]"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2331,13 +2331,13 @@ function AuthModal({
                   )}
                 </button>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Must be at least 6 characters</p>
+              <p className="text-xs text-[#777] mt-2">Must be at least 6 characters</p>
             </div>
           )}
 
           {/* Magic link hint for login */}
           {mode === 'login' && (
-            <p className="text-xs text-slate-400 -mt-2">
+            <p className="text-xs text-[#888] -mt-2">
               We'll send you a magic link to sign in - no password needed.
             </p>
           )}
@@ -2345,7 +2345,7 @@ function AuthModal({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
@@ -2360,25 +2360,25 @@ function AuthModal({
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-700"></div>
+            <div className="w-full border-t border-[#333]"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-slate-800 px-2 text-slate-500">or</span>
+            <span className="bg-[#1a1a1a] px-2 text-[#777]">or</span>
           </div>
         </div>
 
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-[#888]">
           {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => onSwitchMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-purple-400 hover:text-purple-300 font-medium"
+            className="text-[#FF0066] hover:text-[#FF0066] font-medium"
           >
             {mode === 'login' ? 'Sign up for free' : 'Sign in'}
           </button>
         </p>
 
         {mode === 'signup' && (
-          <p className="text-center text-xs text-slate-500 mt-4">
+          <p className="text-center text-xs text-[#777] mt-4">
             By creating an account, you agree to our Terms of Service
           </p>
         )}
@@ -2406,109 +2406,117 @@ function LandingPage({
       {/* Top nav - raw and direct */}
       <div className="flex justify-between items-center py-6 border-b-2 border-[#333]">
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-[#f7ff00]"></div>
-          <span className="font-display text-sm tracking-[0.2em] text-[#999]">FABRICA COLLECTIVE</span>
+          <div className="w-3 h-3 bg-[#FFFF00]"></div>
+          <span className="font-display text-sm tracking-[0.2em] text-[#aaa]">FABRICA COLLECTIVE</span>
         </div>
         {user ? (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-[#666] font-mono">{user.email}</span>
-            <button onClick={onLogout} className="text-sm text-[#999] hover:text-white uppercase tracking-wider">Exit</button>
+            <span className="text-sm text-[#888] font-mono">{user.email}</span>
+            <button onClick={onLogout} className="text-sm text-[#aaa] hover:text-white uppercase tracking-wider">Exit</button>
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <button onClick={onLogin} className="text-sm text-[#999] hover:text-white uppercase tracking-wider">Log in</button>
+            <button onClick={onLogin} className="text-sm text-[#aaa] hover:text-white uppercase tracking-wider">Log in</button>
             <button onClick={onSignup} className="btn-primary btn-sm">Sign up</button>
           </div>
         )}
       </div>
 
-      {/* Hero - bold and unapologetic */}
-      <div className="flex-1 flex flex-col justify-center py-16 md:py-24">
+      {/* Hero - bold and confident */}
+      <div className="flex-1 flex flex-col justify-center py-12 md:py-20">
         <div className="max-w-5xl">
-          {/* Eyebrow */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-[2px] w-12 bg-[#f7ff00]"></div>
-            <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">YOUR VIRTUAL AGENCY ROOM</span>
-          </div>
+          {/* Angled rule - subtle Scher nod */}
+          <div className="h-[3px] w-16 bg-[#FF0066] mb-6"></div>
 
-          {/* Main headline - massive and loud */}
-          <h1 className="headline-xl text-white mb-2">
+          {/* Eyebrow */}
+          <span className="font-display text-sm tracking-[0.3em] text-[#FF0066] block mb-4">YOUR VIRTUAL AGENCY ROOM</span>
+
+          {/* Main headline */}
+          <h1 className="text-[16vw] md:text-[12vw] lg:text-[10vw] font-display text-white leading-[0.9] tracking-[-0.02em] mb-2">
             AMPLIFY
           </h1>
-          <h2 className="headline-lg text-[#ff1493] mb-8 -mt-2">
-            START WITH STRATEGY,<br/>NOT CHANNELS.
-          </h2>
 
-          {/* Subtext */}
-          <p className="text-xl md:text-2xl text-[#999] max-w-2xl mb-12 leading-relaxed">
-            The smoke-filled war room where AI meets advertising's golden age.
-            <span className="text-white"> Planning → Creative → Results.</span>
-          </p>
-
-          {/* Mode toggle - punk style */}
-          <div className="flex flex-wrap items-center gap-4 mb-12">
-            <div className="inline-flex border-3 border-white">
-              <div className="px-6 py-3 bg-[#f7ff00] text-black font-display text-lg tracking-wide flex items-center gap-2">
-                <span className="text-xl">📋</span> PLANNING
-              </div>
-              <div className="px-6 py-3 bg-transparent text-[#666] font-display text-lg tracking-wide flex items-center gap-2 border-l-3 border-white">
-                <span className="text-xl">🎨</span> CREATIVE
-              </div>
-            </div>
-            <span className="text-[#666] font-mono text-sm">// TOGGLE YOUR DEPARTMENT</span>
+          {/* Subhead - diagonal with padding so rotation doesn't clip */}
+          <div className="pl-4 md:pl-6 mb-8">
+            <h2 className="text-[6vw] md:text-[4.5vw] lg:text-[3.5vw] font-display text-[#FF0066] leading-[1] tracking-[-0.01em] scher-diagonal">
+              START WITH STRATEGY,<br/>NOT CHANNELS.
+            </h2>
           </div>
 
-          {/* CTA - bold and dangerous */}
+          {/* Subtext */}
+          <p className="text-lg md:text-xl text-[#aaa] max-w-2xl mb-10 leading-relaxed">
+            From the smoke-filled war rooms of the '60s, '70s and '80s — the mavericks who stopped traffic on billboards,
+            hijacked magazines, and invaded living rooms. <span className="text-white font-medium">Their playbook, amplified by AI. Your move.</span>
+          </p>
+
+          {/* Mode indicator - informational, not actionable */}
+          <div className="flex flex-wrap items-center gap-4 mb-10">
+            <div className="inline-flex border border-[#555]">
+              <div className="px-4 py-2 text-white font-display text-sm tracking-wide border-r border-[#555]">
+                PLANNING
+              </div>
+              <div className="px-4 py-2 text-white font-display text-sm tracking-wide">
+                CREATIVE
+              </div>
+            </div>
+            <span className="text-[#777] font-mono text-xs uppercase tracking-wider">Two departments. One system.</span>
+          </div>
+
+          {/* CTA - flat, confident */}
           <div className="flex flex-wrap items-center gap-6">
             <button
               onClick={onStart}
-              className="btn-primary text-xl px-10 py-5 flex items-center gap-4"
+              className="bg-[#FFFF00] text-black font-display text-xl px-10 py-5 hover:bg-white transition-colors flex items-center gap-4"
             >
               ENTER THE WAR ROOM
               <span className="text-2xl">→</span>
             </button>
-            <span className="text-[#666] font-mono text-sm">FREE TO START</span>
+            <span className="text-[#888] font-mono text-sm">FREE TO START</span>
           </div>
         </div>
       </div>
 
-      {/* How it works - industrial grid */}
-      <div className="py-16 border-t-2 border-[#333]">
-        <div className="flex items-center gap-4 mb-12">
-          <h2 className="headline-md text-white">THE PROCESS</h2>
+      {/* Process section - sharp transition */}
+      <div className="py-12 border-t-2 border-[#FF0066]">
+        <div className="flex items-center gap-4 mb-10">
+          <h2 className="font-display text-2xl md:text-3xl text-white tracking-wide">THE PROCESS</h2>
           <div className="flex-1 h-[2px] bg-[#333]"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-0">
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#f7ff00] mb-4">01</div>
-            <h3 className="font-display text-xl mb-2 text-white">BRIEF IN</h3>
-            <p className="text-[#666] text-sm leading-relaxed">Brand, industry, challenge. Set the battlefield.</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
+          <div className="p-5 md:p-6 border border-[#333]">
+            <div className="text-5xl md:text-6xl font-display text-[#FFFF00] mb-3 leading-none">01</div>
+            <h3 className="font-display text-lg mb-1 text-white">THE BRIEF</h3>
+            <p className="text-[#888] text-sm leading-relaxed">Know thy client. Know thy enemy.</p>
           </div>
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#ff1493] mb-4">02</div>
-            <h3 className="font-display text-xl mb-2 text-white">PLANNING</h3>
-            <p className="text-[#666] text-sm leading-relaxed">Define the problem. Develop strategy. Pick your angle.</p>
+          <div className="p-5 md:p-6 border border-[#333] border-l-0">
+            <div className="text-5xl md:text-6xl font-display text-[#FF0066] mb-3 leading-none">02</div>
+            <h3 className="font-display text-lg mb-1 text-white">THE STRATEGY</h3>
+            <p className="text-[#888] text-sm leading-relaxed">Find the angle. Sharpen it.</p>
           </div>
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#ff3333] mb-4">03</div>
-            <h3 className="font-display text-xl mb-2 text-white">REVIEW</h3>
-            <p className="text-[#666] text-sm leading-relaxed">AI sanity-check. Is your brief ready for prime time?</p>
+          <div className="p-5 md:p-6 border border-[#333] border-l-0 md:border-l-0 border-t-0 md:border-t">
+            <div className="text-5xl md:text-6xl font-display text-white mb-3 leading-none">03</div>
+            <h3 className="font-display text-lg mb-1 text-white">THE GUT CHECK</h3>
+            <p className="text-[#888] text-sm leading-relaxed">Would Bernbach buy it?</p>
           </div>
-          <div className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px]">
-            <div className="text-6xl font-display text-[#00ff66] mb-4">04</div>
-            <h3 className="font-display text-xl mb-2 text-white">CREATIVE</h3>
-            <p className="text-[#666] text-sm leading-relaxed">Generate. Remix. Launch. Win.</p>
+          <div className="p-5 md:p-6 border border-[#333] border-l-0 border-t-0 md:border-t">
+            <div className="text-5xl md:text-6xl font-display text-[#FFFF00] mb-3 leading-none">04</div>
+            <h3 className="font-display text-lg mb-1 text-white">THE WORK</h3>
+            <p className="text-[#888] text-sm leading-relaxed">Make it. Ship it. Win.</p>
           </div>
         </div>
       </div>
 
-      {/* Footer - minimal and raw */}
-      <div className="py-8 border-t-2 border-[#333] flex flex-wrap justify-between items-center gap-4">
-        <p className="text-sm text-[#666]">
-          Built by <a href="https://fabricacollective.com" target="_blank" className="text-[#f7ff00] hover:underline">FABRICA COLLECTIVE</a>
+      {/* Footer - minimal */}
+      <div className="py-6 border-t border-[#333] flex flex-wrap justify-between items-center gap-4">
+        <p className="text-xs text-[#888]">
+          <a href="https://fabricacollective.com" target="_blank" className="text-[#FF0066] hover:text-[#FFFF00] transition-colors">FABRICA COLLECTIVE</a>
         </p>
-        <p className="text-xs text-[#444] font-mono">REFORGE × DEMAND CURVE × CXL × HUBSPOT</p>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-[#FF0066]"></div>
+          <div className="w-2 h-2 bg-[#FFFF00]"></div>
+          <div className="w-2 h-2 bg-white"></div>
+        </div>
       </div>
     </div>
   );
@@ -2553,30 +2561,28 @@ function ProjectsList({
     <div className="max-w-3xl mx-auto">
       {/* Header */}
       <div className="mb-12">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="h-[2px] w-8 bg-[#f7ff00]"></div>
-          <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">SELECT OR CREATE</span>
-        </div>
-        <h2 className="headline-lg text-white">YOUR PROJECTS</h2>
+        <div className="h-[3px] w-12 bg-[#FF0066] mb-4"></div>
+        <span className="font-display text-sm tracking-[0.3em] text-[#FF0066] block mb-2">THE ROSTER</span>
+        <h2 className="headline-lg text-white">YOUR CLIENTS</h2>
       </div>
 
       {state.projectsLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-[#f7ff00] border-t-transparent animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#FFFF00] border-t-transparent animate-spin" />
         </div>
       ) : (
         <div className="space-y-4">
           {/* Create New Project Button */}
           <button
             onClick={onCreateNew}
-            className="w-full p-6 border-2 border-dashed border-[#333] hover:border-[#f7ff00] bg-[#1a1a1a] transition-all flex items-center gap-4 group"
+            className="w-full p-6 border-2 border-dashed border-[#333] hover:border-[#FFFF00] bg-[#1a1a1a] transition-all flex items-center gap-4 group"
           >
-            <div className="w-14 h-14 bg-[#f7ff00] flex items-center justify-center text-black font-display text-3xl group-hover:bg-white transition-colors">
+            <div className="w-14 h-14 bg-[#FFFF00] flex items-center justify-center text-black font-display text-3xl group-hover:bg-white transition-colors">
               +
             </div>
             <div className="text-left">
-              <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors">NEW PROJECT</div>
-              <div className="text-sm text-[#666]">Add a new brand or client</div>
+              <div className="font-display text-xl text-white group-hover:text-[#FFFF00] transition-colors">NEW CLIENT</div>
+              <div className="text-sm text-[#888]">Another one walks through the door</div>
             </div>
           </button>
 
@@ -2585,7 +2591,7 @@ function ProjectsList({
             state.projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-[#1a1a1a] border-2 border-[#333] overflow-hidden hover:border-[#666] transition-colors group"
+                className="bg-[#1a1a1a] border-2 border-[#333] overflow-hidden hover:border-[#FF0066] transition-colors group"
               >
                 <div
                   className="p-5 cursor-pointer"
@@ -2593,14 +2599,14 @@ function ProjectsList({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-[#ff1493] flex items-center justify-center text-white font-display text-2xl">
+                      <div className="w-14 h-14 bg-[#FF0066] flex items-center justify-center text-white font-display text-2xl">
                         {project.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors">
+                        <h3 className="font-display text-xl text-white group-hover:text-[#FFFF00] transition-colors">
                           {project.name.toUpperCase()}
                         </h3>
-                        <div className="flex items-center gap-2 text-xs text-[#666] mt-1 font-mono">
+                        <div className="flex items-center gap-2 text-xs text-[#888] mt-1 font-mono">
                           <span>{project.industry}</span>
                           {project.website && (
                             <>
@@ -2609,16 +2615,16 @@ function ProjectsList({
                             </>
                           )}
                         </div>
-                        <p className="text-sm text-[#999] mt-2 line-clamp-2">{project.challenge}</p>
+                        <p className="text-sm text-[#aaa] mt-2 line-clamp-2">{project.challenge}</p>
                       </div>
                     </div>
-                    <div className="text-xs text-[#444] font-mono whitespace-nowrap">
+                    <div className="text-xs text-[#777] font-mono whitespace-nowrap">
                       {formatDate(project.updated_at)}
                     </div>
                   </div>
                 </div>
 
-                <div className="px-5 py-3 border-t-2 border-[#333] bg-[#0a0a0a] flex items-center justify-between">
+                <div className="px-5 py-3 border-t-2 border-[#333] bg-[#0D0D0D] flex items-center justify-between">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -2634,13 +2640,13 @@ function ProjectsList({
                         e.stopPropagation();
                         onEditProject(project);
                       }}
-                      className="px-3 py-2 text-[#666] hover:text-white text-xs font-display tracking-wider transition-colors"
+                      className="px-3 py-2 text-[#888] hover:text-white text-xs font-display tracking-wider transition-colors"
                     >
                       EDIT
                     </button>
                     {deleteConfirm === project.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#666] font-display">DELETE?</span>
+                        <span className="text-xs text-[#888] font-display">DELETE?</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2667,7 +2673,7 @@ function ProjectsList({
                           e.stopPropagation();
                           setDeleteConfirm(project.id);
                         }}
-                        className="px-3 py-2 text-[#ff3333] hover:text-[#ff1493] text-xs font-display tracking-wider transition-colors"
+                        className="px-3 py-2 text-[#ff3333] hover:text-[#FF0066] text-xs font-display tracking-wider transition-colors"
                       >
                         DELETE
                       </button>
@@ -2677,7 +2683,7 @@ function ProjectsList({
               </div>
             ))
           ) : (
-            <div className="text-center py-12 text-[#666] border-2 border-dashed border-[#333]">
+            <div className="text-center py-12 text-[#888] border-2 border-dashed border-[#333]">
               <p className="font-display text-lg">NO PROJECTS YET</p>
               <p className="text-sm mt-2">Create your first one to get started</p>
             </div>
@@ -2685,7 +2691,7 @@ function ProjectsList({
         </div>
       )}
 
-      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#888] hover:text-[#FFFF00] transition-colors font-display tracking-wider">
         <span>←</span>
         BACK TO HOME
       </button>
@@ -2791,25 +2797,25 @@ function BrandInput({
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-[2px] w-8 bg-[#f7ff00]"></div>
-          <span className="font-display text-sm tracking-[0.3em] text-[#f7ff00]">
-            {isEditing ? 'EDIT PROFILE' : isLoggedIn ? 'NEW PROJECT' : 'BRIEF IN'}
+          <div className="h-[2px] w-8 bg-[#FFFF00]"></div>
+          <span className="font-display text-sm tracking-[0.3em] text-[#FFFF00]">
+            {isEditing ? 'REWRITE THE BRIEF' : isLoggedIn ? 'NEW CLIENT' : 'THE BRIEF'}
           </span>
         </div>
         <h2 className="headline-lg text-white">
-          {isEditing ? 'UPDATE YOUR' : isLoggedIn ? 'CREATE YOUR' : 'TELL US ABOUT YOUR'}
+          {isEditing ? 'SHARPEN' : isLoggedIn ? 'WHO ARE WE' : 'WHO ARE WE'}
         </h2>
-        <h2 className="headline-lg text-[#ff1493] -mt-2">BRAND</h2>
+        <h2 className="headline-lg text-[#FF0066] -mt-2">{isEditing ? 'THE BRIEF' : 'FIGHTING FOR?'}</h2>
       </div>
 
       {/* First-time user tip */}
       {!isEditing && !isLoggedIn && (
-        <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#f7ff00]">
+        <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#FFFF00]">
           <div className="flex gap-3">
-            <div className="text-[#f7ff00] font-display text-2xl">!</div>
+            <div className="text-[#FFFF00] font-display text-2xl">!</div>
             <div>
-              <p className="text-sm text-[#f7ff00] font-display tracking-wide">THE MORE CONTEXT, THE BETTER</p>
-              <p className="text-xs text-[#666] mt-1">Complete profiles generate 3x more relevant content. Fill everything.</p>
+              <p className="text-sm text-[#FFFF00] font-display tracking-wide">GARBAGE IN, GARBAGE OUT</p>
+              <p className="text-xs text-[#888] mt-1">The greats obsessed over the brief. Give us everything. We'll make it sing.</p>
             </div>
           </div>
         </div>
@@ -2817,24 +2823,24 @@ function BrandInput({
 
       <div className="bg-[#1a1a1a] border-2 border-[#333] p-6 space-y-6">
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">{isLoggedIn ? 'PROJECT NAME *' : 'BRAND NAME *'}</label>
-          <input type="text" id="brand" defaultValue={state.brand} placeholder="e.g., Acme Inc." className="input-raw w-full" />
+          <label className="block text-xs font-display tracking-[0.2em] text-[#FFFF00] mb-2">{isLoggedIn ? 'THE CLIENT *' : 'THE CLIENT *'}</label>
+          <input type="text" id="brand" defaultValue={state.brand} placeholder="Who's signing the checks?" className="input-raw w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">WEBSITE</label>
-          <input type="text" id="website" defaultValue={state.website} placeholder="e.g., acme.com" className="input-raw w-full" />
+          <label className="block text-xs font-display tracking-[0.2em] text-[#aaa] mb-2">THEIR TURF</label>
+          <input type="text" id="website" defaultValue={state.website} placeholder="acme.com" className="input-raw w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">INDUSTRY / NICHE *</label>
-          <input type="text" id="industry" defaultValue={state.industry} placeholder="e.g., B2B SaaS, E-commerce, Healthcare" className="input-raw w-full" />
+          <label className="block text-xs font-display tracking-[0.2em] text-[#FFFF00] mb-2">THE ARENA *</label>
+          <input type="text" id="industry" defaultValue={state.industry} placeholder="What battlefield are we on?" className="input-raw w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-display tracking-[0.2em] text-[#f7ff00] mb-2">BUSINESS CHALLENGE *</label>
-          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="e.g., We need to increase organic traffic by 50% in Q1..." className="input-raw w-full resize-none" />
-          <p className="text-xs text-[#666] mt-2 font-mono">// Be specific. This context makes prompts 10x better.</p>
+          <label className="block text-xs font-display tracking-[0.2em] text-[#FFFF00] mb-2">THE PROBLEM *</label>
+          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="What's keeping the client up at night?" className="input-raw w-full resize-none" />
+          <p className="text-xs text-[#888] mt-2 font-mono">// "A problem well-stated is half-solved." — Charles Kettering</p>
         </div>
 
         {/* Brand Voice Section */}
@@ -2845,16 +2851,16 @@ function BrandInput({
             className="flex items-center justify-between w-full text-left group"
           >
             <div className="flex items-center gap-3">
-              <span className="text-xs font-display tracking-[0.2em] text-white group-hover:text-[#f7ff00] transition-colors">BRAND VOICE & AUDIENCE</span>
+              <span className="text-xs font-display tracking-[0.2em] text-white group-hover:text-[#FFFF00] transition-colors">BRAND VOICE & AUDIENCE</span>
               <span className="tag tag-yellow text-[10px]">RECOMMENDED</span>
             </div>
-            <span className={`text-[#666] transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>▼</span>
+            <span className={`text-[#888] transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>▼</span>
           </button>
 
           {showAdvanced && (
             <div className="mt-6 space-y-6">
               <div>
-                <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">TARGET AUDIENCE</label>
+                <label className="block text-xs font-display tracking-[0.2em] text-[#aaa] mb-2">TARGET AUDIENCE</label>
                 <textarea
                   id="targetAudience"
                   rows={2}
@@ -2865,7 +2871,7 @@ function BrandInput({
               </div>
 
               <div>
-                <label className="block text-xs font-display tracking-[0.2em] text-[#999] mb-2">BRAND VOICE & TONE</label>
+                <label className="block text-xs font-display tracking-[0.2em] text-[#aaa] mb-2">BRAND VOICE & TONE</label>
                 <textarea
                   id="brandVoice"
                   rows={2}
@@ -2876,14 +2882,14 @@ function BrandInput({
               </div>
 
               {/* Profile Completion Indicator */}
-              <div className="bg-[#0a0a0a] border-2 border-[#333] p-4">
+              <div className="bg-[#0D0D0D] border-2 border-[#333] p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-display tracking-wider text-[#666]">PROFILE COMPLETION</span>
-                  <span className="text-sm font-mono text-[#f7ff00]">{getProfileCompletion()}%</span>
+                  <span className="text-xs font-display tracking-wider text-[#888]">PROFILE COMPLETION</span>
+                  <span className="text-sm font-mono text-[#FFFF00]">{getProfileCompletion()}%</span>
                 </div>
                 <div className="h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
                   <div
-                    className="h-full bg-[#f7ff00] transition-all duration-300"
+                    className="h-full bg-[#FFFF00] transition-all duration-300"
                     style={{ width: `${getProfileCompletion()}%` }}
                   />
                 </div>
@@ -2895,9 +2901,9 @@ function BrandInput({
         <div id="apiKeySection" className="pt-6 border-t-2 border-[#333]">
           <label className="block text-xs font-display tracking-[0.2em] text-white mb-4">AI PROVIDER</label>
           <div className="flex gap-2 mb-4">
-            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>GEMINI (FREE)</button>
-            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#f7ff00] bg-[#f7ff00]/10 text-[#f7ff00]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>OPENAI</button>
-            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#ff1493] bg-[#ff1493]/10 text-[#ff1493]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>ANTHROPIC</button>
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#888] hover:border-[#666]'}`}>GEMINI (FREE)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#FFFF00] bg-[#FFFF00]/10 text-[#FFFF00]' : 'border-[#333] text-[#888] hover:border-[#666]'}`}>OPENAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-sm tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#FF0066] bg-[#FF0066]/10 text-[#FF0066]' : 'border-[#333] text-[#888] hover:border-[#666]'}`}>ANTHROPIC</button>
           </div>
           {state.llmProvider === 'gemini' ? (
             <div className="flex items-center gap-3">
@@ -2907,7 +2913,7 @@ function BrandInput({
                     state.freePromptsUsed >= state.promptsLimit
                       ? 'bg-[#ff3333]'
                       : state.freePromptsUsed >= state.promptsLimit * 0.8
-                        ? 'bg-[#f7ff00]'
+                        ? 'bg-[#FFFF00]'
                         : 'bg-[#00ff66]'
                   }`}
                   style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
@@ -2917,7 +2923,7 @@ function BrandInput({
                 state.freePromptsUsed >= state.promptsLimit
                   ? 'text-[#ff3333]'
                   : state.freePromptsUsed >= state.promptsLimit * 0.8
-                    ? 'text-[#f7ff00]'
+                    ? 'text-[#FFFF00]'
                     : 'text-[#00ff66]'
               }`}>
                 {state.promptsLimit - state.freePromptsUsed} LEFT
@@ -2933,7 +2939,7 @@ function BrandInput({
                 placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
                 className="input-raw w-full"
               />
-              <p className="text-xs text-[#666] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
+              <p className="text-xs text-[#888] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
             </>
           )}
         </div>
@@ -2958,7 +2964,7 @@ function BrandInput({
         {goBack && (
           <button
             onClick={goBack}
-            className="w-full py-3 text-[#666] hover:text-[#f7ff00] flex items-center justify-center gap-2 transition-colors font-display tracking-wider"
+            className="w-full py-3 text-[#888] hover:text-[#FFFF00] flex items-center justify-center gap-2 transition-colors font-display tracking-wider"
           >
             ← {isLoggedIn ? 'BACK TO PROJECTS' : 'BACK'}
           </button>
@@ -2977,11 +2983,11 @@ function DisciplineSelect({ state, selectDiscipline, goBack }: { state: State; s
         <div className="flex items-center gap-3 mb-4">
           <div className="tag tag-pink">{state.brand.toUpperCase()}</div>
           <span className="text-[#333] font-display">//</span>
-          <span className="text-[#666] text-sm font-display tracking-wider">{state.industry.toUpperCase()}</span>
+          <span className="text-[#888] text-sm font-display tracking-wider">{state.industry.toUpperCase()}</span>
         </div>
-        <h2 className="headline-lg text-white">CHOOSE YOUR</h2>
-        <h2 className="headline-lg text-[#f7ff00] -mt-2">WEAPON</h2>
-        <p className="text-[#666] mt-4">Select a discipline. Each one is loaded with specialized prompts.</p>
+        <h2 className="headline-lg text-white">PICK YOUR</h2>
+        <h2 className="headline-lg text-[#FFFF00] -mt-2">WEAPON</h2>
+        <p className="text-[#888] mt-4">Every discipline has its own playbook. Choose wisely.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
@@ -2989,21 +2995,21 @@ function DisciplineSelect({ state, selectDiscipline, goBack }: { state: State; s
           <button
             key={d.value}
             onClick={() => selectDiscipline(d.value)}
-            className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#f7ff00] group relative overflow-hidden"
+            className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0D0D0D] hover:border-[#FFFF00] group relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 font-display text-6xl text-[#1a1a1a] group-hover:text-[#222] transition-colors">
               {String(index + 1).padStart(2, '0')}
             </div>
             <div className="relative z-10">
               <div className="text-4xl mb-4">{d.icon}</div>
-              <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors tracking-wide">{d.label.toUpperCase()}</div>
-              <div className="text-sm text-[#666] mt-2 group-hover:text-[#999] transition-colors">{d.desc}</div>
+              <div className="font-display text-xl text-white group-hover:text-[#FFFF00] transition-colors tracking-wide">{d.label.toUpperCase()}</div>
+              <div className="text-sm text-[#888] mt-2 group-hover:text-[#aaa] transition-colors">{d.desc}</div>
             </div>
           </button>
         ))}
       </div>
 
-      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#888] hover:text-[#FFFF00] transition-colors font-display tracking-wider">
         ← EDIT BRIEF
       </button>
     </div>
@@ -3018,7 +3024,7 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
     <div className="space-y-8">
       {/* Top bar */}
       <div className="flex items-center justify-between">
-        <button onClick={goBack} className="flex items-center gap-2 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-[#FFFF00] transition-colors font-display tracking-wider">
           ← BACK
         </button>
         <div className="tag tag-pink">{state.brand.toUpperCase()}</div>
@@ -3029,31 +3035,31 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
         <div className="inline-flex border-2 border-white">
           <button
             onClick={() => setMode('strategy')}
-            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-[#f7ff00] text-black' : 'bg-transparent text-[#666] hover:text-white'}`}
+            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all ${state.mode === 'strategy' ? 'bg-[#FFFF00] text-black' : 'bg-transparent text-[#888] hover:text-white'}`}
           >
             📋 PLANNING
           </button>
           <button
             onClick={() => setMode('execution')}
-            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all border-l-2 border-white ${state.mode === 'execution' ? 'bg-[#00ff66] text-black' : 'bg-transparent text-[#666] hover:text-white'}`}
+            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all border-l-2 border-white ${state.mode === 'execution' ? 'bg-[#00ff66] text-black' : 'bg-transparent text-[#888] hover:text-white'}`}
           >
             🎨 CREATIVE
           </button>
         </div>
       </div>
-      <p className="text-center text-xs text-[#666] font-mono">// {state.mode === 'strategy' ? 'Define strategy, validate briefs, develop message angles' : 'Execute within your approved strategic direction'}</p>
+      <p className="text-center text-xs text-[#888] font-mono">// {state.mode === 'strategy' ? 'Define strategy, validate briefs, develop message angles' : 'Execute within your approved strategic direction'}</p>
 
       {/* Skipped Planning Review Warning */}
       {state.skippedPlanningReview && state.mode === 'execution' && (
-        <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
-          <span className="text-amber-400 text-xl">⚠️</span>
+        <div className="max-w-2xl mx-auto bg-[#FFFF00]/10 border border-[#FFFF00]/30 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-[#FFFF00] text-xl">⚠️</span>
           <div className="flex-1">
-            <p className="text-amber-300 font-medium">Strategy not reviewed</p>
-            <p className="text-sm text-amber-200/70 mt-1">
+            <p className="text-[#FFFF00] font-medium">Strategy not reviewed</p>
+            <p className="text-sm text-[#FFFF00]/70 mt-1">
               You skipped Planning Review. Your creative outputs may not be strategically aligned.
               <button
                 onClick={() => setMode('strategy')}
-                className="ml-2 underline hover:text-amber-100"
+                className="ml-2 underline hover:text-[#FFFF00]"
               >
                 Return to Planning
               </button>
@@ -3068,20 +3074,20 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
           onClick={onOpenPersonas}
           className={`px-4 py-2 rounded-xl border-2 transition-all flex items-center gap-3 ${
             state.selectedPersona
-              ? 'border-purple-500 bg-purple-500/10 hover:bg-purple-500/20'
-              : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+              ? 'border-[#FF0066] bg-[#FF0066]/10 hover:bg-[#FF0066]/20'
+              : 'border-[#333] bg-[#1a1a1a]/50 hover:border-[#444]'
           }`}
         >
           <span className="text-2xl">
             {state.selectedPersona?.avatar_emoji || '👥'}
           </span>
           <div className="text-left">
-            <div className="text-xs text-slate-400">Target Persona</div>
+            <div className="text-xs text-[#888]">Target Persona</div>
             <div className="font-medium">
               {state.selectedPersona ? state.selectedPersona.name : 'General Audience'}
             </div>
           </div>
-          <svg className="w-4 h-4 text-slate-400 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-[#888] ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
@@ -3089,16 +3095,16 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
 
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold mb-4">{lib.title}</h2>
-        <p className="text-slate-400 leading-relaxed">{lib.summary}</p>
+        <p className="text-[#888] leading-relaxed">{lib.summary}</p>
       </div>
 
       <section>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center text-purple-400">
+          <div className="w-8 h-8 rounded-lg bg-[#FF0066]/20 flex items-center justify-center text-[#FF0066]">
             <span dangerouslySetInnerHTML={{ __html: icons.brain }} />
           </div>
           <h3 className="text-xl font-bold">Mental Models</h3>
-          <span className="text-sm text-slate-500">({lib.mentalModels.length})</span>
+          <span className="text-sm text-[#777]">({lib.mentalModels.length})</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {lib.mentalModels.map((model: any, index: number) => (
@@ -3109,11 +3115,11 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
 
       <section>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-cyan-600/20 flex items-center justify-center text-cyan-400">
+          <div className="w-8 h-8 rounded-lg bg-[#FF0066]/20 flex items-center justify-center text-[#FF0066]">
             <span dangerouslySetInnerHTML={{ __html: icons.zap }} />
           </div>
           <h3 className="text-xl font-bold">Personalized Prompts</h3>
-          <span className="text-sm text-slate-500">(10)</span>
+          <span className="text-sm text-[#777]">(10)</span>
         </div>
         <div className="space-y-4">
           {lib.prompts.map((prompt: any, index: number) => (
@@ -3127,28 +3133,28 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
 
 function MentalModelCard({ model, isOpen, onToggle }: { model: any; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+    <div className="bg-[#1a1a1a] rounded-xl p-4 border border-[#333]">
       <div className="flex items-start justify-between cursor-pointer" onClick={onToggle}>
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center flex-shrink-0 text-purple-400">
+          <div className="w-8 h-8 rounded-lg bg-[#FF0066]/20 flex items-center justify-center flex-shrink-0 text-[#FF0066]">
             <span dangerouslySetInnerHTML={{ __html: icons.brain }} />
           </div>
           <div>
             <h4 className="font-semibold text-white">{model.name}</h4>
-            <p className="text-sm text-slate-400 mt-1">{model.description}</p>
+            <p className="text-sm text-[#888] mt-1">{model.description}</p>
           </div>
         </div>
-        <button className="text-slate-500 hover:text-slate-300">
+        <button className="text-[#777] hover:text-[#aaa]">
           <span dangerouslySetInnerHTML={{ __html: isOpen ? icons.chevronUp : icons.chevronDown }} />
         </button>
       </div>
       {isOpen && (
-        <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
+        <div className="mt-4 pt-4 border-t border-[#333] space-y-3">
           <div className="flex items-start gap-2">
             <span className="text-yellow-400 mt-1" dangerouslySetInnerHTML={{ __html: icons.lightbulb }} />
-            <p className="text-sm text-slate-300">{model.lesson}</p>
+            <p className="text-sm text-[#aaa]">{model.lesson}</p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-xs text-[#777]">
             <span dangerouslySetInnerHTML={{ __html: icons.book }} />
             <span>{model.source}</span>
           </div>
@@ -3163,30 +3169,30 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
   const displayText = isExpanded ? personalized : personalized.length > 180 ? personalized.slice(0, 180) + '...' : personalized;
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <div className="bg-[#1a1a1a] rounded-xl border border-[#333] overflow-hidden">
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 font-bold text-white">{prompt.id}</div>
+            <div className="w-10 h-10 rounded-lg bg-[#FF0066] flex items-center justify-center flex-shrink-0 font-bold text-white">{prompt.id}</div>
             <div>
-              <span className="text-xs font-medium text-cyan-400 uppercase tracking-wide">Prompt {prompt.id}</span>
+              <span className="text-xs font-medium text-[#FF0066] uppercase tracking-wide">Prompt {prompt.id}</span>
               <h4 className="font-semibold text-white mt-1">{prompt.goal}</h4>
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => onCopy(personalized)} className={`p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors ${isCopied ? 'text-green-400' : 'text-slate-400'}`} title="Copy prompt">
+            <button onClick={() => onCopy(personalized)} className={`p-2 rounded-lg bg-[#333] hover:bg-[#444] transition-colors ${isCopied ? 'text-[#00ff66]' : 'text-[#888]'}`} title="Copy prompt">
               <span dangerouslySetInnerHTML={{ __html: isCopied ? icons.check : icons.copy }} />
             </button>
-            <button onClick={onRun} className="px-3 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-sm font-medium flex items-center gap-1 transition-all" title="Run with AI">
+            <button onClick={onRun} className="px-3 py-2 rounded-lg bg-[#00ff66] hover:bg-white text-black text-white text-sm font-medium flex items-center gap-1 transition-all" title="Run with AI">
               <span dangerouslySetInnerHTML={{ __html: icons.play }} /> Run
             </button>
           </div>
         </div>
 
-        <div className="mt-4 p-4 bg-slate-900 rounded-lg">
-          <p className="text-sm text-slate-300 font-mono leading-relaxed">{displayText}</p>
+        <div className="mt-4 p-4 bg-[#0D0D0D] rounded-lg">
+          <p className="text-sm text-[#aaa] font-mono leading-relaxed">{displayText}</p>
           {personalized.length > 180 && (
-            <button onClick={onToggle} className="text-xs text-cyan-400 hover:text-cyan-300 mt-2 flex items-center gap-1">
+            <button onClick={onToggle} className="text-xs text-[#FF0066] hover:text-[#FF0066] mt-2 flex items-center gap-1">
               {isExpanded ? 'Show less' : 'Show more'}
               <span dangerouslySetInnerHTML={{ __html: isExpanded ? icons.chevronUp : icons.chevronDown }} />
             </button>
@@ -3194,17 +3200,17 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-3 bg-slate-900/50 rounded-lg">
-            <div className="flex items-center gap-2 text-xs font-medium text-purple-400 mb-2">
+          <div className="p-3 bg-[#0D0D0D]/50 rounded-lg">
+            <div className="flex items-center gap-2 text-xs font-medium text-[#FF0066] mb-2">
               <span dangerouslySetInnerHTML={{ __html: icons.target }} /> Why this fits
             </div>
-            <p className="text-xs text-slate-400">{prompt.whyFits}</p>
+            <p className="text-xs text-[#888]">{prompt.whyFits}</p>
           </div>
-          <div className="p-3 bg-slate-900/50 rounded-lg">
-            <div className="flex items-center gap-2 text-xs font-medium text-green-400 mb-2">
+          <div className="p-3 bg-[#0D0D0D]/50 rounded-lg">
+            <div className="flex items-center gap-2 text-xs font-medium text-[#00ff66] mb-2">
               <span dangerouslySetInnerHTML={{ __html: icons.zap }} /> How to use it
             </div>
-            <p className="text-xs text-slate-400">{prompt.howUsed}</p>
+            <p className="text-xs text-[#888]">{prompt.howUsed}</p>
           </div>
         </div>
       </div>
@@ -3256,7 +3262,7 @@ function LLMOutput({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} /> Back to Prompts
         </button>
         <div className="flex items-center gap-2">
@@ -3264,7 +3270,7 @@ function LLMOutput({
             <>
               <button
                 onClick={onRemix}
-                className="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 rounded-lg text-sm flex items-center gap-2 transition-colors text-white"
+                className="px-4 py-2 bg-[#FFFF00] hover:bg-white text-black rounded-lg text-sm flex items-center gap-2 transition-colors text-white"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3276,7 +3282,7 @@ function LLMOutput({
                   <button
                     onClick={onSaveOriginal}
                     disabled={state.saveStatus === 'saving'}
-                    className="px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors bg-slate-600 hover:bg-slate-500 text-white"
+                    className="px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors bg-[#444] hover:bg-[#555] text-white"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -3288,10 +3294,10 @@ function LLMOutput({
                     disabled={state.saveStatus === 'saving'}
                     className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                       state.saveStatus === 'saved'
-                        ? 'bg-green-600 text-white'
+                        ? 'bg-[#00ff66] text-white'
                         : state.saveStatus === 'error'
                         ? 'bg-red-600 text-white'
-                        : 'bg-purple-600 hover:bg-purple-500 text-white'
+                        : 'bg-[#FF0066] hover:bg-[#FF0066] text-white'
                     }`}
                   >
                     {state.saveStatus === 'saving' ? (
@@ -3324,10 +3330,10 @@ function LLMOutput({
                   disabled={state.saveStatus === 'saving'}
                   className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                     state.saveStatus === 'saved'
-                      ? 'bg-green-600 text-white'
+                      ? 'bg-[#00ff66] text-white'
                       : state.saveStatus === 'error'
                       ? 'bg-red-600 text-white'
-                      : 'bg-purple-600 hover:bg-purple-500 text-white'
+                      : 'bg-[#FF0066] hover:bg-[#FF0066] text-white'
                   }`}
                 >
                   {state.saveStatus === 'saving' ? (
@@ -3356,7 +3362,7 @@ function LLMOutput({
               )}
             </>
           )}
-          <button onClick={() => copyLLMOutput('output')} className={`px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-green-400' : ''}`}>
+          <button onClick={() => copyLLMOutput('output')} className={`px-4 py-2 bg-[#333] hover:bg-[#444] rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === 'output' ? 'text-[#00ff66]' : ''}`}>
             <span dangerouslySetInnerHTML={{ __html: state.copiedId === 'output' ? icons.check : icons.copy }} />
             Copy
           </button>
@@ -3364,36 +3370,36 @@ function LLMOutput({
       </div>
 
       {state.selectedPrompt && (
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-          <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">Prompt Used</div>
-          <div className="text-sm text-slate-300 mb-3">{state.selectedPrompt.goal}</div>
-          <div className="flex items-center justify-between pt-3 border-t border-slate-700">
-            <div className="inline-flex items-center bg-slate-900 rounded-lg p-1">
-              <button onClick={() => switchModeAndRerun('strategy')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'strategy' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📋 Planning</button>
-              <button onClick={() => switchModeAndRerun('execution')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-green-600 text-white' : 'text-slate-400 hover:text-white'}`}>🎨 Creative</button>
+        <div className="bg-[#1a1a1a]/50 rounded-xl p-4 border border-[#333]">
+          <div className="text-xs text-[#777] uppercase tracking-wide mb-1">Prompt Used</div>
+          <div className="text-sm text-[#aaa] mb-3">{state.selectedPrompt.goal}</div>
+          <div className="flex items-center justify-between pt-3 border-t border-[#333]">
+            <div className="inline-flex items-center bg-[#0D0D0D] rounded-lg p-1">
+              <button onClick={() => switchModeAndRerun('strategy')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'strategy' ? 'bg-[#FF0066] text-white' : 'text-[#888] hover:text-white'}`}>📋 Planning</button>
+              <button onClick={() => switchModeAndRerun('execution')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-[#00ff66] text-white' : 'text-[#888] hover:text-white'}`}>🎨 Creative</button>
             </div>
-            <span className="text-xs text-slate-500">Switch role to regenerate</span>
+            <span className="text-xs text-[#777]">Switch role to regenerate</span>
           </div>
         </div>
       )}
 
       {/* Original Output - Accordion */}
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
+      <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] overflow-hidden">
         <button
           onClick={onToggleOriginal}
-          className="w-full p-4 border-b border-slate-700 flex items-center justify-between hover:bg-slate-700/30 transition-colors"
+          className="w-full p-4 border-b border-[#333] flex items-center justify-between hover:bg-[#333]/30 transition-colors"
         >
           <div className="flex items-center gap-2">
             <span dangerouslySetInnerHTML={{ __html: icons.sparkles }} />
             <span className="font-medium">{isLimitReached ? 'Notice' : 'AI Response'}</span>
             {!state.originalExpanded && !state.isLoading && (
-              <span className="text-xs text-slate-500 ml-2">(click to expand)</span>
+              <span className="text-xs text-[#777] ml-2">(click to expand)</span>
             )}
           </div>
           <div className="flex items-center gap-2">
-            {state.isLoading && <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />}
+            {state.isLoading && <div className="w-4 h-4 border-2 border-[#FF0066] border-t-transparent rounded-full animate-spin" />}
             <svg
-              className={`w-5 h-5 text-slate-400 transition-transform ${state.originalExpanded ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-[#888] transition-transform ${state.originalExpanded ? 'rotate-180' : ''}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -3405,14 +3411,14 @@ function LLMOutput({
         {state.originalExpanded && (
           <div className="p-6">
             {state.isLoading ? (
-              <div className="flex items-center gap-3 text-slate-400">
-                <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+              <div className="flex items-center gap-3 text-[#888]">
+                <div className="w-5 h-5 border-2 border-[#FF0066] border-t-transparent rounded-full animate-spin" />
                 <span>Generating personalized {state.mode === 'strategy' ? 'strategy' : 'content'} for {state.brand}...</span>
               </div>
             ) : isLimitReached ? (
               <div className="space-y-4 text-center">
                 <p className="text-yellow-400 text-lg">Free limit reached</p>
-                <p className="text-slate-400">{content}</p>
+                <p className="text-[#888]">{content}</p>
               </div>
             ) : state.isEditingOutput ? (
               /* Edit Mode */
@@ -3420,19 +3426,19 @@ function LLMOutput({
                 <textarea
                   value={state.editedOutput}
                   onChange={(e) => updateState({ editedOutput: e.target.value })}
-                  className="w-full h-96 px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white font-mono text-sm focus:border-purple-500 focus:outline-none resize-y"
+                  className="w-full h-96 px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-xl text-white font-mono text-sm focus:border-[#FF0066] focus:outline-none resize-y"
                   placeholder="Edit the output..."
                 />
                 <div className="flex items-center justify-end gap-3">
                   <button
                     onClick={onCancelEdit}
-                    className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                    className="px-4 py-2 text-[#888] hover:text-white transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={onSaveEdit}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm text-white transition-colors"
+                    className="px-4 py-2 bg-[#FF0066] hover:bg-[#FF0066] rounded-lg text-sm text-white transition-colors"
                   >
                     Save Changes
                   </button>
@@ -3441,13 +3447,13 @@ function LLMOutput({
             ) : (
               /* Normal View with Edit/Re-brief options */
               <div>
-                <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(content) }} />
+                <div className="markdown-output text-[#aaa] leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(content) }} />
 
                 {/* Edit / Re-brief Buttons */}
-                <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-700">
+                <div className="flex items-center gap-3 mt-6 pt-4 border-t border-[#333]">
                   <button
                     onClick={() => updateState({ isEditingOutput: true, editedOutput: content })}
-                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                    className="px-4 py-2 bg-[#333] hover:bg-[#444] rounded-lg text-sm flex items-center gap-2 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -3456,14 +3462,14 @@ function LLMOutput({
                   </button>
                   <button
                     onClick={() => updateState({ showRebriefModal: true })}
-                    className="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-600/50 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                    className="px-4 py-2 bg-[#FFFF00]/20 hover:bg-[#FFFF00]/30 text-[#FFFF00] border border-[#FFFF00]/50 rounded-lg text-sm flex items-center gap-2 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Re-brief & Regenerate
                   </button>
-                  <span className="text-xs text-slate-500 ml-2">Not quite right? Give feedback to regenerate.</span>
+                  <span className="text-xs text-[#777] ml-2">Not quite right? Give feedback to regenerate.</span>
                 </div>
               </div>
             )}
@@ -3474,9 +3480,9 @@ function LLMOutput({
       {/* Re-brief Modal */}
       {state.showRebriefModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-lg">
+          <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-6 w-full max-w-lg">
             <h3 className="text-xl font-bold mb-2">Creative Re-brief</h3>
-            <p className="text-slate-400 text-sm mb-4">
+            <p className="text-[#888] text-sm mb-4">
               Tell us what's not working and we'll regenerate with your feedback.
             </p>
             <textarea
@@ -3484,13 +3490,13 @@ function LLMOutput({
               onChange={(e) => updateState({ rebriefFeedback: e.target.value })}
               placeholder="e.g., 'The tone is too formal - make it more conversational' or 'Include more specific statistics' or 'The opening hook is weak'"
               rows={4}
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none mb-4"
+              className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none mb-4"
               autoFocus
             />
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => updateState({ showRebriefModal: false, rebriefFeedback: '' })}
-                className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-[#888] hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -3499,8 +3505,8 @@ function LLMOutput({
                 disabled={!state.rebriefFeedback.trim()}
                 className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                   state.rebriefFeedback.trim()
-                    ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                    : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                    ? 'bg-[#FFFF00] hover:bg-[#FFFF00] text-white'
+                    : 'bg-[#333] text-[#777] cursor-not-allowed'
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3546,13 +3552,13 @@ function LLMOutput({
                     {state.remixPersona.tagline}
                   </span>
                   {!state.remixExpanded && (
-                    <span className="text-xs text-slate-500">(click to expand)</span>
+                    <span className="text-xs text-[#777]">(click to expand)</span>
                   )}
                 </div>
-                <div className="text-xs text-slate-400 italic truncate">{state.remixPersona.quote}</div>
+                <div className="text-xs text-[#888] italic truncate">{state.remixPersona.quote}</div>
               </div>
               <svg
-                className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${state.remixExpanded ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 text-[#888] transition-transform flex-shrink-0 ${state.remixExpanded ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -3577,7 +3583,7 @@ function LLMOutput({
               </button>
               <button
                 onClick={onClearRemix}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-[#888] hover:text-white p-1"
                 title="Clear remix"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3589,8 +3595,8 @@ function LLMOutput({
           {state.remixExpanded && (
             <div className="p-6">
               {state.remixLoading ? (
-                <div className="flex items-center gap-3 text-slate-400">
-                  <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                <div className="flex items-center gap-3 text-[#888]">
+                  <div className="w-5 h-5 border-2 border-[#FF0066] border-t-transparent rounded-full animate-spin" />
                   <span>Regenerating remix...</span>
                 </div>
               ) : state.isEditingRemix ? (
@@ -3599,19 +3605,19 @@ function LLMOutput({
                   <textarea
                     value={state.editedRemix}
                     onChange={(e) => updateState({ editedRemix: e.target.value })}
-                    className="w-full h-96 px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white font-mono text-sm focus:border-purple-500 focus:outline-none resize-y"
+                    className="w-full h-96 px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-xl text-white font-mono text-sm focus:border-[#FF0066] focus:outline-none resize-y"
                     placeholder="Edit the remix..."
                   />
                   <div className="flex items-center justify-end gap-3">
                     <button
                       onClick={onCancelRemixEdit}
-                      className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                      className="px-4 py-2 text-[#888] hover:text-white transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={onSaveRemixEdit}
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm text-white transition-colors"
+                      className="px-4 py-2 bg-[#FF0066] hover:bg-[#FF0066] rounded-lg text-sm text-white transition-colors"
                     >
                       Save Changes
                     </button>
@@ -3620,13 +3626,13 @@ function LLMOutput({
               ) : (
                 /* Normal Remix View with Edit/Re-brief */
                 <div>
-                  <div className="markdown-output text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
+                  <div className="markdown-output text-[#aaa] leading-relaxed" dangerouslySetInnerHTML={{ __html: simpleMarkdown(state.remixedOutput || '') }} />
 
                   {/* Edit / Re-brief Buttons for Remix */}
-                  <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-700/50">
+                  <div className="flex items-center gap-3 mt-6 pt-4 border-t border-[#333]/50">
                     <button
                       onClick={() => updateState({ isEditingRemix: true, editedRemix: state.remixedOutput || '' })}
-                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                      className="px-4 py-2 bg-[#333] hover:bg-[#444] rounded-lg text-sm flex items-center gap-2 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -3635,14 +3641,14 @@ function LLMOutput({
                     </button>
                     <button
                       onClick={() => updateState({ showRebriefRemixModal: true })}
-                      className="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-600/50 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                      className="px-4 py-2 bg-[#FFFF00]/20 hover:bg-[#FFFF00]/30 text-[#FFFF00] border border-[#FFFF00]/50 rounded-lg text-sm flex items-center gap-2 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                       Re-brief & Regenerate
                     </button>
-                    <span className="text-xs text-slate-500 ml-2">Not quite right? Give feedback to regenerate.</span>
+                    <span className="text-xs text-[#777] ml-2">Not quite right? Give feedback to regenerate.</span>
                   </div>
                 </div>
               )}
@@ -3654,9 +3660,9 @@ function LLMOutput({
       {/* Re-brief Remix Modal */}
       {state.showRebriefRemixModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-full max-w-lg">
+          <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] p-6 w-full max-w-lg">
             <h3 className="text-xl font-bold mb-2">Re-brief the Remix</h3>
-            <p className="text-slate-400 text-sm mb-4">
+            <p className="text-[#888] text-sm mb-4">
               Tell us what's not working with {state.remixPersona?.name}'s version and we'll regenerate.
             </p>
             <textarea
@@ -3664,13 +3670,13 @@ function LLMOutput({
               onChange={(e) => updateState({ rebriefRemixFeedback: e.target.value })}
               placeholder="e.g., 'Don't mention price' or 'Make it shorter' or 'Add more urgency'"
               rows={4}
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none mb-4"
+              className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#444] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none mb-4"
               autoFocus
             />
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => updateState({ showRebriefRemixModal: false, rebriefRemixFeedback: '' })}
-                className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-[#888] hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -3679,8 +3685,8 @@ function LLMOutput({
                 disabled={!state.rebriefRemixFeedback.trim()}
                 className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                   state.rebriefRemixFeedback.trim()
-                    ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                    : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                    ? 'bg-[#FFFF00] hover:bg-[#FFFF00] text-white'
+                    : 'bg-[#333] text-[#777] cursor-not-allowed'
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3716,15 +3722,15 @@ function PersonasManager({
 }) {
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden border border-slate-700">
-        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+      <div className="bg-[#0D0D0D] rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden border border-[#333]">
+        <div className="p-6 border-b border-[#333] flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-3">
               👥 Target Personas
             </h2>
-            <p className="text-slate-400 mt-1">Generate AI personas or create your own. Select one to personalize your prompts.</p>
+            <p className="text-[#888] mt-1">Generate AI personas or create your own. Select one to personalize your prompts.</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-2">
+          <button onClick={onClose} className="text-[#888] hover:text-white p-2">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -3737,7 +3743,7 @@ function PersonasManager({
             <button
               onClick={onGenerate}
               disabled={isGenerating}
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg font-medium flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-medium flex items-center gap-2 disabled:opacity-50"
             >
               {isGenerating ? (
                 <>
@@ -3753,12 +3759,12 @@ function PersonasManager({
                 </>
               )}
             </button>
-            <p className="text-xs text-slate-500 mt-2">Generates 3 distinct buyer personas based on your industry and target audience</p>
+            <p className="text-xs text-[#777] mt-2">Generates 3 distinct buyer personas based on your industry and target audience</p>
           </div>
 
           {/* No Personas State */}
           {personas.length === 0 && !isGenerating && (
-            <div className="text-center py-12 text-slate-400">
+            <div className="text-center py-12 text-[#888]">
               <div className="text-5xl mb-4">👥</div>
               <p className="text-lg mb-2">No personas yet</p>
               <p className="text-sm">Generate AI personas based on your business, or create them manually.</p>
@@ -3773,17 +3779,17 @@ function PersonasManager({
                 onClick={() => onSelect(null)}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   selectedPersona === null
-                    ? 'border-purple-500 bg-purple-500/10'
-                    : 'border-slate-700 hover:border-slate-600'
+                    ? 'border-[#FF0066] bg-[#FF0066]/10'
+                    : 'border-[#333] hover:border-[#444]'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-2xl">
+                  <div className="w-12 h-12 rounded-full bg-[#333] flex items-center justify-center text-2xl">
                     🎯
                   </div>
                   <div>
                     <div className="font-semibold">General Audience</div>
-                    <div className="text-sm text-slate-400">No specific persona selected</div>
+                    <div className="text-sm text-[#888]">No specific persona selected</div>
                   </div>
                 </div>
               </button>
@@ -3794,8 +3800,8 @@ function PersonasManager({
                   key={persona.id}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedPersona?.id === persona.id
-                      ? 'border-purple-500 bg-purple-500/10'
-                      : 'border-slate-700 hover:border-slate-600'
+                      ? 'border-[#FF0066] bg-[#FF0066]/10'
+                      : 'border-[#333] hover:border-[#444]'
                   }`}
                 >
                   <button
@@ -3803,20 +3809,20 @@ function PersonasManager({
                     className="w-full text-left"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-2xl flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-[#FF0066] flex items-center justify-center text-2xl flex-shrink-0">
                         {persona.avatar_emoji || '👤'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-white">{persona.name}</div>
-                        <div className="text-sm text-purple-300">{persona.role}</div>
-                        <div className="text-sm text-slate-400 mt-1 line-clamp-2">{persona.description}</div>
+                        <div className="text-sm text-[#FF0066]">{persona.role}</div>
+                        <div className="text-sm text-[#888] mt-1 line-clamp-2">{persona.description}</div>
                       </div>
                     </div>
 
                     {/* Pain Points Preview */}
                     {persona.pain_points && persona.pain_points.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-slate-700">
-                        <div className="text-xs text-slate-500 mb-1">Pain Points:</div>
+                      <div className="mt-3 pt-3 border-t border-[#333]">
+                        <div className="text-xs text-[#777] mb-1">Pain Points:</div>
                         <div className="flex flex-wrap gap-1">
                           {persona.pain_points.slice(0, 2).map((point, i) => (
                             <span key={i} className="text-xs px-2 py-0.5 bg-red-500/20 text-red-300 rounded">
@@ -3824,7 +3830,7 @@ function PersonasManager({
                             </span>
                           ))}
                           {persona.pain_points.length > 2 && (
-                            <span className="text-xs text-slate-500">+{persona.pain_points.length - 2} more</span>
+                            <span className="text-xs text-[#777]">+{persona.pain_points.length - 2} more</span>
                           )}
                         </div>
                       </div>
@@ -3840,7 +3846,7 @@ function PersonasManager({
                           onDelete(persona.id);
                         }
                       }}
-                      className="text-xs text-slate-500 hover:text-red-400 transition-colors"
+                      className="text-xs text-[#777] hover:text-red-400 transition-colors"
                     >
                       Delete
                     </button>
@@ -3852,17 +3858,17 @@ function PersonasManager({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-700 flex justify-between items-center">
-          <div className="text-sm text-slate-400">
+        <div className="p-4 border-t border-[#333] flex justify-between items-center">
+          <div className="text-sm text-[#888]">
             {selectedPersona ? (
-              <span className="text-purple-300">✓ Writing for: {selectedPersona.name}</span>
+              <span className="text-[#FF0066]">✓ Writing for: {selectedPersona.name}</span>
             ) : (
               <span>No persona selected (general audience)</span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium"
+            className="px-4 py-2 bg-[#FF0066] hover:bg-[#FF0066] rounded-lg font-medium"
           >
             Done
           </button>
@@ -3898,19 +3904,19 @@ function RemixModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+      <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+        <div className="p-6 border-b border-[#333] flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="text-3xl">{mode === 'strategy' ? '🧠' : '🎨'}</span>
               {mode === 'strategy' ? 'Planning' : 'Creative'} Remix
             </h2>
-            <p className="text-slate-400 mt-1">
+            <p className="text-[#888] mt-1">
               Reimagine your output through the lens of a legendary {mode === 'strategy' ? 'strategist' : 'creative'}
             </p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-2" disabled={isLoading}>
+          <button onClick={onClose} className="text-[#888] hover:text-white p-2" disabled={isLoading}>
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -3921,11 +3927,11 @@ function RemixModal({
         {isLoading && (
           <div className="flex-1 flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="w-12 h-12 border-3 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-lg text-slate-300">
+              <div className="w-12 h-12 border-3 border-[#FF0066] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-lg text-[#aaa]">
                 {selectedId && personas.find(p => p.id === selectedId)?.fullName} is reimagining your content...
               </p>
-              <p className="text-sm text-slate-500 mt-2">This usually takes 10-20 seconds</p>
+              <p className="text-sm text-[#777] mt-2">This usually takes 10-20 seconds</p>
             </div>
           </div>
         )}
@@ -3935,7 +3941,7 @@ function RemixModal({
           <div className="flex-1 overflow-y-auto p-6">
             {/* Pure Strategists/Creatives */}
             <div className="mb-6">
-              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
+              <h3 className="text-sm font-semibold text-[#888] uppercase tracking-wide mb-3">
                 {mode === 'strategy' ? 'Pure Strategists' : 'Pure Creatives'}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -3947,7 +3953,7 @@ function RemixModal({
 
             {/* Hybrids */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
+              <h3 className="text-sm font-semibold text-[#888] uppercase tracking-wide mb-3">
                 Creative–Strategy Hybrids
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -3974,7 +3980,7 @@ function PersonaCard({
   return (
     <button
       onClick={() => onSelect(persona.id)}
-      className="text-left p-4 rounded-xl border-2 border-slate-700 hover:border-opacity-100 transition-all group bg-slate-900/50 hover:bg-slate-900"
+      className="text-left p-4 rounded-xl border-2 border-[#333] hover:border-opacity-100 transition-all group bg-[#0D0D0D]/50 hover:bg-[#0D0D0D]"
       style={{
         '--hover-border': persona.colors[0],
       } as React.CSSProperties}
@@ -4002,12 +4008,12 @@ function PersonaCard({
           >
             {persona.tagline}
           </div>
-          <div className="text-xs text-slate-500 mt-1 line-clamp-2">
+          <div className="text-xs text-[#777] mt-1 line-clamp-2">
             {persona.style}
           </div>
         </div>
       </div>
-      <div className="mt-3 text-xs text-slate-400 italic line-clamp-2">
+      <div className="mt-3 text-xs text-[#888] italic line-clamp-2">
         {persona.quote}
       </div>
     </button>
@@ -4055,9 +4061,9 @@ function PlanningReviewModal({
   ].filter(Boolean);
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-green-400';
+    if (score >= 8) return 'text-[#00ff66]';
     if (score >= 6) return 'text-yellow-400';
-    if (score >= 4) return 'text-orange-400';
+    if (score >= 4) return 'text-[#FFFF00]';
     return 'text-red-400';
   };
 
@@ -4070,20 +4076,20 @@ function PlanningReviewModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-[#1a1a1a] rounded-2xl border border-[#333] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-slate-700">
+        <div className="p-6 border-b border-[#333]">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-3">
                 <span className="text-3xl">📋</span>
                 Planning Review
               </h2>
-              <p className="text-slate-400 mt-1">
+              <p className="text-[#888] mt-1">
                 Review your strategy and creative idea before selecting media channels
               </p>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-white p-2" disabled={isLoading}>
+            <button onClick={onClose} className="text-[#888] hover:text-white p-2" disabled={isLoading}>
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -4094,44 +4100,44 @@ function PlanningReviewModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Strategic Foundation Summary */}
-          <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-            <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+          <div className="bg-[#0D0D0D]/50 rounded-xl p-4 border border-[#333]">
+            <h3 className="text-sm font-semibold text-[#FF0066] uppercase tracking-wide mb-3 flex items-center gap-2">
               <span>📋</span> Strategic Foundation
             </h3>
 
             <div className="space-y-3 text-sm">
               <div>
-                <span className="text-slate-500">Problem:</span>
-                <p className="text-white mt-1">{problemStatement || <span className="text-slate-500 italic">Not defined</span>}</p>
+                <span className="text-[#777]">Problem:</span>
+                <p className="text-white mt-1">{problemStatement || <span className="text-[#777] italic">Not defined</span>}</p>
               </div>
 
               <div>
-                <span className="text-slate-500">Audience:</span>
-                <p className="text-white mt-1">{targetAudience || <span className="text-slate-500 italic">Not defined</span>}</p>
+                <span className="text-[#777]">Audience:</span>
+                <p className="text-white mt-1">{targetAudience || <span className="text-[#777] italic">Not defined</span>}</p>
               </div>
 
               <div>
-                <span className="text-slate-500">Strategy:</span>
+                <span className="text-[#777]">Strategy:</span>
                 {strategy ? (
-                  <div className="mt-1 bg-slate-800 rounded-lg p-3 border border-slate-600">
+                  <div className="mt-1 bg-[#1a1a1a] rounded-lg p-3 border border-[#444]">
                     <p className="text-white font-medium">{strategy.name}</p>
-                    <p className="text-slate-300 text-xs mt-1">{strategy.core_message}</p>
+                    <p className="text-[#aaa] text-xs mt-1">{strategy.core_message}</p>
                   </div>
                 ) : (
-                  <p className="text-slate-500 italic mt-1">No strategy selected</p>
+                  <p className="text-[#777] italic mt-1">No strategy selected</p>
                 )}
               </div>
 
               {state.selectedCreativeIdea && (
                 <div>
-                  <span className="text-slate-500">Creative Idea:</span>
-                  <div className="mt-1 bg-pink-500/10 rounded-lg p-3 border border-pink-500/30">
-                    <p className="text-pink-300 font-medium">{state.selectedCreativeIdea.name}</p>
-                    <p className="text-slate-300 text-xs mt-1">{state.selectedCreativeIdea.summary}</p>
+                  <span className="text-[#777]">Creative Idea:</span>
+                  <div className="mt-1 bg-[#FF0066]/10 rounded-lg p-3 border border-[#FF0066]/30">
+                    <p className="text-[#FF0066] font-medium">{state.selectedCreativeIdea.name}</p>
+                    <p className="text-[#aaa] text-xs mt-1">{state.selectedCreativeIdea.summary}</p>
                     {state.selectedCreativeIdea.tone_and_feel?.length > 0 && (
                       <div className="flex gap-2 mt-2">
                         {state.selectedCreativeIdea.tone_and_feel.slice(0, 3).map((tone, i) => (
-                          <span key={i} className="text-xs text-pink-400">#{tone}</span>
+                          <span key={i} className="text-xs text-[#FF0066]">#{tone}</span>
                         ))}
                       </div>
                     )}
@@ -4141,11 +4147,11 @@ function PlanningReviewModal({
 
               {mandatories.length > 0 && (
                 <div>
-                  <span className="text-slate-500">Mandatories:</span>
+                  <span className="text-[#777]">Mandatories:</span>
                   <ul className="mt-1 space-y-1">
                     {mandatories.map((m, i) => (
                       <li key={i} className="text-white flex items-start gap-2">
-                        <span className="text-purple-400">•</span> {m}
+                        <span className="text-[#FF0066]">•</span> {m}
                       </li>
                     ))}
                   </ul>
@@ -4156,13 +4162,13 @@ function PlanningReviewModal({
 
           {/* AI Assessment */}
           {isLoading ? (
-            <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700 text-center">
-              <div className="w-10 h-10 border-3 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-slate-300">Planning Director is reviewing your brief...</p>
+            <div className="bg-[#0D0D0D]/50 rounded-xl p-6 border border-[#333] text-center">
+              <div className="w-10 h-10 border-3 border-[#FF0066] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-[#aaa]">Planning Director is reviewing your brief...</p>
             </div>
           ) : result ? (
-            <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-              <h3 className="text-sm font-semibold text-blue-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <div className="bg-[#0D0D0D]/50 rounded-xl p-4 border border-[#333]">
+              <h3 className="text-sm font-semibold text-[#FF0066] uppercase tracking-wide mb-3 flex items-center gap-2">
                 <span>🤖</span> AI Assessment
               </h3>
 
@@ -4175,22 +4181,22 @@ function PlanningReviewModal({
                   <p className={`font-semibold ${getScoreColor(result.score)}`}>
                     {getScoreLabel(result.score)}
                   </p>
-                  <p className="text-sm text-slate-400">Brief Quality Score</p>
+                  <p className="text-sm text-[#888]">Brief Quality Score</p>
                 </div>
               </div>
 
               {/* Assessment */}
-              <p className="text-slate-300 mb-4">{result.assessment}</p>
+              <p className="text-[#aaa] mb-4">{result.assessment}</p>
 
               {/* Suggestions */}
               {result.suggestions.length > 0 && result.score < 8 && (
                 <div>
-                  <p className="text-sm text-slate-500 mb-2">Suggestions:</p>
+                  <p className="text-sm text-[#777] mb-2">Suggestions:</p>
                   <ul className="space-y-2">
                     {result.suggestions.map((suggestion, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
                         <span className="text-yellow-400 mt-0.5">💡</span>
-                        <span className="text-slate-300">{suggestion}</span>
+                        <span className="text-[#aaa]">{suggestion}</span>
                       </li>
                     ))}
                   </ul>
@@ -4201,12 +4207,12 @@ function PlanningReviewModal({
         </div>
 
         {/* Actions */}
-        <div className="p-6 border-t border-slate-700 bg-slate-900/50">
+        <div className="p-6 border-t border-[#333] bg-[#0D0D0D]/50">
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={onApprove}
               disabled={isLoading}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3 bg-[#00ff66] hover:bg-white text-black text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -4217,7 +4223,7 @@ function PlanningReviewModal({
             <button
               onClick={onRefine}
               disabled={isLoading}
-              className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3 bg-[#333] hover:bg-[#444] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -4229,7 +4235,7 @@ function PlanningReviewModal({
           <button
             onClick={onSkip}
             disabled={isLoading}
-            className="w-full mt-3 px-4 py-2 text-slate-400 hover:text-white text-sm transition-colors disabled:opacity-50"
+            className="w-full mt-3 px-4 py-2 text-[#888] hover:text-white text-sm transition-colors disabled:opacity-50"
           >
             Skip review (not recommended)
           </button>
@@ -4283,7 +4289,7 @@ function MyLibrary({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -4293,25 +4299,25 @@ function MyLibrary({
 
       <div className="text-center">
         <h2 className="text-3xl font-bold mb-2">My Library</h2>
-        <p className="text-slate-400">Your saved marketing content</p>
+        <p className="text-[#888]">Your saved marketing content</p>
       </div>
 
       {state.libraryLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#FF0066] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : state.savedItems.length === 0 ? (
-        <div className="text-center py-12 bg-slate-800/50 rounded-2xl border border-slate-700">
-          <div className="w-16 h-16 rounded-2xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-12 bg-[#1a1a1a]/50 rounded-2xl border border-[#333]">
+          <div className="w-16 h-16 rounded-2xl bg-[#333] flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[#777]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
           </div>
           <h3 className="text-xl font-semibold mb-2">No saved content yet</h3>
-          <p className="text-slate-400 mb-4">Run a prompt and click "Save to Library" to save it here</p>
+          <p className="text-[#888] mb-4">Run a prompt and click "Save to Library" to save it here</p>
           <button
             onClick={goBack}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium transition-colors"
+            className="px-6 py-3 bg-[#FF0066] hover:bg-[#FF0066] rounded-lg font-medium transition-colors"
           >
             Start Creating
           </button>
@@ -4319,28 +4325,28 @@ function MyLibrary({
       ) : (
         <div className="space-y-4">
           {state.savedItems.map((item) => (
-            <div key={item.id} className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <div key={item.id} className="bg-[#1a1a1a] rounded-xl border border-[#333] overflow-hidden">
               <div
-                className="p-4 cursor-pointer hover:bg-slate-700/50 transition-colors"
+                className="p-4 cursor-pointer hover:bg-[#333]/50 transition-colors"
                 onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center text-xl">
+                    <div className="w-10 h-10 rounded-lg bg-[#333] flex items-center justify-center text-xl">
                       {getDisciplineIcon(item.discipline)}
                     </div>
                     <div>
                       <h3 className="font-semibold text-white">{item.title}</h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${item.mode === 'strategy' ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${item.mode === 'strategy' ? 'bg-[#FF0066]/20 text-[#FF0066]' : 'bg-[#00ff66]/20 text-[#00ff66]'}`}>
                           {item.mode === 'strategy' ? '📋 Planning' : '🎨 Creative'}
                         </span>
-                        <span className="text-xs text-slate-500">{formatDate(item.created_at)}</span>
+                        <span className="text-xs text-[#777]">{formatDate(item.created_at)}</span>
                       </div>
                     </div>
                   </div>
                   <svg
-                    className={`w-5 h-5 text-slate-400 transition-transform ${expandedItem === item.id ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-[#888] transition-transform ${expandedItem === item.id ? 'rotate-180' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -4351,18 +4357,18 @@ function MyLibrary({
               </div>
 
               {expandedItem === item.id && (
-                <div className="border-t border-slate-700">
-                  <div className="p-4 bg-slate-900/50">
-                    <div className="markdown-output text-slate-300 text-sm leading-relaxed max-h-96 overflow-y-auto" dangerouslySetInnerHTML={{ __html: simpleMarkdown(item.content) }} />
+                <div className="border-t border-[#333]">
+                  <div className="p-4 bg-[#0D0D0D]/50">
+                    <div className="markdown-output text-[#aaa] text-sm leading-relaxed max-h-96 overflow-y-auto" dangerouslySetInnerHTML={{ __html: simpleMarkdown(item.content) }} />
                   </div>
-                  <div className="p-4 border-t border-slate-700 flex items-center justify-between">
+                  <div className="p-4 border-t border-[#333] flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           copyToClipboard(item.content, item.id);
                         }}
-                        className={`px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === item.id ? 'text-green-400' : ''}`}
+                        className={`px-3 py-1.5 bg-[#333] hover:bg-[#444] rounded-lg text-sm flex items-center gap-2 transition-colors ${state.copiedId === item.id ? 'text-[#00ff66]' : ''}`}
                       >
                         {state.copiedId === item.id ? (
                           <>
@@ -4383,7 +4389,7 @@ function MyLibrary({
                     </div>
                     {deleteConfirm === item.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-400">Delete?</span>
+                        <span className="text-sm text-[#888]">Delete?</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -4399,7 +4405,7 @@ function MyLibrary({
                             e.stopPropagation();
                             setDeleteConfirm(null);
                           }}
-                          className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                          className="px-3 py-1.5 bg-[#333] hover:bg-[#444] rounded-lg text-sm transition-colors"
                         >
                           No
                         </button>
@@ -4449,17 +4455,17 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         <div className="flex items-center gap-3 mb-4">
           <div className="tag tag-pink">{(state.currentProject?.name || state.brand).toUpperCase()}</div>
           <span className="text-[#333] font-display">//</span>
-          <span className="text-[#666] text-sm font-display tracking-wider">{(state.currentProject?.industry || state.industry).toUpperCase()}</span>
+          <span className="text-[#888] text-sm font-display tracking-wider">{(state.currentProject?.industry || state.industry).toUpperCase()}</span>
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className="ml-auto text-[#666] hover:text-[#f7ff00] font-display text-xs tracking-wider transition-colors"
+            className="ml-auto text-[#888] hover:text-[#FFFF00] font-display text-xs tracking-wider transition-colors"
             title="API Settings"
           >
             ⚙ SETTINGS
           </button>
         </div>
-        <h2 className="headline-lg text-white">WHAT'S YOUR</h2>
-        <h2 className="headline-lg text-[#ff1493] -mt-2">SITUATION?</h2>
+        <h2 className="headline-lg text-white">WHAT KIND OF</h2>
+        <h2 className="headline-lg text-[#FF0066] -mt-2">TROUBLE?</h2>
       </div>
 
       {/* Collapsible API Settings */}
@@ -4467,22 +4473,22 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         <div className="mb-8 p-4 bg-[#1a1a1a] border-2 border-[#333]">
           <div className="flex items-center justify-between mb-4">
             <label className="text-xs font-display tracking-[0.2em] text-white">AI PROVIDER</label>
-            <button onClick={() => setShowSettings(false)} className="text-[#666] hover:text-white font-display text-xs">✕ CLOSE</button>
+            <button onClick={() => setShowSettings(false)} className="text-[#888] hover:text-white font-display text-xs">✕ CLOSE</button>
           </div>
           <div className="flex gap-2 mb-4">
-            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>GEMINI (FREE)</button>
-            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#f7ff00] bg-[#f7ff00]/10 text-[#f7ff00]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>OPENAI</button>
-            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#ff1493] bg-[#ff1493]/10 text-[#ff1493]' : 'border-[#333] text-[#666] hover:border-[#666]'}`}>ANTHROPIC</button>
+            <button onClick={() => setProvider('gemini')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'gemini' ? 'border-[#00ff66] bg-[#00ff66]/10 text-[#00ff66]' : 'border-[#333] text-[#888] hover:border-[#666]'}`}>GEMINI (FREE)</button>
+            <button onClick={() => setProvider('openai')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'openai' ? 'border-[#FFFF00] bg-[#FFFF00]/10 text-[#FFFF00]' : 'border-[#333] text-[#888] hover:border-[#666]'}`}>OPENAI</button>
+            <button onClick={() => setProvider('anthropic')} className={`flex-1 px-4 py-3 font-display text-xs tracking-wider border-2 transition-all ${state.llmProvider === 'anthropic' ? 'border-[#FF0066] bg-[#FF0066]/10 text-[#FF0066]' : 'border-[#333] text-[#888] hover:border-[#666]'}`}>ANTHROPIC</button>
           </div>
           {state.llmProvider === 'gemini' ? (
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-300 ${state.freePromptsUsed >= state.promptsLimit ? 'bg-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-[#f7ff00]' : 'bg-[#00ff66]'}`}
+                  className={`h-full transition-all duration-300 ${state.freePromptsUsed >= state.promptsLimit ? 'bg-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'bg-[#FFFF00]' : 'bg-[#00ff66]'}`}
                   style={{ width: `${Math.min((state.freePromptsUsed / state.promptsLimit) * 100, 100)}%` }}
                 />
               </div>
-              <span className={`text-xs font-mono ${state.freePromptsUsed >= state.promptsLimit ? 'text-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-[#f7ff00]' : 'text-[#00ff66]'}`}>
+              <span className={`text-xs font-mono ${state.freePromptsUsed >= state.promptsLimit ? 'text-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-[#FFFF00]' : 'text-[#00ff66]'}`}>
                 {state.promptsLimit - state.freePromptsUsed} LEFT
               </span>
             </div>
@@ -4498,7 +4504,7 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
                 placeholder={state.llmProvider === 'openai' ? 'sk-...' : 'sk-ant-...'}
                 className="input-raw w-full text-sm"
               />
-              <p className="text-xs text-[#666] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
+              <p className="text-xs text-[#888] mt-2 font-mono">// Stored locally. Never leaves your browser.</p>
             </>
           )}
         </div>
@@ -4508,22 +4514,22 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         {/* Discovery Mode */}
         <button
           onClick={() => onSelectMode('discovery')}
-          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#ff1493] group relative"
+          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0D0D0D] hover:border-[#FF0066] group relative"
         >
-          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#ff1493]/20 transition-colors">01</div>
+          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#FF0066]/20 transition-colors">01</div>
           <div className="relative z-10">
             <div className="text-4xl mb-4">🧭</div>
-            <div className="font-display text-xl text-white group-hover:text-[#ff1493] transition-colors tracking-wide">"I HAVE A PROBLEM"</div>
-            <div className="text-[#666] text-sm mt-2 mb-4">Guide me to the right strategy</div>
-            <div className="text-xs text-[#666] space-y-1 font-mono">
+            <div className="font-display text-xl text-white group-hover:text-[#FF0066] transition-colors tracking-wide">"WE'RE LOST"</div>
+            <div className="text-[#888] text-sm mt-2 mb-4">Find the angle that wins</div>
+            <div className="text-xs text-[#888] space-y-1 font-mono">
               <div className="flex items-center gap-2">
-                <span className="text-[#ff1493]">→</span> New campaigns
+                <span className="text-[#FF0066]">→</span> No clear direction
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#ff1493]">→</span> Uncertain goals
+                <span className="text-[#FF0066]">→</span> Need the big idea
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#ff1493]">→</span> Strategic planning
+                <span className="text-[#FF0066]">→</span> Strategy first
               </div>
             </div>
           </div>
@@ -4532,22 +4538,22 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         {/* Directed Mode */}
         <button
           onClick={() => onSelectMode('directed')}
-          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#00ff66] group relative"
+          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0D0D0D] hover:border-[#00ff66] group relative"
         >
           <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#00ff66]/20 transition-colors">02</div>
           <div className="relative z-10">
-            <div className="text-4xl mb-4">🚀</div>
-            <div className="font-display text-xl text-white group-hover:text-[#00ff66] transition-colors tracking-wide">"I KNOW WHAT I NEED"</div>
-            <div className="text-[#666] text-sm mt-2 mb-4">Let me execute quickly</div>
-            <div className="text-xs text-[#666] space-y-1 font-mono">
+            <div className="text-4xl mb-4">🎯</div>
+            <div className="font-display text-xl text-white group-hover:text-[#00ff66] transition-colors tracking-wide">"WE KNOW THE TARGET"</div>
+            <div className="text-[#888] text-sm mt-2 mb-4">Skip the talk. Make the work.</div>
+            <div className="text-xs text-[#888] space-y-1 font-mono">
               <div className="flex items-center gap-2">
-                <span className="text-[#00ff66]">→</span> Repeat tasks
+                <span className="text-[#00ff66]">→</span> Clear objective
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#00ff66]">→</span> Clear objectives
+                <span className="text-[#00ff66]">→</span> Deadline breathing down
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#00ff66]">→</span> Fast turnaround
+                <span className="text-[#00ff66]">→</span> Execute now
               </div>
             </div>
           </div>
@@ -4556,29 +4562,29 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
         {/* Upload Mode */}
         <button
           onClick={() => onSelectMode('upload')}
-          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0a0a0a] hover:border-[#f7ff00] group relative"
+          className="p-6 border-2 border-[#333] -ml-[2px] -mt-[2px] transition-all text-left bg-[#1a1a1a] hover:bg-[#0D0D0D] hover:border-[#FFFF00] group relative"
         >
-          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#f7ff00]/20 transition-colors">03</div>
+          <div className="absolute top-4 right-4 font-display text-5xl text-[#1a1a1a] group-hover:text-[#FFFF00]/20 transition-colors">03</div>
           <div className="relative z-10">
             <div className="text-4xl mb-4">📄</div>
-            <div className="font-display text-xl text-white group-hover:text-[#f7ff00] transition-colors tracking-wide">"I HAVE A BRIEF"</div>
-            <div className="text-[#666] text-sm mt-2 mb-4">Upload your creative brief</div>
-            <div className="text-xs text-[#666] space-y-1 font-mono">
+            <div className="font-display text-xl text-white group-hover:text-[#FFFF00] transition-colors tracking-wide">"WE HAVE THE BRIEF"</div>
+            <div className="text-[#888] text-sm mt-2 mb-4">The client already wrote it</div>
+            <div className="text-xs text-[#888] space-y-1 font-mono">
               <div className="flex items-center gap-2">
-                <span className="text-[#f7ff00]">→</span> PDF, Word, or text
+                <span className="text-[#FFFF00]">→</span> Drop the PDF
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#f7ff00]">→</span> Auto-extract fields
+                <span className="text-[#FFFF00]">→</span> We'll extract the gold
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#f7ff00]">→</span> Agency workflows
+                <span className="text-[#FFFF00]">→</span> Agency-style handoff
               </div>
             </div>
           </div>
         </button>
       </div>
 
-      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#666] hover:text-[#f7ff00] transition-colors font-display tracking-wider">
+      <button onClick={goBack} className="mt-12 mx-auto flex items-center gap-3 text-[#888] hover:text-[#FFFF00] transition-colors font-display tracking-wider">
         ← BACK
       </button>
     </div>
@@ -4607,13 +4613,13 @@ function DiscoveryProgressBar({ currentStep }: { currentStep: number }) {
                   step.num < currentStep
                     ? 'bg-[#00ff66] text-black border-[#00ff66]'
                     : step.num === currentStep
-                    ? 'bg-[#f7ff00] text-black border-[#f7ff00]'
-                    : 'bg-[#1a1a1a] text-[#444] border-[#333]'
+                    ? 'bg-[#FFFF00] text-black border-[#FFFF00]'
+                    : 'bg-[#1a1a1a] text-[#777] border-[#333]'
                 }`}
               >
                 {step.num < currentStep ? '✓' : step.num}
               </div>
-              <span className={`text-[10px] mt-2 font-display tracking-wider ${step.num === currentStep ? 'text-[#f7ff00]' : step.num < currentStep ? 'text-[#00ff66]' : 'text-[#444]'}`}>
+              <span className={`text-[10px] mt-2 font-display tracking-wider ${step.num === currentStep ? 'text-[#FFFF00]' : step.num < currentStep ? 'text-[#00ff66]' : 'text-[#777]'}`}>
                 {step.label}
               </span>
             </div>
@@ -4661,12 +4667,12 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
   };
 
   const stepTitles: Record<number, { title: string; subtitle: string }> = {
-    1: { title: 'THE PROBLEM', subtitle: "What are we fighting?" },
-    2: { title: 'THE AUDIENCE', subtitle: 'Who are we talking to?' },
-    3: { title: 'THE PROPOSITION', subtitle: 'What are we selling?' },
-    4: { title: 'THE DETAILS', subtitle: 'How should it feel?' },
-    5: { title: 'THE MEASURES', subtitle: 'How do we win?' },
-    6: { title: 'THE REVIEW', subtitle: 'Final sanity check' },
+    1: { title: 'THE PROBLEM', subtitle: "What's keeping them up at night?" },
+    2: { title: 'THE AUDIENCE', subtitle: 'Who are we hunting?' },
+    3: { title: 'THE PROPOSITION', subtitle: "What's the one thing they'll remember?" },
+    4: { title: 'THE DETAILS', subtitle: 'The rules of engagement' },
+    5: { title: 'THE MEASURES', subtitle: 'How we keep score' },
+    6: { title: 'THE REVIEW', subtitle: 'Last chance to sharpen it' },
   };
 
   const canProceed = () => {
@@ -4708,9 +4714,9 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
     <div className="max-w-2xl mx-auto">
       {/* Header with brand context */}
       <div className="text-center mb-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
-          <span>Building Your Brief</span>
-          <span className="text-slate-500">•</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF0066]/20 text-[#FF0066] rounded-full text-sm mb-4">
+          <span>WRITING THE BRIEF</span>
+          <span className="text-[#777]">•</span>
           <span>{state.currentProject?.name || state.brand}</span>
         </div>
       </div>
@@ -4720,43 +4726,43 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
 
       {/* Step Title */}
       <div className="text-center mb-6">
-        <div className="text-sm text-purple-400 mb-1">Step {step} of 6</div>
-        <h2 className="text-2xl font-bold mb-2">{stepTitles[step].title}</h2>
-        <p className="text-slate-400">{stepTitles[step].subtitle}</p>
+        <div className="text-sm text-[#FF0066] font-mono uppercase tracking-wider mb-1">Step {step} of 6</div>
+        <h2 className="text-2xl font-display font-bold mb-2">{stepTitles[step].title}</h2>
+        <p className="text-[#888]">{stepTitles[step].subtitle}</p>
       </div>
 
       {/* Step Content */}
-      <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 mb-6">
+      <div className="bg-[#1a1a1a]/50 rounded-2xl p-6 border border-[#333] mb-6">
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Campaign Name *</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">CAMPAIGN NAME *</label>
               <input
                 type="text"
                 value={state.discoveryBrief.campaignName}
                 onChange={(e) => updateBrief('campaignName', e.target.value)}
-                placeholder="e.g., Q2 Pipeline Growth, Brand Awareness Push"
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                placeholder="Give it a name that'll stick"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">What's the business problem? *</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S BROKEN? *</label>
               <textarea
                 value={state.discoveryBrief.businessProblem}
                 onChange={(e) => updateBrief('businessProblem', e.target.value)}
-                placeholder="Describe the challenge you're trying to solve. What's not working? What opportunity are you trying to capture?"
+                placeholder="Tell it straight. What's the pain? What opportunity is slipping through your fingers?"
                 rows={4}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">What's been tried before?</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S BEEN TRIED?</label>
               <textarea
                 value={state.discoveryBrief.whatBeenTried}
                 onChange={(e) => updateBrief('whatBeenTried', e.target.value)}
-                placeholder="Previous approaches, what worked or didn't work..."
+                placeholder="What didn't work? Don't repeat their mistakes."
                 rows={2}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none"
               />
             </div>
           </div>
@@ -4765,27 +4771,27 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Who is your target audience? *</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">WHO ARE WE AFTER? *</label>
               <textarea
                 value={state.discoveryBrief.targetAudience}
                 onChange={(e) => updateBrief('targetAudience', e.target.value)}
-                placeholder="Describe who you're trying to reach. Include demographics, psychographics, behaviors, pain points..."
+                placeholder="Paint the picture. Who are they? What keeps them up at night? Where do they hang out?"
                 rows={4}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none"
               />
-              <p className="text-xs text-slate-500 mt-2">
-                Tip: Be specific. "Enterprise IT decision-makers frustrated with legacy systems" is better than "businesses"
+              <p className="text-xs text-[#777] mt-2">
+                "Enterprise IT decision-makers frustrated with legacy systems" beats "businesses" every time.
               </p>
             </div>
             {state.personas.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Or select from your personas:</label>
+                <label className="block text-sm font-medium text-[#aaa] mb-2">OR PICK YOUR PREY:</label>
                 <div className="flex flex-wrap gap-2">
                   {state.personas.map(p => (
                     <button
                       key={p.id}
                       onClick={() => updateBrief('targetAudience', `${p.name} - ${p.role}: ${p.description || ''}`)}
-                      className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+                      className="px-3 py-1.5 bg-[#333] hover:bg-[#444] rounded-lg text-sm transition-colors"
                     >
                       {p.avatar_emoji || '👤'} {p.name}
                     </button>
@@ -4799,22 +4805,22 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">What's your core proposition? *</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">THE SINGLE-MINDED PROPOSITION *</label>
               <textarea
                 value={state.discoveryBrief.proposition}
                 onChange={(e) => updateBrief('proposition', e.target.value)}
-                placeholder="The single most important thing you want your audience to think, feel, or do. This is your key message or promise."
+                placeholder="One thing. THE thing. What will make them stop, look, and act?"
                 rows={3}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Support points / Reasons to believe</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">PROOF POINTS</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
-                  placeholder="Add a proof point and press Enter..."
-                  className="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  placeholder="What makes this bulletproof? Hit Enter to add."
+                  className="flex-1 px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && e.currentTarget.value.trim()) {
                       updateBrief('support', [...(state.discoveryBrief.support || []), e.currentTarget.value.trim()]);
@@ -4826,18 +4832,18 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
               {state.discoveryBrief.support && state.discoveryBrief.support.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {state.discoveryBrief.support.map((point, i) => (
-                    <span key={i} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm flex items-center gap-2">
+                    <span key={i} className="px-3 py-1 bg-[#FF0066]/20 text-[#FF0066] rounded-full text-sm flex items-center gap-2">
                       {point}
                       <button
                         onClick={() => updateBrief('support', state.discoveryBrief.support.filter((_, idx) => idx !== i))}
-                        className="text-purple-400 hover:text-white"
+                        className="text-[#FF0066] hover:text-white"
                       >×</button>
                     </span>
                   ))}
                 </div>
               )}
-              <p className="text-xs text-slate-500 mt-2">
-                Why should they believe your proposition? Add facts, features, or proof points.
+              <p className="text-xs text-[#777] mt-2">
+                Facts. Features. Testimonials. The ammunition that backs up your claim.
               </p>
             </div>
           </div>
@@ -4846,22 +4852,22 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
         {step === 4 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Tone of voice</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">THE VOICE</label>
               <input
                 type="text"
                 value={state.discoveryBrief.tone}
                 onChange={(e) => updateBrief('tone', e.target.value)}
-                placeholder="e.g., Professional but approachable, Bold and provocative, Warm and empathetic..."
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                placeholder="Swagger? Warmth? Authority? How should this thing sound?"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Mandatories (must-include elements)</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">NON-NEGOTIABLES</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
-                  placeholder="Add a mandatory and press Enter..."
-                  className="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  placeholder="What MUST appear? Hit Enter."
+                  className="flex-1 px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && e.currentTarget.value.trim()) {
                       updateBrief('mandatories', [...(state.discoveryBrief.mandatories || []), e.currentTarget.value.trim()]);
@@ -4873,11 +4879,11 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
               {state.discoveryBrief.mandatories && state.discoveryBrief.mandatories.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {state.discoveryBrief.mandatories.map((item, i) => (
-                    <span key={i} className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm flex items-center gap-2">
+                    <span key={i} className="px-3 py-1 bg-[#FFFF00]/20 text-[#FFFF00] rounded-full text-sm flex items-center gap-2">
                       {item}
                       <button
                         onClick={() => updateBrief('mandatories', state.discoveryBrief.mandatories.filter((_, idx) => idx !== i))}
-                        className="text-amber-400 hover:text-white"
+                        className="text-[#FFFF00] hover:text-white"
                       >×</button>
                     </span>
                   ))}
@@ -4885,18 +4891,18 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Constraints (things to avoid)</label>
+              <label className="block text-sm font-medium text-[#aaa] mb-2">THE LANDMINES</label>
               <textarea
                 value={state.discoveryBrief.constraints}
                 onChange={(e) => updateBrief('constraints', e.target.value)}
-                placeholder="Legal restrictions, competitor comparisons to avoid, off-brand topics..."
+                placeholder="What will get us killed? Legal traps, off-limits topics, sacred cows..."
                 rows={2}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none resize-none"
               />
             </div>
             <button
               onClick={nextStep}
-              className="w-full py-2 text-slate-400 hover:text-white text-sm transition-colors"
+              className="w-full py-2 text-[#888] hover:text-white text-sm transition-colors"
             >
               Skip this step →
             </button>
@@ -4907,44 +4913,44 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Success Metric</label>
+                <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT COUNTS AS A WIN?</label>
                 <input
                   type="text"
                   value={state.discoveryBrief.successMetric}
                   onChange={(e) => updateBrief('successMetric', e.target.value)}
-                  placeholder="e.g., Pipeline value, Leads, Revenue"
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  placeholder="Pipeline, leads, revenue, awareness..."
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Target Value</label>
+                <label className="block text-sm font-medium text-[#aaa] mb-2">THE MAGIC NUMBER</label>
                 <input
                   type="text"
                   value={state.discoveryBrief.successMetricValue}
                   onChange={(e) => updateBrief('successMetricValue', e.target.value)}
-                  placeholder="e.g., $2.6M, 500 leads"
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  placeholder="$2.6M, 500 leads, 10x..."
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Timeline</label>
+                <label className="block text-sm font-medium text-[#aaa] mb-2">DEADLINE</label>
                 <input
                   type="date"
                   value={state.discoveryBrief.timeline}
                   onChange={(e) => updateBrief('timeline', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Budget</label>
+                <label className="block text-sm font-medium text-[#aaa] mb-2">WAR CHEST</label>
                 <select
                   value={state.discoveryBrief.budget}
                   onChange={(e) => updateBrief('budget', e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-purple-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FF0066] focus:outline-none"
                 >
-                  <option value="">Select budget range</option>
+                  <option value="">How deep are the pockets?</option>
                   <option value="<5k">Less than $5K</option>
                   <option value="5k-25k">$5K - $25K</option>
                   <option value="25k-100k">$25K - $100K</option>
@@ -4954,7 +4960,7 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
             </div>
             <button
               onClick={nextStep}
-              className="w-full py-2 text-slate-400 hover:text-white text-sm transition-colors"
+              className="w-full py-2 text-[#888] hover:text-white text-sm transition-colors"
             >
               Skip this step →
             </button>
@@ -4964,16 +4970,16 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
         {step === 6 && (
           <div className="space-y-4">
             {/* Brief Completeness Score */}
-            <div className="p-4 bg-slate-900/50 rounded-xl mb-4">
+            <div className="p-4 bg-[#0D0D0D]/50 rounded-xl mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-300">Brief Completeness</span>
-                <span className={`text-sm font-bold ${calculateCompleteness() >= 80 ? 'text-green-400' : calculateCompleteness() >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                <span className="text-sm font-medium text-[#aaa]">BRIEF FIREPOWER</span>
+                <span className={`text-sm font-bold ${calculateCompleteness() >= 80 ? 'text-[#00ff66]' : calculateCompleteness() >= 50 ? 'text-[#FFFF00]' : 'text-[#FF0066]'}`}>
                   {calculateCompleteness()}%
                 </span>
               </div>
-              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-[#333] rounded-full overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-300 ${calculateCompleteness() >= 80 ? 'bg-green-500' : calculateCompleteness() >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                  className={`h-full transition-all duration-300 ${calculateCompleteness() >= 80 ? 'bg-[#00ff66]' : calculateCompleteness() >= 50 ? 'bg-[#FFFF00]' : 'bg-[#FF0066]'}`}
                   style={{ width: `${calculateCompleteness()}%` }}
                 />
               </div>
@@ -4981,46 +4987,46 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
 
             {/* Brief Summary */}
             <div className="space-y-3">
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Campaign</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">CAMPAIGN</span>
                 <span className="text-white text-sm text-right max-w-[60%]">{state.discoveryBrief.campaignName || '-'}</span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Problem</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">THE PROBLEM</span>
                 <span className="text-white text-sm text-right max-w-[60%] line-clamp-2">{state.discoveryBrief.businessProblem || '-'}</span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Audience</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">THE TARGET</span>
                 <span className="text-white text-sm text-right max-w-[60%] line-clamp-2">{state.discoveryBrief.targetAudience || '-'}</span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Proposition</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">THE HOOK</span>
                 <span className="text-white text-sm text-right max-w-[60%] line-clamp-2">{state.discoveryBrief.proposition || '-'}</span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Support Points</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">PROOF</span>
                 <span className="text-white text-sm text-right max-w-[60%]">
                   {state.discoveryBrief.support?.length ? `${state.discoveryBrief.support.length} point(s)` : '-'}
                 </span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Tone</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">THE VOICE</span>
                 <span className="text-white text-sm text-right max-w-[60%]">{state.discoveryBrief.tone || '-'}</span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Mandatories</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">MUST-HAVES</span>
                 <span className="text-white text-sm text-right max-w-[60%]">
                   {state.discoveryBrief.mandatories?.length ? `${state.discoveryBrief.mandatories.length} item(s)` : '-'}
                 </span>
               </div>
-              <div className="flex justify-between items-start py-2 border-b border-slate-700">
-                <span className="text-slate-400 text-sm">Success Metric</span>
+              <div className="flex justify-between items-start py-2 border-b border-[#333]">
+                <span className="text-[#888] text-sm">THE WIN</span>
                 <span className="text-white text-sm text-right max-w-[60%]">
                   {state.discoveryBrief.successMetric ? `${state.discoveryBrief.successMetric}: ${state.discoveryBrief.successMetricValue || 'TBD'}` : '-'}
                 </span>
               </div>
               <div className="flex justify-between items-start py-2">
-                <span className="text-slate-400 text-sm">Timeline / Budget</span>
+                <span className="text-[#888] text-sm">DEADLINE / WAR CHEST</span>
                 <span className="text-white text-sm text-right max-w-[60%]">
                   {state.discoveryBrief.timeline || '-'} / {state.discoveryBrief.budget || '-'}
                 </span>
@@ -5032,33 +5038,30 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
 
       {/* Navigation */}
       <div className="flex items-center justify-between">
-        <button onClick={prevStep} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={prevStep} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back
+          BACK
         </button>
 
         {step < 6 ? (
           <button
             onClick={nextStep}
             disabled={!canProceed()}
-            className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+            className={`px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
               canProceed()
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                ? 'bg-[#FFFF00] text-black hover:bg-white'
+                : 'bg-[#333] text-[#777] cursor-not-allowed'
             }`}
           >
-            Next
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            NEXT →
           </button>
         ) : (
           <button
             onClick={onComplete}
             disabled={state.messageStrategiesLoading}
-            className="px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
+            className="px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all bg-[#FFFF00] text-black hover:bg-white"
           >
             {state.messageStrategiesLoading ? (
               <>
@@ -5066,14 +5069,11 @@ function DiscoveryWizard({ state, updateState, onComplete, goBack }: {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Generating Strategies...
+                COOKING UP STRATEGIES...
               </>
             ) : (
               <>
-                Continue to Strategy
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                LET'S GET STRATEGIC →
               </>
             )}
           </button>
@@ -5103,22 +5103,20 @@ function MessageStrategySelect({ state, onSelect, onRegenerate, goBack }: {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm mb-4">
-          <span>Discovery Mode</span>
-          <span className="text-slate-500">•</span>
-          <span>Message Strategy</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF0066]/20 text-[#FF0066] rounded-full text-sm mb-4">
+          <span>THE STRATEGY</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Choose Your Strategic Angle</h2>
-        <p className="text-slate-400">Based on your brief, here are three positioning strategies</p>
+        <h2 className="text-3xl font-display font-bold mb-4">PICK YOUR ANGLE OF ATTACK</h2>
+        <p className="text-[#888]">Three ways to position this thing. Choose wisely.</p>
       </div>
 
       {state.messageStrategiesLoading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <svg className="animate-spin w-12 h-12 text-purple-500 mb-4" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-12 h-12 text-[#FF0066] mb-4" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
-          <p className="text-slate-400">Generating strategic options...</p>
+          <p className="text-[#888]">Cooking up strategic options...</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -5128,25 +5126,25 @@ function MessageStrategySelect({ state, onSelect, onRegenerate, goBack }: {
               onClick={() => setSelectedId(strategy.id)}
               className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
                 selectedId === strategy.id
-                  ? 'border-purple-500 bg-purple-500/10'
-                  : 'border-slate-700 bg-slate-800 hover:border-slate-600'
+                  ? 'border-[#FF0066] bg-[#FF0066]/10'
+                  : 'border-[#333] bg-[#1a1a1a] hover:border-[#444]'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="text-lg font-bold text-white">{strategy.name}</h3>
                 {selectedId === strategy.id && (
-                  <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-[#FF0066] flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                 )}
               </div>
-              <p className="text-purple-300 font-medium mb-2">"{strategy.core_message}"</p>
-              <p className="text-slate-400 text-sm mb-3">{strategy.angle}</p>
-              <div className="bg-slate-900/50 rounded-lg p-3">
-                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Why this fits</p>
-                <p className="text-sm text-slate-300">{strategy.rationale}</p>
+              <p className="text-[#FF0066] font-medium mb-2">"{strategy.core_message}"</p>
+              <p className="text-[#888] text-sm mb-3">{strategy.angle}</p>
+              <div className="bg-[#0D0D0D]/50 rounded-lg p-3">
+                <p className="text-xs text-[#777] uppercase tracking-wide mb-1">WHY IT WORKS</p>
+                <p className="text-sm text-[#aaa]">{strategy.rationale}</p>
               </div>
             </button>
           ))}
@@ -5154,46 +5152,43 @@ function MessageStrategySelect({ state, onSelect, onRegenerate, goBack }: {
       )}
 
       {selectedId && (
-        <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Any adjustments to this strategy? (optional)
+        <div className="mt-6 p-4 bg-[#1a1a1a]/50 rounded-xl border border-[#333]">
+          <label className="block text-sm font-medium text-[#aaa] mb-2">
+            SHARPEN IT? (OPTIONAL)
           </label>
           <input
             type="text"
             value={refinement}
             onChange={(e) => setRefinement(e.target.value)}
-            placeholder="e.g., Emphasize our 10-year track record..."
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+            placeholder="Lean harder into the 10-year track record..."
+            className="w-full px-4 py-2 bg-[#0D0D0D] border border-[#333] rounded-lg text-white focus:border-[#FF0066] focus:outline-none"
           />
         </div>
       )}
 
       <div className="flex items-center justify-between mt-8">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-          Edit Brief
+          FIX THE BRIEF
         </button>
         <div className="flex items-center gap-3">
           <button
             onClick={onRegenerate}
             disabled={state.messageStrategiesLoading}
-            className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider"
           >
-            Show different options
+            DEAL ME NEW CARDS
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedId}
-            className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+            className={`px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
               selectedId
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                ? 'bg-[#FFFF00] text-black hover:bg-white'
+                : 'bg-[#333] text-[#777] cursor-not-allowed'
             }`}
           >
-            Confirm Strategy
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            LOCK IT IN →
           </button>
         </div>
       </div>
@@ -5219,40 +5214,38 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case 'low': return 'text-green-400 bg-green-500/20';
-      case 'medium': return 'text-amber-400 bg-amber-500/20';
-      case 'high': return 'text-red-400 bg-red-500/20';
-      default: return 'text-slate-400 bg-slate-500/20';
+      case 'low': return 'text-[#00ff66] bg-[#00ff66]/20';
+      case 'medium': return 'text-[#FFFF00] bg-[#FFFF00]/20';
+      case 'high': return 'text-[#FF0066] bg-[#FF0066]/20';
+      default: return 'text-[#888] bg-[#555]/20';
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-500/20 text-pink-300 rounded-full text-sm mb-4">
-          <span>🎨 Creative Director</span>
-          <span className="text-slate-500">•</span>
-          <span>Idea Exploration</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF0066]/20 text-[#FF0066] rounded-full text-sm mb-4">
+          <span>THE CREATIVE</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Explore Creative Territories</h2>
-        <p className="text-slate-400">How could your strategy come to life? These are big ideas, not executions.</p>
+        <h2 className="text-3xl font-display font-bold mb-4">THE BIG IDEAS</h2>
+        <p className="text-[#888]">Territories, not executions. Which one makes your gut tingle?</p>
 
         {/* Show selected strategy context */}
         {state.selectedStrategy && (
-          <div className="mt-4 inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-            <p className="text-xs text-purple-400 uppercase tracking-wide">Building on strategy</p>
-            <p className="text-sm text-purple-300 font-medium">"{state.selectedStrategy.core_message}"</p>
+          <div className="mt-4 inline-block px-4 py-2 bg-[#FF0066]/10 border border-[#FF0066]/30 rounded-lg">
+            <p className="text-xs text-[#FF0066] uppercase tracking-wide">LOCKED STRATEGY</p>
+            <p className="text-sm text-[#FF0066] font-medium">"{state.selectedStrategy.core_message}"</p>
           </div>
         )}
       </div>
 
       {state.creativeIdeasLoading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <svg className="animate-spin w-12 h-12 text-pink-500 mb-4" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-12 h-12 text-[#FF0066] mb-4" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
-          <p className="text-slate-400">Generating creative territories...</p>
+          <p className="text-[#888]">The creative department is brainstorming...</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -5262,8 +5255,8 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
               onClick={() => setSelectedId(idea.id)}
               className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
                 selectedId === idea.id
-                  ? 'border-pink-500 bg-pink-500/10'
-                  : 'border-slate-700 bg-slate-800 hover:border-slate-600'
+                  ? 'border-[#FF0066] bg-[#FF0066]/10'
+                  : 'border-[#333] bg-[#1a1a1a] hover:border-[#444]'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -5274,12 +5267,12 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
                       {idea.creative_risk_level} risk
                     </span>
                     {idea.tone_and_feel.slice(0, 3).map((tone, i) => (
-                      <span key={i} className="text-xs text-slate-500">#{tone}</span>
+                      <span key={i} className="text-xs text-[#777]">#{tone}</span>
                     ))}
                   </div>
                 </div>
                 {selectedId === idea.id && (
-                  <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-[#FF0066] flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -5287,16 +5280,16 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
                 )}
               </div>
 
-              <p className="text-pink-300 font-medium mb-3">{idea.summary}</p>
+              <p className="text-[#FF0066] font-medium mb-3">{idea.summary}</p>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Why it fits the strategy</p>
-                  <p className="text-sm text-slate-300">{idea.why_it_fits}</p>
+                <div className="bg-[#0D0D0D]/50 rounded-lg p-3">
+                  <p className="text-xs text-[#777] uppercase tracking-wide mb-1">WHY IT LANDS</p>
+                  <p className="text-sm text-[#aaa]">{idea.why_it_fits}</p>
                 </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">What it sacrifices</p>
-                  <p className="text-sm text-slate-400">{idea.what_it_sacrifices}</p>
+                <div className="bg-[#0D0D0D]/50 rounded-lg p-3">
+                  <p className="text-xs text-[#777] uppercase tracking-wide mb-1">WHAT YOU LOSE</p>
+                  <p className="text-sm text-[#888]">{idea.what_it_sacrifices}</p>
                 </div>
               </div>
             </button>
@@ -5305,25 +5298,25 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
       )}
 
       <div className="flex items-center justify-between mt-8">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-          Back to Strategy
+          BACK TO STRATEGY
         </button>
         <div className="flex items-center gap-3">
           <button
             onClick={onRegenerate}
             disabled={state.creativeIdeasLoading}
-            className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider"
           >
-            Show different ideas
+            SHOW ME MORE
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedId || state.creativeIdeasLoading}
-            className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+            className={`px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
               selectedId && !state.creativeIdeasLoading
-                ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white'
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                ? 'bg-[#FFFF00] text-black hover:bg-white'
+                : 'bg-[#333] text-[#777] cursor-not-allowed'
             }`}
           >
             {state.creativeIdeasLoading ? (
@@ -5332,14 +5325,11 @@ function CreativeIdeasSelect({ state, onSelect, onRegenerate, goBack }: {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Loading...
+                THINKING...
               </>
             ) : (
               <>
-                Select This Idea
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                THAT'S THE ONE →
               </>
             )}
           </button>
@@ -5369,29 +5359,29 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm mb-4">
-          <span>Directed Mode</span>
-          <span className="text-slate-500">•</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00ff66]/20 text-[#00ff66] rounded-full text-sm mb-4">
+          <span>DIRECTED MODE</span>
+          <span className="text-[#777]">•</span>
           <span>{disciplineLabel}</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Quick Campaign Setup</h2>
-        <p className="text-slate-400">Tell us the basics so we can tailor your content</p>
+        <h2 className="text-3xl font-display font-bold mb-4">THE QUICK SETUP</h2>
+        <p className="text-[#888]">Just the essentials. We'll handle the rest.</p>
       </div>
 
-      <div className="space-y-6 bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+      <div className="space-y-6 bg-[#1a1a1a]/50 rounded-2xl p-6 border border-[#333]">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Campaign Name *</label>
+          <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT ARE WE CALLING THIS? *</label>
           <input
             type="text"
             value={state.directedBrief.campaignName}
             onChange={(e) => updateBrief('campaignName', e.target.value)}
-            placeholder="e.g., Product Launch Social"
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-green-500 focus:outline-none"
+            placeholder="Give it a name that'll stick"
+            className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">What's your goal? *</label>
+          <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S THE PLAY? *</label>
           <div className="grid grid-cols-2 gap-3">
             {(['awareness', 'consideration', 'conversion', 'retention'] as CampaignGoalType[]).map((goal) => (
               <button
@@ -5399,16 +5389,16 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
                 onClick={() => updateBrief('goalType', goal)}
                 className={`p-4 rounded-xl border-2 transition-all text-left ${
                   state.directedBrief.goalType === goal
-                    ? 'border-green-500 bg-green-500/10'
-                    : 'border-slate-700 bg-slate-900 hover:border-slate-600'
+                    ? 'border-[#00ff66] bg-[#00ff66]/10'
+                    : 'border-[#333] bg-[#0D0D0D] hover:border-[#444]'
                 }`}
               >
                 <div className="font-medium capitalize">{goal}</div>
-                <div className="text-xs text-slate-500">
-                  {goal === 'awareness' && 'Get noticed'}
-                  {goal === 'consideration' && 'Build interest'}
-                  {goal === 'conversion' && 'Drive action'}
-                  {goal === 'retention' && 'Keep customers'}
+                <div className="text-xs text-[#777]">
+                  {goal === 'awareness' && 'Make noise'}
+                  {goal === 'consideration' && 'Get them curious'}
+                  {goal === 'conversion' && 'Close the deal'}
+                  {goal === 'retention' && 'Keep them hooked'}
                 </div>
               </button>
             ))}
@@ -5416,23 +5406,23 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Goal details (optional)</label>
+          <label className="block text-sm font-medium text-[#aaa] mb-2">WHAT'S THE WIN LOOK LIKE?</label>
           <input
             type="text"
             value={state.directedBrief.goalDescription}
             onChange={(e) => updateBrief('goalDescription', e.target.value)}
-            placeholder="e.g., Drive pre-orders for new product"
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-green-500 focus:outline-none"
+            placeholder="500 demo requests, 10K page views, world domination..."
+            className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Campaign-specific must-includes (optional)
+          <label className="block text-sm font-medium text-[#aaa] mb-2">
+            NON-NEGOTIABLES (OPTIONAL)
           </label>
           <input
             type="text"
-            placeholder="Type and press Enter to add (or it will be added when you continue)"
+            placeholder="What MUST appear? Hit Enter."
             onKeyDown={(e) => {
               if (e.key === 'Enter' && e.currentTarget.value.trim()) {
                 updateBrief('campaignMandatories', [...(state.directedBrief.campaignMandatories || []), e.currentTarget.value.trim()]);
@@ -5446,19 +5436,19 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
                 e.currentTarget.value = '';
               }
             }}
-            className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-green-500 focus:outline-none"
+            className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#00ff66] focus:outline-none"
           />
           {state.directedBrief.campaignMandatories && state.directedBrief.campaignMandatories.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {state.directedBrief.campaignMandatories.map((m, i) => (
-                <span key={i} className="px-3 py-1 bg-slate-700 rounded-full text-sm flex items-center gap-2">
+                <span key={i} className="px-3 py-1 bg-[#333] rounded-full text-sm flex items-center gap-2">
                   {m}
                   <button
                     onClick={() => {
                       const newList = state.directedBrief.campaignMandatories?.filter((_, idx) => idx !== i);
                       updateBrief('campaignMandatories', newList);
                     }}
-                    className="text-slate-400 hover:text-white"
+                    className="text-[#888] hover:text-white"
                   >
                     ×
                   </button>
@@ -5470,23 +5460,20 @@ function DirectedBrief({ state, updateState, onSubmit, goBack }: {
       </div>
 
       <div className="flex items-center justify-between mt-8">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-          Back
+          BACK
         </button>
         <button
           onClick={onSubmit}
           disabled={!isValid}
-          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+          className={`px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
             isValid
-              ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white'
-              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              ? 'bg-[#FFFF00] text-black hover:bg-white'
+              : 'bg-[#333] text-[#777] cursor-not-allowed'
           }`}
         >
-          Continue to Prompts
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          LET'S MAKE IT →
         </button>
       </div>
     </div>
@@ -5509,28 +5496,28 @@ function StrategyCheckScreen({ state, onProceed, onAddDiscipline, goBack }: {
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm mb-4 ${
-          isStrong ? 'bg-amber-500/20 text-amber-300' : 'bg-blue-500/20 text-blue-300'
+          isStrong ? 'bg-[#FFFF00]/20 text-[#FFFF00]' : 'bg-[#FF0066]/20 text-[#FF0066]'
         }`}>
-          <span>{isStrong ? 'Strategy Alert' : 'Quick Suggestion'}</span>
+          <span>{isStrong ? 'THE GUT CHECK' : 'A THOUGHT'}</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">
-          {isStrong ? 'Hold on a moment...' : 'A quick thought'}
+        <h2 className="text-3xl font-display font-bold mb-4">
+          {isStrong ? 'HOLD YOUR HORSES.' : 'JUST A THOUGHT'}
         </h2>
       </div>
 
       <div className={`p-6 rounded-2xl border-2 ${
-        isStrong ? 'border-amber-500/50 bg-amber-500/5' : 'border-blue-500/50 bg-blue-500/5'
+        isStrong ? 'border-[#FFFF00]/50 bg-[#FFFF00]/5' : 'border-[#FF0066]/50 bg-[#FF0066]/5'
       }`}>
         <div className="flex items-start gap-4">
           <div className={`p-3 rounded-full ${
-            isStrong ? 'bg-amber-500/20' : 'bg-blue-500/20'
+            isStrong ? 'bg-[#FFFF00]/20' : 'bg-[#FF0066]/20'
           }`}>
             {isStrong ? (
-              <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-6 h-6 text-[#FFFF00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             ) : (
-              <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-6 h-6 text-[#FF0066]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
@@ -5540,7 +5527,7 @@ function StrategyCheckScreen({ state, onProceed, onAddDiscipline, goBack }: {
 
             {check.alternativeDisciplines.length > 0 && (
               <div className="mt-4">
-                <p className="text-sm text-slate-400 mb-2">Suggested disciplines for {state.directedBrief.goalType}:</p>
+                <p className="text-sm text-[#888] mb-2">Better weapons for {state.directedBrief.goalType}:</p>
                 <div className="flex flex-wrap gap-2">
                   {check.alternativeDisciplines.map((disc) => {
                     const discipline = disciplines.find(d => d.value === disc);
@@ -5548,7 +5535,7 @@ function StrategyCheckScreen({ state, onProceed, onAddDiscipline, goBack }: {
                       <button
                         key={disc}
                         onClick={() => onAddDiscipline(disc)}
-                        className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                        className="px-4 py-2 bg-[#333] hover:bg-[#444] rounded-lg text-sm flex items-center gap-2 transition-colors"
                       >
                         <span>{discipline?.icon || '📌'}</span>
                         <span>{discipline?.label || disc}</span>
@@ -5563,18 +5550,15 @@ function StrategyCheckScreen({ state, onProceed, onAddDiscipline, goBack }: {
       </div>
 
       <div className="flex items-center justify-between mt-8">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-          Edit Brief
+          FIX IT
         </button>
         <button
           onClick={onProceed}
-          className="px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all bg-slate-700 hover:bg-slate-600 text-white"
+          className="px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all bg-[#333] hover:bg-[#444] text-white"
         >
-          Continue Anyway
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          I KNOW WHAT I'M DOING →
         </button>
       </div>
     </div>
@@ -5678,18 +5662,18 @@ function UploadBrief({ state, updateState, onParsed, goBack }: {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm mb-4">
-          <span>Upload Brief</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFFF00]/20 text-[#FFFF00] rounded-full text-sm mb-4">
+          <span>WE HAVE THE BRIEF</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Upload Your Creative Brief</h2>
-        <p className="text-slate-400">We'll extract the key information and fill in the gaps</p>
+        <h2 className="text-3xl font-display font-bold mb-4">DROP YOUR BRIEF</h2>
+        <p className="text-[#888]">We'll rip out the essentials and fill in the blanks.</p>
       </div>
 
       {state.briefParsingLoading ? (
-        <div className="bg-slate-800/50 rounded-2xl p-12 border border-slate-700 text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-lg font-medium">Analyzing your brief...</p>
-          <p className="text-slate-400 text-sm mt-2">{state.briefFileName}</p>
+        <div className="bg-[#1a1a1a]/50 rounded-2xl p-12 border border-[#333] text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-[#FFFF00] border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-lg font-medium">Dissecting your brief...</p>
+          <p className="text-[#888] text-sm mt-2">{state.briefFileName}</p>
         </div>
       ) : (
         <>
@@ -5699,17 +5683,17 @@ function UploadBrief({ state, updateState, onParsed, goBack }: {
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
-              className={`bg-slate-800/50 rounded-2xl p-12 border-2 border-dashed transition-all text-center ${
-                dragActive ? 'border-amber-500 bg-amber-500/10' : 'border-slate-600 hover:border-slate-500'
+              className={`bg-[#1a1a1a]/50 rounded-2xl p-12 border-2 border-dashed transition-all text-center ${
+                dragActive ? 'border-[#FFFF00] bg-[#FFFF00]/10' : 'border-[#444] hover:border-[#555]'
               }`}
             >
               <div className="text-5xl mb-4">📄</div>
               <p className="text-lg font-medium mb-2">Drag & drop your brief here</p>
-              <p className="text-slate-400 text-sm mb-6">PDF, Word, or text files accepted</p>
+              <p className="text-[#888] text-sm mb-6">PDF, Word, or text files</p>
 
               <div className="flex items-center justify-center gap-4">
-                <label className="px-6 py-3 rounded-xl font-medium bg-amber-600 hover:bg-amber-500 text-white cursor-pointer transition-all">
-                  Browse Files
+                <label className="px-6 py-3 font-display uppercase tracking-wider bg-[#FFFF00] hover:bg-white text-black cursor-pointer transition-all">
+                  FIND FILE
                   <input
                     type="file"
                     className="hidden"
@@ -5723,39 +5707,39 @@ function UploadBrief({ state, updateState, onParsed, goBack }: {
                 </label>
                 <button
                   onClick={() => setPasteMode(true)}
-                  className="px-6 py-3 rounded-xl font-medium bg-slate-700 hover:bg-slate-600 text-white transition-all"
+                  className="px-6 py-3 font-display uppercase tracking-wider bg-[#333] hover:bg-[#444] text-white transition-all"
                 >
-                  Paste Text Instead
+                  PASTE IT
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Paste your brief content</label>
+            <div className="bg-[#1a1a1a]/50 rounded-2xl p-6 border border-[#333]">
+              <label className="block text-sm font-medium text-[#aaa] mb-2">PASTE YOUR BRIEF</label>
               <textarea
                 value={pastedText}
                 onChange={(e) => setPastedText(e.target.value)}
-                placeholder="Paste your creative brief text here..."
+                placeholder="Dump the brief here. We'll make sense of it."
                 rows={12}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FFFF00] focus:outline-none resize-none"
               />
               <div className="flex items-center justify-between mt-4">
                 <button
                   onClick={() => setPasteMode(false)}
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider"
                 >
-                  ← Upload file instead
+                  ← UPLOAD FILE INSTEAD
                 </button>
                 <button
                   onClick={handlePastedText}
                   disabled={!pastedText.trim()}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                  className={`px-6 py-3 font-display uppercase tracking-wider transition-all ${
                     pastedText.trim()
-                      ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                      : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                      ? 'bg-[#FFFF00] hover:bg-white text-black'
+                      : 'bg-[#333] text-[#777] cursor-not-allowed'
                   }`}
                 >
-                  Analyze Brief
+                  ANALYZE →
                 </button>
               </div>
             </div>
@@ -5764,14 +5748,14 @@ function UploadBrief({ state, updateState, onParsed, goBack }: {
       )}
 
       {error && (
-        <div className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300">
+        <div className="mt-4 p-4 bg-[#FF0066]/20 border border-[#FF0066]/50 rounded-xl text-[#FF0066]">
           {error}
         </div>
       )}
 
-      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+      <button onClick={goBack} className="mt-8 mx-auto flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
         <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-        Back
+        BACK
       </button>
     </div>
   );
@@ -5794,17 +5778,17 @@ function BriefReview({ state, updateState, onComplete, goBack }: {
 
   // Fields configuration
   const fields = [
-    { key: 'campaignName', label: 'Campaign Name', type: 'text', required: true },
-    { key: 'objective', label: 'Objective', type: 'text', required: true, placeholder: 'What do you want to achieve?' },
-    { key: 'targetAudience', label: 'Target Audience', type: 'textarea', placeholder: 'Who are you trying to reach?' },
-    { key: 'proposition', label: 'Proposition / Key Message', type: 'textarea', required: true, placeholder: 'The core promise or single-minded message' },
-    { key: 'support', label: 'Support / Proof Points', type: 'array', placeholder: 'Reasons to believe' },
-    { key: 'mandatories', label: 'Mandatories', type: 'array', placeholder: 'Must-include elements' },
-    { key: 'tone', label: 'Tone of Voice', type: 'text', placeholder: 'How should it sound?' },
-    { key: 'constraints', label: 'Constraints', type: 'textarea', placeholder: 'Things to avoid or limitations' },
-    { key: 'budget', label: 'Budget', type: 'text', placeholder: 'If relevant' },
-    { key: 'timeline', label: 'Timeline', type: 'text', placeholder: 'Key dates' },
-    { key: 'successMetrics', label: 'Success Metrics', type: 'text', placeholder: 'How will you measure success?' },
+    { key: 'campaignName', label: 'CAMPAIGN NAME', type: 'text', required: true },
+    { key: 'objective', label: 'THE OBJECTIVE', type: 'text', required: true, placeholder: 'What are we trying to do?' },
+    { key: 'targetAudience', label: 'THE TARGET', type: 'textarea', placeholder: 'Who are we hunting?' },
+    { key: 'proposition', label: 'THE HOOK', type: 'textarea', required: true, placeholder: 'The one thing they\'ll remember' },
+    { key: 'support', label: 'PROOF POINTS', type: 'array', placeholder: 'Why they should believe you' },
+    { key: 'mandatories', label: 'NON-NEGOTIABLES', type: 'array', placeholder: 'What MUST appear' },
+    { key: 'tone', label: 'THE VOICE', type: 'text', placeholder: 'How should this thing sound?' },
+    { key: 'constraints', label: 'LANDMINES', type: 'textarea', placeholder: 'What will get us killed' },
+    { key: 'budget', label: 'WAR CHEST', type: 'text', placeholder: 'How deep are the pockets?' },
+    { key: 'timeline', label: 'DEADLINE', type: 'text', placeholder: 'When does it drop?' },
+    { key: 'successMetrics', label: 'THE WIN', type: 'text', placeholder: 'How do we know we won?' },
   ];
 
   const requiredFields = fields.filter(f => f.required);
@@ -5819,30 +5803,30 @@ function BriefReview({ state, updateState, onComplete, goBack }: {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-sm mb-4">
-          <span>Review Brief</span>
-          <span className="text-slate-500">•</span>
-          <span>{extractedCount}/{totalFields} fields extracted</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFFF00]/20 text-[#FFFF00] rounded-full text-sm mb-4">
+          <span>THE BRIEF REVIEW</span>
+          <span className="text-[#777]">•</span>
+          <span>{extractedCount}/{totalFields} extracted</span>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Review & Complete Your Brief</h2>
-        <p className="text-slate-400">Fill in any missing fields or mark them as not relevant</p>
+        <h2 className="text-3xl font-display font-bold mb-4">SHARPEN THE BRIEF</h2>
+        <p className="text-[#888]">Fill in the gaps. Every empty field is a missed opportunity.</p>
       </div>
 
-      <div className="space-y-6 bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+      <div className="space-y-6 bg-[#1a1a1a]/50 rounded-2xl p-6 border border-[#333]">
         {fields.map((field) => {
           const value = brief[field.key as keyof typeof brief];
           const isEmpty = !value || (Array.isArray(value) && value.length === 0);
 
           return (
-            <div key={field.key} className={isEmpty ? 'bg-slate-700/30 rounded-xl p-4 -mx-2' : ''}>
+            <div key={field.key} className={isEmpty ? 'bg-[#333]/30 rounded-xl p-4 -mx-2' : ''}>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-slate-300">
+                <label className="block text-sm font-medium text-[#aaa]">
                   {field.label}
-                  {field.required && <span className="text-amber-400 ml-1">*</span>}
+                  {field.required && <span className="text-[#FFFF00] ml-1">*</span>}
                 </label>
                 {isEmpty && (
-                  <span className="text-xs px-2 py-1 bg-amber-500/20 text-amber-300 rounded-full">
-                    Missing
+                  <span className="text-xs px-2 py-1 bg-[#FF0066]/20 text-[#FF0066] rounded-full">
+                    MISSING
                   </span>
                 )}
               </div>
@@ -5853,7 +5837,7 @@ function BriefReview({ state, updateState, onComplete, goBack }: {
                   value={(value as string) || ''}
                   onChange={(e) => updateField(field.key as keyof State['uploadedBrief'], e.target.value)}
                   placeholder={field.placeholder || ''}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FFFF00] focus:outline-none"
                 />
               )}
 
@@ -5863,7 +5847,7 @@ function BriefReview({ state, updateState, onComplete, goBack }: {
                   onChange={(e) => updateField(field.key as keyof State['uploadedBrief'], e.target.value)}
                   placeholder={field.placeholder || ''}
                   rows={3}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none resize-none"
+                  className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FFFF00] focus:outline-none resize-none"
                 />
               )}
 
@@ -5886,19 +5870,19 @@ function BriefReview({ state, updateState, onComplete, goBack }: {
                         e.currentTarget.value = '';
                       }
                     }}
-                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#333] rounded-xl text-white focus:border-[#FFFF00] focus:outline-none"
                   />
                   {value && (value as string[]).length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {(value as string[]).map((item, i) => (
-                        <span key={i} className="px-3 py-1 bg-slate-700 rounded-full text-sm flex items-center gap-2">
+                        <span key={i} className="px-3 py-1 bg-[#333] rounded-full text-sm flex items-center gap-2">
                           {item}
                           <button
                             onClick={() => {
                               const newArray = (value as string[]).filter((_, idx) => idx !== i);
                               updateField(field.key as keyof State['uploadedBrief'], newArray.length > 0 ? newArray : null);
                             }}
-                            className="text-slate-400 hover:text-white"
+                            className="text-[#888] hover:text-white"
                           >
                             ×
                           </button>
@@ -5914,23 +5898,20 @@ function BriefReview({ state, updateState, onComplete, goBack }: {
       </div>
 
       <div className="flex items-center justify-between mt-8">
-        <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+        <button onClick={goBack} className="flex items-center gap-2 text-[#888] hover:text-white transition-colors font-display uppercase tracking-wider">
           <span dangerouslySetInnerHTML={{ __html: icons.arrowLeft }} />
-          Back
+          BACK
         </button>
         <button
           onClick={onComplete}
           disabled={!isValid}
-          className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all ${
+          className={`px-6 py-3 font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
             isValid
-              ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white'
-              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              ? 'bg-[#FFFF00] text-black hover:bg-white'
+              : 'bg-[#333] text-[#777] cursor-not-allowed'
           }`}
         >
-          Continue to Prompts
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          LET'S MAKE IT →
         </button>
       </div>
     </div>

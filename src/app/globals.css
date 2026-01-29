@@ -15,14 +15,14 @@
    CSS VARIABLES — THE PALETTE
    ===================================================== */
 :root {
-  /* Base Colors */
-  --black: #0a0a0a;
-  --white: #fafafa;
+  /* Base Colors - Scher: Pure black for billboard effect */
+  --black: #0D0D0D;
+  --white: #FFFFFF;
   --off-white: #f5f5f0;
 
-  /* Punk Accent Colors */
-  --electric-yellow: #f7ff00;
-  --hot-pink: #ff1493;
+  /* Accent Colors - Scher palette */
+  --electric-yellow: #FFFF00;
+  --hot-pink: #FF0066;
   --vibrant-red: #ff3333;
   --acid-green: #00ff66;
   --bruise-purple: #8b00ff;
@@ -638,6 +638,41 @@ body {
 .skew-left { transform: skewX(-3deg); }
 .skew-right { transform: skewX(3deg); }
 .skew-text { display: inline-block; transform: rotate(-2deg); }
+
+/* =====================================================
+   SCHER STRUCTURAL ELEMENTS
+   Type slapped onto the page, angular, straining edges
+   ===================================================== */
+
+/* Printer's Rules - angled structural lines */
+.scher-rule {
+  height: 3px;
+  background: var(--hot-pink);
+  transform: rotate(-3deg);
+  transform-origin: left center;
+}
+
+.scher-rule-yellow {
+  height: 3px;
+  background: var(--electric-yellow);
+  transform: rotate(2deg);
+  transform-origin: left center;
+}
+
+/* Diagonal energy - type feels slapped on */
+.scher-diagonal {
+  transform: rotate(-2deg);
+}
+
+.scher-diagonal-up {
+  transform: rotate(2deg);
+}
+
+/* Type tension - for web, use tight spacing instead of bleed */
+.scher-tight-left {
+  padding-left: 0;
+  margin-left: 0;
+}
 
 /* High contrast selection */
 ::selection {
