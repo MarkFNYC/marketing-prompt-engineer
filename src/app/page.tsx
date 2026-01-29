@@ -3055,7 +3055,7 @@ function LibraryView({ state, setMode, toggleModel, togglePrompt, runPrompt, cop
           </button>
           <button
             onClick={() => setMode('execution')}
-            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all border-l-2 border-white ${state.mode === 'execution' ? 'bg-[#00ff66] text-black' : 'bg-transparent text-[#888] hover:text-white'}`}
+            className={`px-6 py-3 font-display text-sm tracking-wide flex items-center gap-2 transition-all border-l-2 border-white ${state.mode === 'execution' ? 'bg-[#FF0066] text-white' : 'bg-transparent text-[#888] hover:text-white'}`}
           >
             🎨 CREATIVE
           </button>
@@ -3197,7 +3197,7 @@ function PromptCard({ prompt, state, isExpanded, isCopied, onToggle, onRun, onCo
             <button onClick={() => onCopy(personalized)} className={`p-2 rounded-lg bg-[#333] hover:bg-[#444] transition-colors ${isCopied ? 'text-[#00ff66]' : 'text-[#888]'}`} title="Copy prompt">
               <span dangerouslySetInnerHTML={{ __html: isCopied ? icons.check : icons.copy }} />
             </button>
-            <button onClick={onRun} className="px-3 py-2 rounded-lg bg-[#00ff66] hover:bg-white text-black text-white text-sm font-medium flex items-center gap-1 transition-all" title="Run with AI">
+            <button onClick={onRun} className="px-3 py-2 rounded-lg bg-[#FF0066] hover:bg-white text-white hover:text-black text-sm font-medium flex items-center gap-1 transition-all" title="Run with AI">
               <span dangerouslySetInnerHTML={{ __html: icons.play }} /> Run
             </button>
           </div>
@@ -3284,7 +3284,7 @@ function LLMOutput({
             <>
               <button
                 onClick={onRemix}
-                className="px-4 py-2 bg-[#FFFF00] hover:bg-white text-black rounded-lg text-sm flex items-center gap-2 transition-colors text-white"
+                className="px-4 py-2 bg-[#FFFF00] hover:bg-white text-black rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3308,7 +3308,7 @@ function LLMOutput({
                     disabled={state.saveStatus === 'saving'}
                     className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                       state.saveStatus === 'saved'
-                        ? 'bg-[#00ff66] text-white'
+                        ? 'bg-[#00ff66] text-black'
                         : state.saveStatus === 'error'
                         ? 'bg-red-600 text-white'
                         : 'bg-[#FF0066] hover:bg-[#FF0066] text-white'
@@ -3344,7 +3344,7 @@ function LLMOutput({
                   disabled={state.saveStatus === 'saving'}
                   className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                     state.saveStatus === 'saved'
-                      ? 'bg-[#00ff66] text-white'
+                      ? 'bg-[#00ff66] text-black'
                       : state.saveStatus === 'error'
                       ? 'bg-red-600 text-white'
                       : 'bg-[#FF0066] hover:bg-[#FF0066] text-white'
@@ -3388,9 +3388,9 @@ function LLMOutput({
           <div className="text-xs text-[#777] uppercase tracking-wide mb-1">Prompt Used</div>
           <div className="text-sm text-[#aaa] mb-3">{state.selectedPrompt.goal}</div>
           <div className="flex items-center justify-between pt-3 border-t border-[#333]">
-            <div className="inline-flex items-center bg-[#0D0D0D] rounded-lg p-1">
+            <div className="inline-flex items-center bg-[#0D0D0D] rounded-lg p-1 border border-[#333]">
               <button onClick={() => switchModeAndRerun('strategy')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'strategy' ? 'bg-[#FF0066] text-white' : 'text-[#888] hover:text-white'}`}>📋 Planning</button>
-              <button onClick={() => switchModeAndRerun('execution')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-[#00ff66] text-white' : 'text-[#888] hover:text-white'}`}>🎨 Creative</button>
+              <button onClick={() => switchModeAndRerun('execution')} className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${state.mode === 'execution' ? 'bg-[#FF0066] text-white' : 'text-[#888] hover:text-white'}`}>🎨 Creative</button>
             </div>
             <span className="text-xs text-[#777]">Switch role to regenerate</span>
           </div>
@@ -3519,7 +3519,7 @@ function LLMOutput({
                 disabled={!state.rebriefFeedback.trim()}
                 className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                   state.rebriefFeedback.trim()
-                    ? 'bg-[#FFFF00] hover:bg-[#FFFF00] text-white'
+                    ? 'bg-[#FFFF00] hover:bg-white text-black'
                     : 'bg-[#333] text-[#777] cursor-not-allowed'
                 }`}
               >
@@ -3699,7 +3699,7 @@ function LLMOutput({
                 disabled={!state.rebriefRemixFeedback.trim()}
                 className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                   state.rebriefRemixFeedback.trim()
-                    ? 'bg-[#FFFF00] hover:bg-[#FFFF00] text-white'
+                    ? 'bg-[#FFFF00] hover:bg-white text-black'
                     : 'bg-[#333] text-[#777] cursor-not-allowed'
                 }`}
               >
@@ -4226,7 +4226,7 @@ function PlanningReviewModal({
             <button
               onClick={onApprove}
               disabled={isLoading}
-              className="flex-1 px-6 py-3 bg-[#00ff66] hover:bg-white text-black text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3 bg-[#FF0066] hover:bg-white text-white hover:text-black rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

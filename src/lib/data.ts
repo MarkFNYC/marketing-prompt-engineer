@@ -35,6 +35,7 @@ export const libraries: Record<string, any> = {
     title: "SEO — AI Prompt Library for Marketers",
     summary: "Elite SEO marketers think in systems: technical foundations, content-authority loops, and search intent mapping. They obsess over compounding returns—every piece of content builds domain authority.",
     mentalModels: [
+      { name: "Zero-Click Search Reality", description: "Over 50% of Google searches end without a click to any website.", lesson: "Optimize for brand visibility in SERPs, not just clicks. Featured snippets and knowledge panels build awareness even without traffic.", source: "Rand Fishkin, SparkToro (2019)" },
       { name: "Content-Search Intent Fit", description: "Match content format to the user's stage in the search journey.", lesson: "A 'best X' query needs comparison content, not a product page.", source: "Eli Schwartz, Product-Led SEO (2021)" },
       { name: "Topical Authority Clusters", description: "Build interconnected content hubs that signal expertise to Google.", lesson: "One pillar page + 15-20 supporting articles outperforms 50 disconnected posts.", source: "HubSpot Topic Cluster Model (2017)" },
       { name: "The Compounding Content Effect", description: "Invest in content that grows traffic over time, not spikes.", lesson: "10% of blog posts drive 90% of traffic. Identify and double down on compounding posts.", source: "Tomasz Tunguz, Redpoint (2019)" },
