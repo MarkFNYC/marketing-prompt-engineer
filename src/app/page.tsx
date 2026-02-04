@@ -257,6 +257,16 @@ interface State {
 }
 
 const FREE_PROMPT_LIMIT = 15;
+const UNLIMITED_PROMPTS_LIMIT = Number.MAX_SAFE_INTEGER;
+
+const formatPromptsLimit = (limit: number) => {
+  return limit >= UNLIMITED_PROMPTS_LIMIT ? 'Unlimited' : limit.toString();
+};
+
+const formatRemainingPrompts = (limit: number, used: number) => {
+  if (limit >= UNLIMITED_PROMPTS_LIMIT) return 'Unlimited';
+  return `${Math.max(limit - used, 0)} LEFT`;
+};
 
 export default function Home() {
   const [state, setState] = useState<State>({
@@ -405,7 +415,7 @@ export default function Home() {
             ...prev,
             user: { id: session.user.id, email: session.user.email || '' },
           }));
-          loadUserUsage(session.user.id);
+          loadUserUsage();
         }
       });
 
@@ -416,7 +426,7 @@ export default function Home() {
             ...prev,
             user: { id: session.user.id, email: session.user.email || '' },
           }));
-          loadUserUsage(session.user.id);
+          loadUserUsage();
         } else {
           setState(prev => ({
             ...prev,
@@ -447,9 +457,19 @@ export default function Home() {
     };
   }, []);
 
-  const loadUserUsage = async (userId: string) => {
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    if (!supabase) return {};
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+
+  const loadUserUsage = async () => {
     try {
-      const response = await fetch(`/api/usage?userId=${userId}`);
+      const response = await fetch('/api/usage', {
+        headers: await getAuthHeaders(),
+      });
       const data = await response.json();
       if (!data.error) {
         setState(prev => ({
@@ -552,11 +572,13 @@ export default function Home() {
     if (!state.user) return;
     updateState({ libraryLoading: true });
     try {
-      let url = `/api/library?userId=${state.user.id}`;
+      let url = '/api/library';
       if (projectId) {
-        url += `&projectId=${projectId}`;
+        url += `?projectId=${projectId}`;
       }
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: await getAuthHeaders(),
+      });
       const data = await response.json();
       if (!data.error) {
         updateState({ savedItems: data.items || [], libraryLoading: false });
@@ -588,9 +610,8 @@ export default function Home() {
     try {
       const response = await fetch('/api/library', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({
-          userId: state.user.id,
           projectId: state.currentProject?.id || null,
           title: `${state.brand} - ${state.selectedPrompt.goal}${titleSuffix}`,
           discipline: state.discipline,
@@ -620,8 +641,8 @@ export default function Home() {
     try {
       const response = await fetch('/api/library', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, userId: state.user.id }),
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
+        body: JSON.stringify({ id }),
       });
       const data = await response.json();
       if (!data.error) {
@@ -642,7 +663,9 @@ export default function Home() {
     if (!state.user) return;
     updateState({ projectsLoading: true });
     try {
-      const response = await fetch(`/api/projects?userId=${state.user.id}`);
+      const response = await fetch('/api/projects', {
+        headers: await getAuthHeaders(),
+      });
       const data = await response.json();
       if (!data.error) {
         updateState({ projects: data.projects || [], projectsLoading: false });
@@ -660,9 +683,8 @@ export default function Home() {
     try {
       const response = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({
-          userId: state.user.id,
           name,
           website,
           industry,
@@ -698,10 +720,9 @@ export default function Home() {
     try {
       const response = await fetch('/api/projects', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({
           id: project.id,
-          userId: state.user.id,
           name: project.name,
           website: project.website,
           industry: project.industry,
@@ -737,8 +758,8 @@ export default function Home() {
     try {
       const response = await fetch('/api/projects', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectId, userId: state.user.id }),
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
+        body: JSON.stringify({ id: projectId }),
       });
       const data = await response.json();
       if (!data.error) {
@@ -1191,8 +1212,8 @@ export default function Home() {
             // Update server-side usage
             const usageResponse = await fetch('/api/usage', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId: state.user.id }),
+              headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
+              body: JSON.stringify({}),
             });
             const usageData = await usageResponse.json();
             updateState({ freePromptsUsed: usageData.prompts_used });
@@ -1423,7 +1444,7 @@ Important: Address this specific feedback while maintaining the core brief requi
               <div className="font-display text-6xl text-[#ff3333] mb-4">!</div>
               <h2 className="headline-md text-[#ff3333] mb-2">LIMIT REACHED</h2>
               <p className="text-[#888] mb-8">
-                You've burned through all {state.promptsLimit} free prompts. Time to level up.
+                You've burned through all {formatPromptsLimit(state.promptsLimit)} free prompts. Time to level up.
               </p>
 
               <div className="space-y-4 mb-8">
@@ -1546,7 +1567,7 @@ Important: Address this specific feedback while maintaining the core brief requi
                             ? 'text-[#FFFF00]'
                             : 'text-[#888]'
                       }`}>
-                        {state.freePromptsUsed}/{state.promptsLimit}
+                        {state.freePromptsUsed}/{formatPromptsLimit(state.promptsLimit)}
                       </span>
                     </div>
                     {state.freePromptsUsed >= state.promptsLimit && (
@@ -1667,9 +1688,8 @@ Important: Address this specific feedback while maintaining the core brief requi
                 // Create campaign with expanded brief fields
                 const campaignRes = await fetch('/api/campaigns', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                   body: JSON.stringify({
-                    userId: state.user?.id,
                     brandId: state.currentProject?.id,
                     name: state.discoveryBrief.campaignName,
                     mode: 'discovery',
@@ -1696,7 +1716,7 @@ Important: Address this specific feedback while maintaining the core brief requi
                 // Generate message strategies with expanded brief context
                 const strategyRes = await fetch('/api/campaigns/message-strategy', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                   body: JSON.stringify({
                     campaignId: campaignData.campaign?.id,
                     brandContext: {
@@ -1747,10 +1767,9 @@ Important: Address this specific feedback while maintaining the core brief requi
               if (state.currentCampaign?.id) {
                 fetch('/api/campaigns', {
                   method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                   body: JSON.stringify({
                     id: state.currentCampaign.id,
-                    userId: state.user?.id,
                     selectedMessageStrategy: strategy,
                   }),
                 });
@@ -1790,7 +1809,7 @@ Important: Address this specific feedback while maintaining the core brief requi
               try {
                 const strategyRes = await fetch('/api/campaigns/message-strategy', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                   body: JSON.stringify({
                     campaignId: state.currentCampaign?.id,
                     brandContext: {
@@ -1868,9 +1887,8 @@ Important: Address this specific feedback while maintaining the core brief requi
                 // Create campaign
                 const campaignRes = await fetch('/api/campaigns', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                   body: JSON.stringify({
-                    userId: state.user?.id,
                     brandId: state.currentProject?.id,
                     name: state.directedBrief.campaignName,
                     mode: 'directed',
@@ -1888,9 +1906,8 @@ Important: Address this specific feedback while maintaining the core brief requi
                 // Run strategy check
                 const checkRes = await fetch('/api/campaigns/strategy-check', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                   body: JSON.stringify({
-                    userId: state.user?.id,
                     campaignId: campaignData.campaign?.id,
                     discipline: state.discipline,
                     goalType: state.directedBrief.goalType,
@@ -2940,7 +2957,7 @@ function BrandInput({
                     ? 'text-[#FFFF00]'
                     : 'text-[#00ff66]'
               }`}>
-                {state.promptsLimit - state.freePromptsUsed} LEFT
+                {formatRemainingPrompts(state.promptsLimit, state.freePromptsUsed)}
               </span>
             </div>
           ) : (
@@ -4503,7 +4520,7 @@ function ModeSelect({ state, onSelectMode, goBack, updateState }: { state: State
                 />
               </div>
               <span className={`text-xs font-mono ${state.freePromptsUsed >= state.promptsLimit ? 'text-[#ff3333]' : state.freePromptsUsed >= state.promptsLimit * 0.8 ? 'text-[#FFFF00]' : 'text-[#00ff66]'}`}>
-                {state.promptsLimit - state.freePromptsUsed} LEFT
+                {formatRemainingPrompts(state.promptsLimit, state.freePromptsUsed)}
               </span>
             </div>
           ) : (

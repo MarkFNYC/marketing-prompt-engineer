@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
+import { requireUserId } from '@/lib/auth-server';
 
 const supabaseAdmin = { from: (table: string) => getSupabaseAdmin().from(table) };
 
 // GET - Fetch user's saved content (optionally filtered by project)
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.nextUrl.searchParams.get('userId');
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
     const projectId = request.nextUrl.searchParams.get('projectId');
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
-    }
 
     let query = supabaseAdmin
       .from('saved_content')
@@ -40,9 +39,17 @@ export async function GET(request: NextRequest) {
 // POST - Save new content
 export async function POST(request: NextRequest) {
   try {
-    const { userId, projectId, title, discipline, mode, promptGoal, content } = await request.json();
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
 
-    if (!userId || !title || !discipline || !mode || !content) {
+    const { userId: bodyUserId, projectId, title, discipline, mode, promptGoal, content } = await request.json();
+
+    if (bodyUserId && bodyUserId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (!title || !discipline || !mode || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -74,10 +81,18 @@ export async function POST(request: NextRequest) {
 // DELETE - Remove saved content
 export async function DELETE(request: NextRequest) {
   try {
-    const { id, userId } = await request.json();
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
 
-    if (!id || !userId) {
-      return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
+    const { id, userId: bodyUserId } = await request.json();
+
+    if (bodyUserId && bodyUserId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     const { error } = await supabaseAdmin

@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
+import { requireUserId } from '@/lib/auth-server';
 
 // GET - Fetch user's campaigns (optionally filtered by brand)
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.nextUrl.searchParams.get('userId');
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
     const brandId = request.nextUrl.searchParams.get('brandId');
     const status = request.nextUrl.searchParams.get('status'); // 'active' | 'completed' | 'all'
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
-    }
 
     let query = getSupabaseAdmin()
       .from('campaigns')
@@ -45,9 +44,13 @@ export async function GET(request: NextRequest) {
 // POST - Create new campaign
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
+
     const body = await request.json();
     const {
-      userId,
+      userId: bodyUserId,
       brandId,
       name,
       mode,
@@ -66,7 +69,11 @@ export async function POST(request: NextRequest) {
       campaignMandatories,
     } = body;
 
-    if (!userId || !brandId || !name || !mode) {
+    if (bodyUserId && bodyUserId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (!brandId || !name || !mode) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -113,11 +120,19 @@ export async function POST(request: NextRequest) {
 // PUT - Update campaign
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { id, userId, ...updates } = body;
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
 
-    if (!id || !userId) {
-      return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
+    const body = await request.json();
+    const { id, userId: bodyUserId, ...updates } = body;
+
+    if (bodyUserId && bodyUserId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     // Map camelCase to snake_case for database
@@ -180,10 +195,18 @@ export async function PUT(request: NextRequest) {
 // DELETE - Archive campaign (soft delete)
 export async function DELETE(request: NextRequest) {
   try {
-    const { id, userId } = await request.json();
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
 
-    if (!id || !userId) {
-      return NextResponse.json({ error: 'ID and User ID required' }, { status: 400 });
+    const { id, userId: bodyUserId } = await request.json();
+
+    if (bodyUserId && bodyUserId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     const { error } = await getSupabaseAdmin()

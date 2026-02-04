@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
+import { getUserIdIfPresent } from '@/lib/auth-server';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -8,6 +9,9 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 // POST - Generate message strategy options for Discovery Mode
 export async function POST(request: NextRequest) {
   try {
+    const auth = await getUserIdIfPresent(request);
+    if ('error' in auth) return auth.error;
+
     const {
       campaignId,
       brandContext,
@@ -98,7 +102,11 @@ Based on this comprehensive brief, propose 3 distinct message strategies. Each s
     }
 
     // If campaignId provided, save to campaign
-    if (campaignId) {
+    if (campaignId && !auth.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (campaignId && auth.userId) {
       try {
         await getSupabaseAdmin()
           .from('campaigns')
@@ -106,7 +114,8 @@ Based on this comprehensive brief, propose 3 distinct message strategies. Each s
             message_strategy_options: strategies,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', campaignId);
+          .eq('id', campaignId)
+          .eq('user_id', auth.userId);
       } catch (dbError) {
         console.error('Failed to save to database:', dbError);
         // Don't fail the request if DB save fails - still return strategies

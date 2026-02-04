@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
+import { requireUserId } from '@/lib/auth-server';
 
 const FREE_TIER_LIMIT = 15;
+const PREMIUM_TIER_LIMIT = Number.MAX_SAFE_INTEGER;
 
 // GET - Get usage for a user
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.nextUrl.searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
-    }
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
 
     const supabaseAdmin = getSupabaseAdmin();
 
@@ -44,14 +44,14 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         prompts_used: 0,
-        prompts_limit: profile.tier === 'premium' ? Infinity : FREE_TIER_LIMIT,
+        prompts_limit: profile.tier === 'premium' ? PREMIUM_TIER_LIMIT : FREE_TIER_LIMIT,
         tier: profile.tier,
       });
     }
 
     return NextResponse.json({
       prompts_used: profile?.prompts_used_this_month || 0,
-      prompts_limit: profile?.tier === 'premium' ? Infinity : FREE_TIER_LIMIT,
+      prompts_limit: profile?.tier === 'premium' ? PREMIUM_TIER_LIMIT : FREE_TIER_LIMIT,
       tier: profile?.tier || 'free',
     });
   } catch (error: any) {
@@ -63,10 +63,13 @@ export async function GET(request: NextRequest) {
 // POST - Increment usage
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    const auth = await requireUserId(request);
+    if ('error' in auth) return auth.error;
+    const userId = auth.userId;
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    const { userId: bodyUserId } = await request.json();
+    if (bodyUserId && bodyUserId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const supabaseAdmin = getSupabaseAdmin();
@@ -124,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       prompts_used: updated.prompts_used_this_month,
-      prompts_limit: profile.tier === 'premium' ? Infinity : FREE_TIER_LIMIT,
+      prompts_limit: profile.tier === 'premium' ? PREMIUM_TIER_LIMIT : FREE_TIER_LIMIT,
     });
   } catch (error: any) {
     console.error('Usage POST error:', error);

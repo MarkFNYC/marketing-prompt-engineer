@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
+import { getUserIdIfPresent } from '@/lib/auth-server';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -19,6 +20,9 @@ const DISCIPLINE_GOAL_ALIGNMENT: Record<string, string[]> = {
 // POST - Perform strategy check for Directed Mode
 export async function POST(request: NextRequest) {
   try {
+    const auth = await getUserIdIfPresent(request);
+    if ('error' in auth) return auth.error;
+
     const {
       userId,
       campaignId,
@@ -30,6 +34,10 @@ export async function POST(request: NextRequest) {
 
     if (!discipline || !goalType) {
       return NextResponse.json({ error: 'Discipline and goal type required' }, { status: 400 });
+    }
+
+    if (userId && auth.userId && userId !== auth.userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Quick alignment check
@@ -89,11 +97,11 @@ This is a misalignment. In 1-2 sentences, explain why ${discipline} typically do
     }
 
     // Log the strategy check for analytics
-    if (userId) {
+    if (auth.userId) {
       await getSupabaseAdmin()
         .from('strategy_checks')
         .insert({
-          user_id: userId,
+          user_id: auth.userId,
           campaign_id: campaignId || null,
           discipline,
           goal_type: goalType,
@@ -106,7 +114,11 @@ This is a misalignment. In 1-2 sentences, explain why ${discipline} typically do
     }
 
     // Update campaign if provided
-    if (campaignId) {
+    if (campaignId && !auth.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (campaignId && auth.userId) {
       await getSupabaseAdmin()
         .from('campaigns')
         .update({
@@ -114,7 +126,8 @@ This is a misalignment. In 1-2 sentences, explain why ${discipline} typically do
           strategy_check_recommendation: recommendation || null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', campaignId);
+        .eq('id', campaignId)
+        .eq('user_id', auth.userId);
     }
 
     return NextResponse.json({
@@ -132,6 +145,12 @@ This is a misalignment. In 1-2 sentences, explain why ${discipline} typically do
 // PUT - Record user's response to strategy check
 export async function PUT(request: NextRequest) {
   try {
+    const auth = await getUserIdIfPresent(request);
+    if ('error' in auth) return auth.error;
+    if (!auth.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { strategyCheckId, campaignId, response } = await request.json();
 
     if (!response || !['accepted', 'overridden', 'dismissed'].includes(response)) {
@@ -143,7 +162,8 @@ export async function PUT(request: NextRequest) {
       await getSupabaseAdmin()
         .from('strategy_checks')
         .update({ check_result: response })
-        .eq('id', strategyCheckId);
+        .eq('id', strategyCheckId)
+        .eq('user_id', auth.userId);
     }
 
     // Update campaign
@@ -154,7 +174,8 @@ export async function PUT(request: NextRequest) {
           strategy_check_user_response: response,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', campaignId);
+        .eq('id', campaignId)
+        .eq('user_id', auth.userId);
     }
 
     return NextResponse.json({ success: true });
