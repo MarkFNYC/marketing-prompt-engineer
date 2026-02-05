@@ -158,6 +158,7 @@ interface State {
   remixExpanded: boolean;
   // Usage limit modal
   showLimitModal: boolean;
+  checkoutLoading: boolean;
   // Campaign flow (v1.1)
   campaignMode: CampaignMode | null;
   currentCampaign: Campaign | null;
@@ -256,7 +257,8 @@ interface State {
   editedRemix: string;
 }
 
-const FREE_PROMPT_LIMIT = 15;
+const ANONYMOUS_PROMPT_LIMIT = 10;
+const SIGNED_IN_PROMPT_LIMIT = 25;
 const UNLIMITED_PROMPTS_LIMIT = Number.MAX_SAFE_INTEGER;
 
 const formatPromptsLimit = (limit: number) => {
@@ -289,7 +291,7 @@ export default function Home() {
     apiKey: '',
     llmProvider: 'gemini',
     freePromptsUsed: 0,
-    promptsLimit: FREE_PROMPT_LIMIT,
+    promptsLimit: ANONYMOUS_PROMPT_LIMIT,
     user: null,
     authModal: 'none',
     authLoading: false,
@@ -313,6 +315,7 @@ export default function Home() {
     remixExpanded: true,
     // Usage limit modal
     showLimitModal: false,
+    checkoutLoading: false,
     // Campaign flow (v1.1)
     campaignMode: null,
     currentCampaign: null,
@@ -406,6 +409,18 @@ export default function Home() {
   useEffect(() => {
     let subscription: { unsubscribe: () => void } | null = null;
 
+    // Handle Stripe checkout return
+    const urlParams = new URLSearchParams(window.location.search);
+    const upgradeStatus = urlParams.get('upgrade');
+    if (upgradeStatus === 'success') {
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Show success message (user will be upgraded via webhook)
+      alert('Welcome to Premium! Your account is being upgraded.');
+    } else if (upgradeStatus === 'cancelled') {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     // Only setup Supabase auth if configured
     if (supabase && isSupabaseConfigured()) {
       // Check for existing session
@@ -475,7 +490,7 @@ export default function Home() {
         setState(prev => ({
           ...prev,
           freePromptsUsed: data.prompts_used || 0,
-          promptsLimit: data.prompts_limit || FREE_PROMPT_LIMIT,
+          promptsLimit: data.prompts_limit || SIGNED_IN_PROMPT_LIMIT,
         }));
       }
     } catch (error) {
@@ -563,8 +578,41 @@ export default function Home() {
       projects: [],
       currentProject: null,
       freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
-      promptsLimit: FREE_PROMPT_LIMIT,
+      promptsLimit: ANONYMOUS_PROMPT_LIMIT,
     });
+  };
+
+  // Stripe checkout
+  const handleCheckout = async (priceType: 'monthly' | 'yearly' = 'monthly') => {
+    if (!state.user) {
+      updateState({ authModal: 'signup', showLimitModal: false });
+      return;
+    }
+
+    updateState({ checkoutLoading: true });
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(await getAuthHeaders()),
+        },
+        body: JSON.stringify({ priceType }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      alert(error.message || 'Failed to start checkout. Please try again.');
+      updateState({ checkoutLoading: false });
+    }
   };
 
   // Library functions
@@ -1444,10 +1492,39 @@ Important: Address this specific feedback while maintaining the core brief requi
               <div className="font-display text-6xl text-[#ff3333] mb-4">!</div>
               <h2 className="headline-md text-[#ff3333] mb-2">LIMIT REACHED</h2>
               <p className="text-[#888] mb-8">
-                You've burned through all {formatPromptsLimit(state.promptsLimit)} free prompts. Time to level up.
+                {state.user
+                  ? `You've burned through all ${formatPromptsLimit(state.promptsLimit)} free prompts. Time to level up.`
+                  : `You've used your ${formatPromptsLimit(state.promptsLimit)} free trial prompts.`
+                }
               </p>
 
               <div className="space-y-4 mb-8">
+                {/* Sign up option for anonymous users */}
+                {!state.user && (
+                  <>
+                    <div className="p-4 bg-[#1a1a1a] border-2 border-[#00ff66]">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-display text-lg text-[#00ff66]">SIGN UP FREE</span>
+                        <span className="font-mono text-[#00ff66]">+15 prompts</span>
+                      </div>
+                      <p className="text-sm text-[#aaa] text-left mb-4 font-mono">
+                        Create an account and get 15 more free prompts to keep creating.
+                      </p>
+                      <button
+                        onClick={() => {
+                          updateState({ showLimitModal: false, authModal: 'signup' });
+                        }}
+                        className="w-full px-6 py-3 bg-[#00ff66] text-black font-display tracking-wider hover:bg-[#00ff66]/90 transition-colors"
+                      >
+                        SIGN UP NOW
+                      </button>
+                    </div>
+
+                    <div className="font-display text-[#333] tracking-[0.3em]">OR</div>
+                  </>
+                )}
+
+                {/* Premium upgrade option */}
                 <div className="p-4 bg-[#1a1a1a] border-2 border-[#FFFF00]">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-display text-lg text-[#FFFF00]">PREMIUM</span>
@@ -1465,13 +1542,11 @@ Important: Address this specific feedback while maintaining the core brief requi
                     </li>
                   </ul>
                   <button
-                    onClick={() => {
-                      updateState({ showLimitModal: false });
-                      alert('Premium checkout coming soon!');
-                    }}
-                    className="btn-primary w-full"
+                    onClick={() => handleCheckout('monthly')}
+                    disabled={state.checkoutLoading}
+                    className="btn-primary w-full disabled:opacity-50"
                   >
-                    UPGRADE NOW
+                    {state.checkoutLoading ? 'LOADING...' : 'UPGRADE NOW'}
                   </button>
                 </div>
 
@@ -1548,7 +1623,7 @@ Important: Address this specific feedback while maintaining the core brief requi
                 {state.llmProvider === 'gemini' && !state.apiKey && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-[#1a1a1a] border border-[#333] overflow-hidden">
+                      <div className="w-20 h-2 bg-[#1a1a1a] border border-[#555] overflow-hidden">
                         <div
                           className={`h-full transition-all duration-300 ${
                             state.freePromptsUsed >= state.promptsLimit
@@ -1565,7 +1640,7 @@ Important: Address this specific feedback while maintaining the core brief requi
                           ? 'text-[#ff3333]'
                           : state.freePromptsUsed >= state.promptsLimit * 0.8
                             ? 'text-[#FFFF00]'
-                            : 'text-[#888]'
+                            : 'text-white'
                       }`}>
                         {state.freePromptsUsed}/{formatPromptsLimit(state.promptsLimit)}
                       </span>
@@ -2865,12 +2940,12 @@ function BrandInput({
 
         <div>
           <label className="block text-xs font-display tracking-[0.2em] text-[#FFFF00] mb-2">THE ARENA *</label>
-          <input type="text" id="industry" defaultValue={state.industry} placeholder="What battlefield are we on?" className="input-raw w-full" />
+          <input type="text" id="industry" defaultValue={state.industry} placeholder="What category are we competing in?" className="input-raw w-full" />
         </div>
 
         <div>
           <label className="block text-xs font-display tracking-[0.2em] text-[#FFFF00] mb-2">THE PROBLEM *</label>
-          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="What's keeping the client up at night?" className="input-raw w-full resize-none" />
+          <textarea id="challenge" rows={3} defaultValue={state.challenge} placeholder="What's keeping you or your client up at night?" className="input-raw w-full resize-none" />
           <p className="text-xs text-[#888] mt-2 font-mono">// "A problem well-stated is half-solved." — Charles Kettering</p>
         </div>
 

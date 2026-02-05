@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
 
-const FREE_TIER_LIMIT = 15;
+const FREE_TIER_LIMIT = 25;
 const PREMIUM_TIER_LIMIT = Number.MAX_SAFE_INTEGER;
 
 // GET - Get usage for a user
