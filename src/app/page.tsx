@@ -2613,6 +2613,41 @@ function LandingPage({
         </div>
       </div>
 
+      {/* Pricing section */}
+      <div className="py-12 border-t-2 border-[#FFFF00]">
+        <div className="flex items-center gap-4 mb-10">
+          <h2 className="font-display text-2xl md:text-3xl text-white tracking-wide">THE DEAL</h2>
+          <div className="flex-1 h-[2px] bg-[#333]"></div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
+          <div className="p-5 md:p-6 border border-[#333]">
+            <div className="text-3xl md:text-4xl font-display text-[#00ff66] mb-3 leading-none">FREE</div>
+            <h3 className="font-display text-lg mb-1 text-white">TRY IT OUT</h3>
+            <p className="text-[#888] text-sm leading-relaxed mb-2">10 prompts</p>
+            <p className="text-[#555] text-xs">No signup required</p>
+          </div>
+          <div className="p-5 md:p-6 border border-[#333] border-l-0">
+            <div className="text-3xl md:text-4xl font-display text-[#00ff66] mb-3 leading-none">FREE</div>
+            <h3 className="font-display text-lg mb-1 text-white">SIGNED UP</h3>
+            <p className="text-[#888] text-sm leading-relaxed mb-2">25 prompts/month</p>
+            <p className="text-[#555] text-xs">Create a free account</p>
+          </div>
+          <div className="p-5 md:p-6 border border-[#333] border-l-0 md:border-l-0 border-t-0 md:border-t">
+            <div className="text-3xl md:text-4xl font-display text-[#FFFF00] mb-3 leading-none">$29</div>
+            <h3 className="font-display text-lg mb-1 text-white">PREMIUM</h3>
+            <p className="text-[#888] text-sm leading-relaxed mb-2">Unlimited prompts</p>
+            <p className="text-[#555] text-xs">Per month, cancel anytime</p>
+          </div>
+          <div className="p-5 md:p-6 border border-[#333] border-l-0 border-t-0 md:border-t">
+            <div className="text-3xl md:text-4xl font-display text-[#FF0066] mb-3 leading-none">BYOK</div>
+            <h3 className="font-display text-lg mb-1 text-white">YOUR API KEY</h3>
+            <p className="text-[#888] text-sm leading-relaxed mb-2">Unlimited prompts</p>
+            <p className="text-[#555] text-xs">Use your own OpenAI/Anthropic key</p>
+          </div>
+        </div>
+      </div>
+
       {/* Footer - minimal */}
       <div className="py-6 border-t border-[#333] flex flex-wrap justify-between items-center gap-4">
         <p className="text-xs text-[#888]">
