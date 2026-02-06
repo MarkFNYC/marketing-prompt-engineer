@@ -2,23 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { getStripe } from '@/lib/stripe';
 import { requireUserId } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { userDeleteSchema } from '@/lib/validations';
 
 // POST - Delete user account
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
-    const { confirmEmail } = await request.json();
-
-    if (!confirmEmail) {
+    const body = await request.json();
+    const parsed = userDeleteSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Email confirmation is required' },
+        { error: 'A valid email confirmation is required' },
         { status: 400 }
       );
     }
+    const { confirmEmail } = parsed.data;
 
     const supabaseAdmin = getSupabaseAdmin();
 

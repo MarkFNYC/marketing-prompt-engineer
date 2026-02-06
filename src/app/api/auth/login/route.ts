@@ -1,10 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { loginSchema } from '@/lib/validations';
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     // Rate limiting (IP-based, 5 requests per minute)
     const identifier = getClientIdentifier(request);
     const rateCheck = rateLimiter.check(identifier, 5, 60_000);
@@ -15,11 +21,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email } = await request.json();
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    const body = await request.json();
+    const parsed = loginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid email address is required' }, { status: 400 });
     }
+    const { email } = parsed.data;
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

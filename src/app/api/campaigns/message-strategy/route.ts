@@ -2,7 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { messageStrategySchema } from '@/lib/validations';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -10,9 +12,18 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 // POST - Generate message strategy options for Discovery Mode
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await getUserIdIfPresent(request);
     if ('error' in auth) return auth.error;
 
+    const body = await request.json();
+    const parsed = messageStrategySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input. Business problem is required.' }, { status: 400 });
+    }
     const {
       campaignId,
       brandContext,
@@ -22,17 +33,12 @@ export async function POST(request: NextRequest) {
       budget,
       constraints,
       whatBeenTried,
-      // Expanded brief fields
       targetAudience,
       proposition,
       support,
       tone,
       mandatories,
-    } = await request.json();
-
-    if (!businessProblem) {
-      return NextResponse.json({ error: 'Business problem required' }, { status: 400 });
-    }
+    } = parsed.data;
 
     // Build the prompt for message strategy generation
     const prompt = `You are a senior marketing strategist. Your task is to analyze a business challenge and propose 3 distinct message strategies.

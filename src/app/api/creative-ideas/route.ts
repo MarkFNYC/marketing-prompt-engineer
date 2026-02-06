@@ -2,7 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { creativeIdeasSchema } from '@/lib/validations';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -10,6 +12,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 // POST - Generate creative territories/ideas (media-neutral)
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     // Rate limiting
     const authResult = await getUserIdIfPresent(request);
     const userId = 'userId' in authResult ? authResult.userId : null;
@@ -23,17 +29,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const body = await request.json();
+    const parsed = creativeIdeasSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input. Business problem and strategy are required.' }, { status: 400 });
+    }
     const {
       brandContext,
       businessProblem,
       selectedStrategy,
       constraints,
       targetAudience,
-    } = await request.json();
-
-    if (!businessProblem || !selectedStrategy) {
-      return NextResponse.json({ error: 'Business problem and strategy required' }, { status: 400 });
-    }
+    } = parsed.data;
 
     const prompt = `You are an award-winning Creative Director at a top agency. Your task is to generate 3 distinct creative territories (big ideas) that could bring a strategy to life.
 

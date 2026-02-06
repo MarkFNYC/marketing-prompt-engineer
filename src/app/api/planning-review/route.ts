@@ -2,7 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { planningReviewSchema } from '@/lib/validations';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -38,29 +40,9 @@ interface PlanningReviewRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    // Basic protection: Check origin/referer
-    const origin = request.headers.get('origin');
-    const referer = request.headers.get('referer');
-    const allowedOrigins = [
-      'https://amplify.fabricacollective.com',
-      'http://localhost:3000',
-      'https://marketing-prompter.vercel.app',
-    ];
-
-    // Also allow any vercel.app subdomain for preview deployments
-    const isVercelPreview = origin?.endsWith('.vercel.app') || referer?.includes('.vercel.app');
-
-    if (!origin && !referer) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const isAllowed = isVercelPreview || allowedOrigins.some(allowed =>
-      origin?.startsWith(allowed) || referer?.startsWith(allowed)
-    );
-
-    if (!isAllowed) {
-      return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
-    }
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
 
     // Rate limiting
     const authResult = await getUserIdIfPresent(request);
@@ -75,7 +57,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body: PlanningReviewRequest = await request.json();
+    const rawBody = await request.json();
+    const parsed = planningReviewSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+    }
     const {
       problemStatement,
       targetAudience,
@@ -83,7 +69,6 @@ export async function POST(request: NextRequest) {
       creativeIdea,
       mandatories,
       brandContext,
-      // Expanded brief fields
       proposition,
       support,
       tone,
@@ -91,7 +76,7 @@ export async function POST(request: NextRequest) {
       successMetric,
       timeline,
       budget,
-    } = body;
+    } = parsed.data;
 
     // Build the assessment prompt
     const assessmentPrompt = `You are a senior Planning Director at a top advertising agency (like DDB, Grey, or McCann). Your job is to review creative briefs before they go to the Creative team.

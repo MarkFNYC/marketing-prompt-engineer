@@ -77,8 +77,8 @@ API routes leak `error.message` details in production.
 
 ### CSRF Protection
 No CSRF tokens on any POST endpoint.
-- [ ] Implement CSRF token validation or SameSite=Strict cookies
-- [ ] Apply to all state-changing endpoints (auth, stripe, library, projects, campaigns)
+- [x] Implement origin validation via shared csrf.ts helper
+- [x] Apply to all state-changing endpoints (auth, stripe, library, projects, campaigns)
 
 ### "Do Not Sell" Link
 CCPA requires a visible opt-out link.
@@ -102,13 +102,13 @@ CCPA requires a visible opt-out link.
 
 ### Centralize Origin Allowlist
 Allowed origins are hardcoded in 3+ route files.
-- [ ] Move to shared config or environment variable
-- [ ] Import from single source in all routes
+- [x] Move to shared config or environment variable
+- [x] Import from single source in all routes
 
 ### Input Validation
 No schema validation on request bodies.
-- [ ] Add Zod schemas for all API route inputs
-- [ ] Validate UUIDs, enums, string lengths
+- [x] Add Zod schemas for all API route inputs
+- [x] Validate UUIDs, enums, string lengths
 
 ### Data Retention Policy
 No automated cleanup of old data.

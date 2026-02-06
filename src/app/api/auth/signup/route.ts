@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { signupSchema } from '@/lib/validations';
 
 // Verify Turnstile token with Cloudflare
 async function verifyTurnstile(token: string): Promise<boolean> {
@@ -31,6 +33,10 @@ async function verifyTurnstile(token: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     // Rate limiting (IP-based, 3 requests per minute)
     const identifier = getClientIdentifier(request);
     const rateCheck = rateLimiter.check(identifier, 3, 60_000);
@@ -41,11 +47,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, turnstileToken } = await request.json();
-
-    if (!email || !password) {
+    const body = await request.json();
+    const parsed = signupSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
+    const { email, password, turnstileToken } = parsed.data;
 
     // Verify Turnstile token
     if (turnstileToken) {

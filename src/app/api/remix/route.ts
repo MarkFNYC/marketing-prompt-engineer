@@ -2,35 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPersonaById } from '@/lib/personas';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { remixSchema } from '@/lib/validations';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 export async function POST(request: NextRequest) {
   try {
-    // Basic protection: Check origin/referer
-    const origin = request.headers.get('origin');
-    const referer = request.headers.get('referer');
-    const allowedOrigins = [
-      'https://amplify.fabricacollective.com',
-      'http://localhost:3000',
-      'https://marketing-prompter.vercel.app',
-    ];
-
-    // Also allow any vercel.app subdomain for preview deployments
-    const isVercelPreview = origin?.endsWith('.vercel.app') || referer?.includes('.vercel.app');
-
-    if (!origin && !referer) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const isAllowed = isVercelPreview || allowedOrigins.some(allowed =>
-      origin?.startsWith(allowed) || referer?.startsWith(allowed)
-    );
-
-    if (!isAllowed) {
-      return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
-    }
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
 
     // Rate limiting
     const authResult = await getUserIdIfPresent(request);
@@ -45,11 +27,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { originalContent, personaId, mode, brandContext, feedback } = await request.json();
-
-    if (!originalContent || !personaId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const body = await request.json();
+    const parsed = remixSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input. Original content and persona are required.' }, { status: 400 });
     }
+    const { originalContent, personaId, mode, brandContext, feedback } = parsed.data;
 
     const persona = getPersonaById(personaId);
     if (!persona) {
@@ -57,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build the remix prompt (with optional feedback for re-brief)
-    const remixPrompt = buildRemixPrompt(originalContent, persona, mode, brandContext, feedback);
+    const remixPrompt = buildRemixPrompt(originalContent, persona, mode ?? 'execution', brandContext ?? undefined, feedback ?? undefined);
 
     // Call Gemini API
     if (!GEMINI_API_KEY) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
 
 const FREE_TIER_LIMIT = 25;
@@ -63,6 +64,10 @@ export async function GET(request: NextRequest) {
 // POST - Increment usage
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;

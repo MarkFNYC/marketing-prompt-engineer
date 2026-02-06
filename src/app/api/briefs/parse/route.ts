@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -22,6 +23,10 @@ interface ParsedBrief {
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     // Rate limiting
     const authResult = await getUserIdIfPresent(request);
     const userId = 'userId' in authResult ? authResult.userId : null;

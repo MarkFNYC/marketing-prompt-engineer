@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { personasPostSchema } from '@/lib/validations';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -21,8 +23,16 @@ export async function GET(request: NextRequest) {
 // POST - Generate or create persona
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const body = await request.json();
-    const { action, projectId, industry, targetAudience, challenge, personaData } = body;
+    const parsed = personasPostSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+    }
+    const { action, projectId, industry, targetAudience, challenge, personaData } = parsed.data;
 
     if (action === 'generate') {
       // Generate personas using AI
@@ -123,6 +133,10 @@ Respond in this exact JSON format:
 
 // DELETE - Remove a persona
 export async function DELETE(request: NextRequest) {
+  // CSRF protection: validate request origin
+  const originError = requireOrigin(request);
+  if (originError) return originError;
+
   const { searchParams } = new URL(request.url);
   const personaId = searchParams.get('id');
 

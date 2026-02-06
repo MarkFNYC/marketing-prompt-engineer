@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { strategyCheckPostSchema, strategyCheckPutSchema } from '@/lib/validations';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -21,9 +23,18 @@ const DISCIPLINE_GOAL_ALIGNMENT: Record<string, string[]> = {
 // POST - Perform strategy check for Directed Mode
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await getUserIdIfPresent(request);
     if ('error' in auth) return auth.error;
 
+    const body = await request.json();
+    const parsed = strategyCheckPostSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input. Discipline and goal type are required.' }, { status: 400 });
+    }
     const {
       userId,
       campaignId,
@@ -31,11 +42,7 @@ export async function POST(request: NextRequest) {
       goalType,
       goalDescription,
       brandContext,
-    } = await request.json();
-
-    if (!discipline || !goalType) {
-      return NextResponse.json({ error: 'Discipline and goal type required' }, { status: 400 });
-    }
+    } = parsed.data;
 
     if (userId && auth.userId && userId !== auth.userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -145,17 +152,22 @@ This is a misalignment. In 1-2 sentences, explain why ${discipline} typically do
 // PUT - Record user's response to strategy check
 export async function PUT(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await getUserIdIfPresent(request);
     if ('error' in auth) return auth.error;
     if (!auth.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { strategyCheckId, campaignId, response } = await request.json();
-
-    if (!response || !['accepted', 'overridden', 'dismissed'].includes(response)) {
-      return NextResponse.json({ error: 'Valid response required' }, { status: 400 });
+    const body = await request.json();
+    const parsed = strategyCheckPutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid response is required' }, { status: 400 });
     }
+    const { strategyCheckId, campaignId, response } = parsed.data;
 
     // Update strategy check record
     if (strategyCheckId) {

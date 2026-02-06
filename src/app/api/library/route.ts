@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { libraryPostSchema, libraryDeleteSchema } from '@/lib/validations';
 
 const supabaseAdmin = { from: (table: string) => getSupabaseAdmin().from(table) };
 
@@ -39,18 +41,23 @@ export async function GET(request: NextRequest) {
 // POST - Save new content
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
-    const { userId: bodyUserId, projectId, title, discipline, mode, promptGoal, content } = await request.json();
+    const body = await request.json();
+    const parsed = libraryPostSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    const { userId: bodyUserId, projectId, title, discipline, mode, promptGoal, content } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!title || !discipline || !mode || !content) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const { data, error } = await supabaseAdmin
@@ -80,18 +87,23 @@ export async function POST(request: NextRequest) {
 // DELETE - Remove saved content
 export async function DELETE(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
-    const { id, userId: bodyUserId } = await request.json();
+    const body = await request.json();
+    const parsed = libraryDeleteSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid ID is required' }, { status: 400 });
+    }
+    const { id, userId: bodyUserId } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!id) {
-      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     const { error } = await supabaseAdmin

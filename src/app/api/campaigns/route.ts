@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { campaignPostSchema, campaignPutSchema, campaignDeleteSchema } from '@/lib/validations';
 
 // GET - Fetch user's campaigns (optionally filtered by brand)
 export async function GET(request: NextRequest) {
@@ -44,18 +46,25 @@ export async function GET(request: NextRequest) {
 // POST - Create new campaign
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
     const body = await request.json();
+    const parsed = campaignPostSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
     const {
       userId: bodyUserId,
       brandId,
       name,
       mode,
       discipline,
-      // Discovery Mode fields
       businessProblem,
       successMetric,
       successMetricValue,
@@ -63,18 +72,13 @@ export async function POST(request: NextRequest) {
       budget,
       campaignConstraints,
       whatBeenTried,
-      // Directed Mode fields
       goalType,
       goalDescription,
       campaignMandatories,
-    } = body;
+    } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!brandId || !name || !mode) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const campaignData: Record<string, any> = {
@@ -119,19 +123,23 @@ export async function POST(request: NextRequest) {
 // PUT - Update campaign
 export async function PUT(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
     const body = await request.json();
-    const { id, userId: bodyUserId, ...updates } = body;
+    const parsed = campaignPutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid campaign ID is required' }, { status: 400 });
+    }
+    const { id, userId: bodyUserId, ...updates } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!id) {
-      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     // Map camelCase to snake_case for database
@@ -193,18 +201,23 @@ export async function PUT(request: NextRequest) {
 // DELETE - Archive campaign (soft delete)
 export async function DELETE(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
-    const { id, userId: bodyUserId } = await request.json();
+    const body = await request.json();
+    const parsed = campaignDeleteSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid campaign ID is required' }, { status: 400 });
+    }
+    const { id, userId: bodyUserId } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!id) {
-      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     const { error } = await getSupabaseAdmin()

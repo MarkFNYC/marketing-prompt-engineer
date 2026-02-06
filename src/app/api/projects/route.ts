@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
+import { projectPostSchema, projectPutSchema, projectDeleteSchema } from '@/lib/validations';
 
 // GET - Fetch user's projects
 export async function GET(request: NextRequest) {
@@ -29,10 +31,19 @@ export async function GET(request: NextRequest) {
 // POST - Create new project
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
+    const body = await request.json();
+    const parsed = projectPostSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
     const {
       userId: bodyUserId,
       name,
@@ -44,14 +55,10 @@ export async function POST(request: NextRequest) {
       valueProposition,
       persistentMandatories,
       persistentConstraints,
-    } = await request.json();
+    } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!name || !industry || !challenge) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const { data, error } = await getSupabaseAdmin()
@@ -84,10 +91,19 @@ export async function POST(request: NextRequest) {
 // PUT - Update project
 export async function PUT(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
+    const body = await request.json();
+    const parsed = projectPutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid project ID is required' }, { status: 400 });
+    }
     const {
       id,
       userId: bodyUserId,
@@ -100,14 +116,10 @@ export async function PUT(request: NextRequest) {
       valueProposition,
       persistentMandatories,
       persistentConstraints,
-    } = await request.json();
+    } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!id) {
-      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     const updateData: Record<string, any> = {
@@ -146,18 +158,23 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete project
 export async function DELETE(request: NextRequest) {
   try {
+    // CSRF protection: validate request origin
+    const originError = requireOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireUserId(request);
     if ('error' in auth) return auth.error;
     const userId = auth.userId;
 
-    const { id, userId: bodyUserId } = await request.json();
+    const body = await request.json();
+    const parsed = projectDeleteSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'A valid project ID is required' }, { status: 400 });
+    }
+    const { id, userId: bodyUserId } = parsed.data;
 
     if (bodyUserId && bodyUserId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    if (!id) {
-      return NextResponse.json({ error: 'ID required' }, { status: 400 });
     }
 
     const { error } = await getSupabaseAdmin()
