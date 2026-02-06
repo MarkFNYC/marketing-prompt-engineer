@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { libraries, disciplines, icons } from '@/lib/data';
 import { personalizePrompt, simpleMarkdown } from '@/lib/utils';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -502,13 +502,13 @@ export default function Home() {
     setState(prev => ({ ...prev, ...updates }));
   };
 
-  const handleSignup = async (email: string, password: string) => {
+  const handleSignup = async (email: string, password: string, turnstileToken?: string) => {
     updateState({ authLoading: true, authError: null });
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, turnstileToken }),
       });
       const data = await response.json();
 
@@ -2153,6 +2153,8 @@ Important: Address this specific feedback while maintaining the core brief requi
 }
 
 // Auth Modal Component
+const TURNSTILE_SITE_KEY = '0x4AAAAAACYSY9iyDUHa3N6Y';
+
 function AuthModal({
   mode,
   onClose,
@@ -2167,7 +2169,7 @@ function AuthModal({
   mode: AuthModal;
   onClose: () => void;
   onLogin: (email: string) => void;
-  onSignup: (email: string, password: string) => void;
+  onSignup: (email: string, password: string, turnstileToken?: string) => void;
   onForgotPassword: (email: string) => void;
   onSwitchMode: (mode: AuthModal) => void;
   isLoading: boolean;
@@ -2177,13 +2179,45 @@ function AuthModal({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+
+  // Load Turnstile script and render widget for signup
+  useEffect(() => {
+    if (mode !== 'signup') return;
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.onload = () => {
+      if (turnstileRef.current && (window as any).turnstile) {
+        (window as any).turnstile.render(turnstileRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (token: string) => setTurnstileToken(token),
+          'error-callback': () => setTurnstileToken(null),
+          theme: 'dark',
+        });
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup
+      if ((window as any).turnstile && turnstileRef.current) {
+        (window as any).turnstile.remove(turnstileRef.current);
+      }
+    };
+  }, [mode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === 'login') {
       onLogin(email); // Magic link - no password needed
     } else if (mode === 'signup') {
-      onSignup(email, password);
+      if (!turnstileToken) {
+        return; // Wait for Turnstile
+      }
+      onSignup(email, password, turnstileToken);
     } else if (mode === 'forgot-password') {
       onForgotPassword(email);
     }
@@ -2441,6 +2475,13 @@ function AuthModal({
             </div>
           )}
 
+          {/* Turnstile widget for signup */}
+          {mode === 'signup' && (
+            <div className="flex justify-center">
+              <div ref={turnstileRef}></div>
+            </div>
+          )}
+
           {/* Magic link hint for login */}
           {mode === 'login' && (
             <p className="text-xs text-[#888] -mt-2">
@@ -2450,7 +2491,7 @@ function AuthModal({
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || (mode === 'signup' && !turnstileToken)}
             className="w-full py-3 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isLoading ? (
