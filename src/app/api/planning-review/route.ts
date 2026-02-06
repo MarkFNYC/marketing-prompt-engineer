@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
+import { getUserIdIfPresent } from '@/lib/auth-server';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -57,6 +59,19 @@ export async function POST(request: NextRequest) {
 
     if (!isAllowed) {
       return NextResponse.json({ error: 'Unauthorized - origin not allowed' }, { status: 403 });
+    }
+
+    // Rate limiting
+    const authResult = await getUserIdIfPresent(request);
+    const userId = 'userId' in authResult ? authResult.userId : null;
+    const identifier = getClientIdentifier(request, userId ?? undefined);
+    const limit = userId ? 10 : 5;
+    const rateCheck = rateLimiter.check(identifier, limit, 60_000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(rateCheck.resetMs / 1000)) } }
+      );
     }
 
     const body: PlanningReviewRequest = await request.json();

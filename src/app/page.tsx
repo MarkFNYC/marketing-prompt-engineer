@@ -159,6 +159,12 @@ interface State {
   // Usage limit modal
   showLimitModal: boolean;
   checkoutLoading: boolean;
+  // Account management
+  showAccountMenu: boolean;
+  showDeleteModal: boolean;
+  deleteConfirmEmail: string;
+  deleteLoading: boolean;
+  exportLoading: boolean;
   // Campaign flow (v1.1)
   campaignMode: CampaignMode | null;
   currentCampaign: Campaign | null;
@@ -315,6 +321,11 @@ export default function Home() {
     remixExpanded: true,
     // Usage limit modal
     showLimitModal: false,
+    showAccountMenu: false,
+    showDeleteModal: false,
+    deleteConfirmEmail: '',
+    deleteLoading: false,
+    exportLoading: false,
     checkoutLoading: false,
     // Campaign flow (v1.1)
     campaignMode: null,
@@ -580,6 +591,60 @@ export default function Home() {
       freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
       promptsLimit: ANONYMOUS_PROMPT_LIMIT,
     });
+  };
+
+  const handleExportData = async () => {
+    updateState({ exportLoading: true });
+    try {
+      const response = await fetch('/api/user/export', {
+        headers: await getAuthHeaders(),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.error || 'Export failed');
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `amplify-data-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('Failed to export data. Please try again.');
+    } finally {
+      updateState({ exportLoading: false });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!state.user || state.deleteConfirmEmail !== state.user.email) return;
+    updateState({ deleteLoading: true });
+    try {
+      const response = await fetch('/api/user/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
+        body: JSON.stringify({ confirmEmail: state.deleteConfirmEmail }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || 'Deletion failed');
+        updateState({ deleteLoading: false });
+        return;
+      }
+      if (supabase) await supabase.auth.signOut();
+      updateState({
+        user: null, projects: [], currentProject: null,
+        showDeleteModal: false, deleteConfirmEmail: '', deleteLoading: false,
+        freePromptsUsed: parseInt(localStorage.getItem('amplify_free_prompts_used') || '0', 10),
+        promptsLimit: ANONYMOUS_PROMPT_LIMIT,
+      });
+      alert('Your account and all data have been permanently deleted.');
+    } catch {
+      alert('Failed to delete account. Please try again.');
+      updateState({ deleteLoading: false });
+    }
   };
 
   // Stripe checkout
@@ -1580,6 +1645,55 @@ Important: Address this specific feedback while maintaining the core brief requi
         </div>
       )}
 
+      {/* Delete Account Confirmation Modal */}
+      {state.showDeleteModal && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0D0D0D] border-3 border-[#ff3333] p-8 w-full max-w-md relative">
+            <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-[#ff3333]"></div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-[#ff3333]"></div>
+            <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-[#ff3333]"></div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-[#ff3333]"></div>
+
+            <div className="text-center">
+              <div className="font-display text-6xl text-[#ff3333] mb-4">!</div>
+              <h2 className="font-display text-2xl text-[#ff3333] mb-2 tracking-wider">DELETE ACCOUNT</h2>
+              <p className="text-[#888] mb-6 text-sm">
+                This will permanently delete your account and all associated data including projects, campaigns, and saved content. This action cannot be undone.
+              </p>
+
+              <div className="mb-6 text-left">
+                <label className="text-xs text-[#888] uppercase tracking-wider font-display mb-2 block">
+                  Type your email to confirm
+                </label>
+                <input
+                  type="email"
+                  value={state.deleteConfirmEmail}
+                  onChange={(e) => updateState({ deleteConfirmEmail: e.target.value })}
+                  placeholder={state.user?.email || ''}
+                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#333] text-white font-mono text-sm focus:border-[#ff3333] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => updateState({ showDeleteModal: false, deleteConfirmEmail: '' })}
+                  className="flex-1 px-4 py-3 border border-[#333] text-[#888] hover:text-white font-display text-xs uppercase tracking-wider"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={state.deleteLoading || state.deleteConfirmEmail !== state.user?.email}
+                  className="flex-1 px-4 py-3 bg-[#ff3333] text-white font-display text-xs uppercase tracking-wider hover:bg-[#ff3333]/80 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {state.deleteLoading ? 'DELETING...' : 'DELETE FOREVER'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {state.step !== 'landing' && (
         <header className="border-b-2 border-[#333] bg-[#0D0D0D] sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 py-3">
@@ -1676,11 +1790,36 @@ Important: Address this specific feedback while maintaining the core brief requi
 
                 {/* Auth */}
                 {state.user ? (
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-[#888] font-mono hidden sm:inline">{state.user.email}</span>
+                  <div className="relative flex items-center gap-3">
+                    <button
+                      onClick={() => updateState({ showAccountMenu: !state.showAccountMenu })}
+                      className="text-xs text-[#888] hover:text-white font-mono hidden sm:inline cursor-pointer"
+                    >
+                      {state.user.email} ▾
+                    </button>
                     <button onClick={handleLogout} className="text-xs text-[#888] hover:text-white uppercase tracking-wider">
                       EXIT
                     </button>
+                    {state.showAccountMenu && (
+                      <>
+                      <div className="fixed inset-0 z-40" onClick={() => updateState({ showAccountMenu: false })} />
+                      <div className="absolute top-full right-0 mt-2 bg-[#1a1a1a] border border-[#333] z-50 min-w-[180px]">
+                        <button
+                          onClick={() => { handleExportData(); updateState({ showAccountMenu: false }); }}
+                          disabled={state.exportLoading}
+                          className="w-full text-left px-4 py-2 text-xs text-[#888] hover:text-[#FFFF00] hover:bg-[#222] uppercase tracking-wider font-display disabled:opacity-50"
+                        >
+                          {state.exportLoading ? 'EXPORTING...' : 'DOWNLOAD MY DATA'}
+                        </button>
+                        <button
+                          onClick={() => updateState({ showDeleteModal: true, showAccountMenu: false })}
+                          className="w-full text-left px-4 py-2 text-xs text-[#ff3333] hover:text-white hover:bg-[#ff3333]/20 uppercase tracking-wider font-display"
+                        >
+                          DELETE ACCOUNT
+                        </button>
+                      </div>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <button
