@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // GET - Fetch user's campaigns (optionally filtered by brand)
 export async function GET(request: NextRequest) {
@@ -31,13 +32,12 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to fetch campaigns', 500, 'Campaigns GET query error:', error);
     }
 
     return NextResponse.json({ campaigns: data });
   } catch (error: any) {
-    console.error('Campaigns GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to fetch campaigns', 500, 'Campaigns GET error:', error);
   }
 }
 
@@ -107,13 +107,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to create campaign', 500, 'Campaigns POST insert error:', error);
     }
 
     return NextResponse.json({ campaign: data });
   } catch (error: any) {
-    console.error('Campaigns POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to create campaign', 500, 'Campaigns POST error:', error);
   }
 }
 
@@ -182,13 +181,12 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to update campaign', 500, 'Campaigns PUT update error:', error);
     }
 
     return NextResponse.json({ campaign: data });
   } catch (error: any) {
-    console.error('Campaigns PUT error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to update campaign', 500, 'Campaigns PUT error:', error);
   }
 }
 
@@ -216,12 +214,11 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', userId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to archive campaign', 500, 'Campaigns DELETE query error:', error);
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Campaigns DELETE error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to archive campaign', 500, 'Campaigns DELETE error:', error);
   }
 }

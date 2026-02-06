@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -261,7 +262,8 @@ IMPORTANT RULES FOR STRATEGY MODE:
 
       const data = await response.json();
       if (data.error) {
-        return NextResponse.json({ error: data.error.message }, { status: 400 });
+        console.error('OpenAI API error:', data.error);
+        return NextResponse.json({ error: 'OpenAI request failed. Please check your API key and try again.' }, { status: 400 });
       }
       result = data.choices[0].message.content;
     }
@@ -286,7 +288,8 @@ IMPORTANT RULES FOR STRATEGY MODE:
 
       const data = await response.json();
       if (data.error) {
-        return NextResponse.json({ error: data.error.message }, { status: 400 });
+        console.error('Anthropic API error:', data.error);
+        return NextResponse.json({ error: 'Anthropic request failed. Please check your API key and try again.' }, { status: 400 });
       }
       result = data.content[0].text;
     }
@@ -305,10 +308,6 @@ IMPORTANT RULES FOR STRATEGY MODE:
     return NextResponse.json({ result });
 
   } catch (error: any) {
-    console.error('Generate API error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to generate content' },
-      { status: 500 }
-    );
+    return apiError('Failed to generate content', 500, 'Generate API error:', error);
   }
 }

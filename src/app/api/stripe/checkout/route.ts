@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe, getStripePrices } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,10 +17,7 @@ export async function POST(request: NextRequest) {
     const priceId = priceType === 'yearly' ? prices.yearly : prices.monthly;
 
     if (!priceId) {
-      return NextResponse.json(
-        { error: `Missing STRIPE_PRICE_ID_${priceType.toUpperCase()} environment variable` },
-        { status: 500 }
-      );
+      return apiError('Checkout configuration error', 500, `Missing STRIPE_PRICE_ID_${priceType.toUpperCase()} environment variable`);
     }
 
     const supabaseAdmin = getSupabaseAdmin();
@@ -87,10 +85,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error('Stripe checkout error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create checkout session' },
-      { status: 500 }
-    );
+    return apiError('Failed to create checkout session', 500, 'Stripe checkout error:', error);
   }
 }

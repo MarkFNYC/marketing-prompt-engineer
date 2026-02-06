@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // GET - Export all user data as a downloadable JSON file
 export async function GET(request: NextRequest) {
@@ -27,19 +28,19 @@ export async function GET(request: NextRequest) {
     ]);
 
     if (profileError && profileError.code !== 'PGRST116') {
-      return NextResponse.json({ error: profileError.message }, { status: 500 });
+      return apiError('Failed to export user data', 500, 'Export profile error:', profileError);
     }
     if (projectsError) {
-      return NextResponse.json({ error: projectsError.message }, { status: 500 });
+      return apiError('Failed to export user data', 500, 'Export projects error:', projectsError);
     }
     if (campaignsError) {
-      return NextResponse.json({ error: campaignsError.message }, { status: 500 });
+      return apiError('Failed to export user data', 500, 'Export campaigns error:', campaignsError);
     }
     if (savedContentError) {
-      return NextResponse.json({ error: savedContentError.message }, { status: 500 });
+      return apiError('Failed to export user data', 500, 'Export saved content error:', savedContentError);
     }
     if (strategyChecksError) {
-      return NextResponse.json({ error: strategyChecksError.message }, { status: 500 });
+      return apiError('Failed to export user data', 500, 'Export strategy checks error:', strategyChecksError);
     }
 
     // Get user email from Supabase auth
@@ -76,7 +77,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('User data export error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to export user data', 500, 'User data export error:', error);
   }
 }

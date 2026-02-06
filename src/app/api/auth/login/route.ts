@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
+import { apiError } from '@/lib/api-error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +35,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 401 });
+      console.error('Login Supabase error:', error);
+      return NextResponse.json({ error: 'Login failed. Please try again.' }, { status: 401 });
     }
 
     return NextResponse.json({
@@ -42,7 +44,6 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error: any) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Login failed', 500, 'Login error:', error);
   }
 }

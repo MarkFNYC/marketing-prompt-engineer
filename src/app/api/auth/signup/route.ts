@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
+import { apiError } from '@/lib/api-error';
 
 // Verify Turnstile token with Cloudflare
 async function verifyTurnstile(token: string): Promise<boolean> {
@@ -71,7 +72,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error('Signup Supabase error:', error);
+      return NextResponse.json({ error: 'Signup failed. Please try again or use a different email.' }, { status: 400 });
     }
 
     // Create profile for new user
@@ -95,7 +97,6 @@ export async function POST(request: NextRequest) {
       session: data.session,
     });
   } catch (error: any) {
-    console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Signup failed', 500, 'Signup error:', error);
   }
 }

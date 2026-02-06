@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { getStripe } from '@/lib/stripe';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // POST - Delete user account
 export async function POST(request: NextRequest) {
@@ -26,10 +27,7 @@ export async function POST(request: NextRequest) {
       await supabaseAdmin.auth.admin.getUserById(userId);
 
     if (authError || !authUser?.user) {
-      return NextResponse.json(
-        { error: 'Unable to verify user identity' },
-        { status: 500 }
-      );
+      return apiError('Unable to verify user identity', 500, 'User delete auth lookup error:', authError);
     }
 
     if (authUser.user.email !== confirmEmail) {
@@ -73,11 +71,7 @@ export async function POST(request: NextRequest) {
         .eq(column, userId);
 
       if (deleteError) {
-        console.error(`Error deleting from ${table}:`, deleteError);
-        return NextResponse.json(
-          { error: 'Failed to delete account data' },
-          { status: 500 }
-        );
+        return apiError('Failed to delete account data', 500, `Error deleting from ${table}:`, deleteError);
       }
     }
 
@@ -86,19 +80,11 @@ export async function POST(request: NextRequest) {
       await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteAuthError) {
-      console.error('Error deleting auth user:', deleteAuthError);
-      return NextResponse.json(
-        { error: 'Failed to delete account' },
-        { status: 500 }
-      );
+      return apiError('Failed to delete account', 500, 'Error deleting auth user:', deleteAuthError);
     }
 
     return NextResponse.json({ message: 'Account deleted successfully' });
   } catch (error: any) {
-    console.error('Account deletion error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiError('Failed to delete account', 500, 'Account deletion error:', error);
   }
 }

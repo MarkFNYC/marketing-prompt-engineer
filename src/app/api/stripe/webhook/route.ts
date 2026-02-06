@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
+import { apiError } from '@/lib/api-error';
 import Stripe from 'stripe';
 
 // Disable body parsing - we need the raw body for webhook verification
@@ -11,8 +12,7 @@ export async function POST(request: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    console.error('Missing STRIPE_WEBHOOK_SECRET');
-    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
+    return apiError('Webhook configuration error', 500, 'Missing STRIPE_WEBHOOK_SECRET');
   }
 
   const body = await request.text();
@@ -118,7 +118,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('Webhook handler error:', error);
-    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
+    return apiError('Webhook handler failed', 500, 'Webhook handler error:', error);
   }
 }

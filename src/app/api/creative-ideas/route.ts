@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -101,7 +102,6 @@ Based on this strategy, propose 3 distinct creative territories. Each should be 
 
     return NextResponse.json({ ideas });
   } catch (error: any) {
-    console.error('Creative ideas generation error:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    return apiError('Failed to generate creative ideas', 500, 'Creative ideas generation error:', error);
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 const FREE_TIER_LIMIT = 25;
 const PREMIUM_TIER_LIMIT = Number.MAX_SAFE_INTEGER;
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
           tier: 'free',
         });
       }
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to fetch usage data', 500, 'Usage GET query error:', error);
     }
 
     // Check if we need to reset monthly usage
@@ -55,8 +56,7 @@ export async function GET(request: NextRequest) {
       tier: profile?.tier || 'free',
     });
   } catch (error: any) {
-    console.error('Usage GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to fetch usage data', 500, 'Usage GET error:', error);
   }
 }
 
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (fetchError) {
-      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+      return apiError('Failed to fetch usage data', 500, 'Usage POST fetch error:', fetchError);
     }
 
     // Check limit
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+      return apiError('Failed to update usage data', 500, 'Usage POST update error:', updateError);
     }
 
     return NextResponse.json({
@@ -130,8 +130,7 @@ export async function POST(request: NextRequest) {
       prompts_limit: profile.tier === 'premium' ? PREMIUM_TIER_LIMIT : FREE_TIER_LIMIT,
     });
   } catch (error: any) {
-    console.error('Usage POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to update usage', 500, 'Usage POST error:', error);
   }
 }
 

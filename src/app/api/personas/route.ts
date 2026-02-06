@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { apiError } from '@/lib/api-error';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -116,8 +117,7 @@ Respond in this exact JSON format:
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
-    console.error('Personas API error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError('Failed to process persona request', 500, 'Personas API error:', error);
   }
 }
 

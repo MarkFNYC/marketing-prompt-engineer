@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // GET - Fetch user's projects
 export async function GET(request: NextRequest) {
@@ -16,13 +17,12 @@ export async function GET(request: NextRequest) {
       .order('updated_at', { ascending: false });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to fetch projects', 500, 'Projects GET query error:', error);
     }
 
     return NextResponse.json({ projects: data });
   } catch (error: any) {
-    console.error('Projects GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to fetch projects', 500, 'Projects GET error:', error);
   }
 }
 
@@ -72,13 +72,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to create project', 500, 'Projects POST insert error:', error);
     }
 
     return NextResponse.json({ project: data });
   } catch (error: any) {
-    console.error('Projects POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to create project', 500, 'Projects POST error:', error);
   }
 }
 
@@ -135,13 +134,12 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to update project', 500, 'Projects PUT update error:', error);
     }
 
     return NextResponse.json({ project: data });
   } catch (error: any) {
-    console.error('Projects PUT error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to update project', 500, 'Projects PUT error:', error);
   }
 }
 
@@ -169,12 +167,11 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', userId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to delete project', 500, 'Projects DELETE query error:', error);
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Projects DELETE error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to delete project', 500, 'Projects DELETE error:', error);
   }
 }

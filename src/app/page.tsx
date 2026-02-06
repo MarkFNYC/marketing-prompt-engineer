@@ -2859,6 +2859,8 @@ function LandingPage({
           <a href="/privacy" className="text-[#888] hover:text-[#FFFF00] transition-colors tracking-wider">PRIVACY</a>
           <span className="text-[#333]">/</span>
           <a href="/terms" className="text-[#888] hover:text-[#FFFF00] transition-colors tracking-wider">TERMS</a>
+          <span className="text-[#333]">/</span>
+          <a href="/privacy#ccpa-rights" className="text-[#888] hover:text-[#FFFF00] transition-colors tracking-wider">DO NOT SELL MY INFO</a>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-[#FF0066]"></div>

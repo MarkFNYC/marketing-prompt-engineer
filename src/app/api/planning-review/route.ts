@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -212,10 +213,6 @@ Return ONLY valid JSON, no markdown formatting.`;
     }
 
   } catch (error: any) {
-    console.error('Planning Review API error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to assess brief' },
-      { status: 500 }
-    );
+    return apiError('Failed to assess brief', 500, 'Planning Review API error:', error);
   }
 }

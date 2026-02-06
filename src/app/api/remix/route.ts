@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPersonaById } from '@/lib/personas';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Call Gemini API
     if (!GEMINI_API_KEY) {
-      return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
+      return apiError('Service configuration error', 500, 'Missing GEMINI_API_KEY for remix');
     }
 
     const response = await fetch(
@@ -82,11 +83,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Gemini API error:', errorData);
-      return NextResponse.json(
-        { error: errorData.error?.message || 'Failed to generate remix' },
-        { status: response.status }
-      );
+      return apiError('Failed to generate remix', response.status >= 500 ? 500 : response.status, 'Gemini API error:', errorData);
     }
 
     const data = await response.json();
@@ -107,8 +104,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Remix API error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError('Failed to generate remix', 500, 'Remix API error:', error);
   }
 }
 

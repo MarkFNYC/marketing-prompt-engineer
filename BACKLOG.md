@@ -54,26 +54,26 @@ Signup bot protection currently skips verification if `TURNSTILE_SECRET_KEY` is 
 
 ### Row Level Security (RLS) Hardening
 Database-level security is incomplete — only `campaigns` and `strategy_checks` have RLS.
-- [ ] Verify/enable RLS on `profiles` table
-- [ ] Verify/enable RLS on `projects` table
-- [ ] Verify/enable RLS on `saved_content` table
-- [ ] Add UPDATE/DELETE policies to `strategy_checks` table
+- [x] Verify/enable RLS on `profiles` table
+- [x] Verify/enable RLS on `projects` table
+- [x] Verify/enable RLS on `saved_content` table
+- [x] Add UPDATE/DELETE policies to `strategy_checks` table
 - [ ] Test: confirm user A cannot access user B's data at the database level
 
 ### Require Auth on AI Generation Routes
 AI endpoints only check origin/referer headers — easily spoofed.
-- [ ] Add bearer token auth to `/api/generate`
-- [ ] Add bearer token auth to `/api/creative-ideas`
-- [ ] Add bearer token auth to `/api/remix`
-- [ ] Add bearer token auth to `/api/planning-review`
-- [ ] Add bearer token auth to `/api/briefs/parse`
-- [ ] Preserve anonymous usage tracking via IP/session for free-tier users
+- [x] Add bearer token auth to `/api/generate`
+- [x] Add bearer token auth to `/api/creative-ideas`
+- [x] Add bearer token auth to `/api/remix`
+- [x] Add bearer token auth to `/api/planning-review`
+- [x] Add bearer token auth to `/api/briefs/parse`
+- [x] Preserve anonymous usage tracking via IP/session for free-tier users
 
 ### Sanitize Error Responses
 API routes leak `error.message` details in production.
-- [ ] Create error sanitization helper
-- [ ] Return generic messages in production, log full details server-side
-- [ ] Apply to all API routes
+- [x] Create error sanitization helper
+- [x] Return generic messages in production, log full details server-side
+- [x] Apply to all API routes
 
 ### CSRF Protection
 No CSRF tokens on any POST endpoint.
@@ -82,8 +82,8 @@ No CSRF tokens on any POST endpoint.
 
 ### "Do Not Sell" Link
 CCPA requires a visible opt-out link.
-- [ ] Add "Your Privacy Choices" or "Do Not Sell My Personal Information" link to footer
-- [ ] Link to privacy policy CCPA section or dedicated opt-out mechanism
+- [x] Add "Do Not Sell My Info" link to footer
+- [x] Link to privacy policy CCPA section
 
 ---
 

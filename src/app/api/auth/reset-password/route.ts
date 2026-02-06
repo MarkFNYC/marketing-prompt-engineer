@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
+import { apiError } from '@/lib/api-error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,12 +31,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error('Reset password Supabase error:', error);
+      return NextResponse.json({ error: 'Password reset failed. Please try again.' }, { status: 400 });
     }
 
     return NextResponse.json({ message: 'Password reset email sent' });
   } catch (error: any) {
-    console.error('Reset password error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Password reset failed', 500, 'Reset password error:', error);
   }
 }

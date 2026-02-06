@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 // Initialize Gemini with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -124,7 +125,6 @@ Based on this comprehensive brief, propose 3 distinct message strategies. Each s
 
     return NextResponse.json({ strategies });
   } catch (error: any) {
-    console.error('Message strategy generation error:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    return apiError('Failed to generate message strategy', 500, 'Message strategy generation error:', error);
   }
 }

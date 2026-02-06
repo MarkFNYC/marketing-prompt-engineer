@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -137,8 +138,7 @@ This is a misalignment. In 1-2 sentences, explain why ${discipline} typically do
       alternativeDisciplines,
     });
   } catch (error: any) {
-    console.error('Strategy check error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Strategy check failed', 500, 'Strategy check error:', error);
   }
 }
 
@@ -180,7 +180,6 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Strategy check response error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to record strategy check response', 500, 'Strategy check response error:', error);
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
 import { getUserIdIfPresent } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -79,8 +80,7 @@ export async function POST(request: NextRequest) {
     // Parse text content with Gemini
     return await parseWithGeminiText(documentText);
   } catch (error: any) {
-    console.error('Brief parsing error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to parse brief' }, { status: 500 });
+    return apiError('Failed to parse brief', 500, 'Brief parsing error:', error);
   }
 }
 
@@ -105,7 +105,7 @@ async function parseWithGeminiText(text: string): Promise<NextResponse> {
   const data = await response.json();
 
   if (data.error) {
-    return NextResponse.json({ error: data.error.message }, { status: 500 });
+    return apiError('Failed to parse brief', 500, 'Gemini text API error:', data.error);
   }
 
   const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -174,7 +174,7 @@ Return ONLY valid JSON in this exact format:
   const data = await response.json();
 
   if (data.error) {
-    return NextResponse.json({ error: data.error.message }, { status: 500 });
+    return apiError('Failed to parse brief', 500, 'Gemini vision API error:', data.error);
   }
 
   const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';

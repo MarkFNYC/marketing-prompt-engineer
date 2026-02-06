@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 const supabaseAdmin = { from: (table: string) => getSupabaseAdmin().from(table) };
 
@@ -26,13 +27,12 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to fetch library', 500, 'Library GET query error:', error);
     }
 
     return NextResponse.json({ items: data });
   } catch (error: any) {
-    console.error('Library GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to fetch library', 500, 'Library GET error:', error);
   }
 }
 
@@ -68,13 +68,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to save content', 500, 'Library POST insert error:', error);
     }
 
     return NextResponse.json({ item: data });
   } catch (error: any) {
-    console.error('Library POST error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to save content', 500, 'Library POST error:', error);
   }
 }
 
@@ -102,12 +101,11 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', userId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('Failed to delete content', 500, 'Library DELETE query error:', error);
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Library DELETE error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError('Failed to delete content', 500, 'Library DELETE error:', error);
   }
 }

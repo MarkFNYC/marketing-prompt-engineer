@@ -436,7 +436,7 @@ export default function PrivacyPolicyPage() {
         <div className="border-t border-[#333] mb-10" />
 
         {/* 7. Your Privacy Rights — CCPA */}
-        <section className="mb-10">
+        <section id="ccpa-rights" className="mb-10">
           <h2 className="font-display text-white text-2xl tracking-wide uppercase mb-6">
             7. Your Privacy Rights (California Residents)
           </h2>

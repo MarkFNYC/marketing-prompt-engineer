@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { requireUserId } from '@/lib/auth-server';
+import { apiError } from '@/lib/api-error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,10 +37,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error('Stripe portal error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create portal session' },
-      { status: 500 }
-    );
+    return apiError('Failed to create portal session', 500, 'Stripe portal error:', error);
   }
 }
