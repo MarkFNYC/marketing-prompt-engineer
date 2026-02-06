@@ -84,6 +84,19 @@ class RateLimiter {
 export const rateLimiter = new RateLimiter();
 
 /**
+ * Determine the per-minute rate limit for a request based on user context.
+ *
+ * @param userId  The authenticated user's ID, or null for anonymous users
+ * @param tier    The user's subscription tier (e.g. 'premium', 'free')
+ * @returns       The maximum number of requests allowed per minute
+ */
+export function getRateLimit(userId: string | null, tier?: string): number {
+  if (tier === 'premium') return 50;
+  if (userId) return 10;
+  return 5;
+}
+
+/**
  * Derive a stable client identifier from the request.
  *
  * If a `userId` is provided it takes precedence (authenticated path).

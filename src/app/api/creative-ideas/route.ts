@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { rateLimiter, getClientIdentifier } from '@/lib/rate-limiter';
-import { getUserIdIfPresent } from '@/lib/auth-server';
+import { rateLimiter, getClientIdentifier, getRateLimit } from '@/lib/rate-limiter';
+import { getUserIdIfPresent, getUserTier } from '@/lib/auth-server';
 import { requireOrigin } from '@/lib/csrf';
 import { apiError } from '@/lib/api-error';
 import { creativeIdeasSchema } from '@/lib/validations';
@@ -16,11 +16,12 @@ export async function POST(request: NextRequest) {
     const originError = requireOrigin(request);
     if (originError) return originError;
 
-    // Rate limiting
+    // Rate limiting (premium users get a higher allowance)
     const authResult = await getUserIdIfPresent(request);
     const userId = 'userId' in authResult ? authResult.userId : null;
+    const tier = userId ? await getUserTier(userId) : undefined;
     const identifier = getClientIdentifier(request, userId ?? undefined);
-    const limit = userId ? 10 : 5;
+    const limit = getRateLimit(userId, tier);
     const rateCheck = rateLimiter.check(identifier, limit, 60_000);
     if (!rateCheck.allowed) {
       return NextResponse.json(

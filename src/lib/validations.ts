@@ -14,6 +14,7 @@ export const signupSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   email: z.string().email().max(255),
+  turnstileToken: z.string().max(4096).optional(),
 });
 
 // ─── Generate ────────────────────────────────────────────────────────────────

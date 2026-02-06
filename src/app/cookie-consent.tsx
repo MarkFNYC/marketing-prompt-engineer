@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
-const GA_MEASUREMENT_ID = 'G-CF80X5DDSG';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export function CookieConsent() {
   const [consent, setConsent] = useState<'pending' | 'accepted' | 'declined'>('pending');
@@ -36,8 +36,8 @@ export function CookieConsent() {
 
   return (
     <>
-      {/* Only load GA after consent */}
-      {consent === 'accepted' && (
+      {/* Only load GA after consent and when measurement ID is configured */}
+      {consent === 'accepted' && GA_MEASUREMENT_ID && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { getSupabaseAdmin } from '@/lib/supabase-server';
 
 function getSupabaseEnv() {
   return {
@@ -64,4 +65,28 @@ export async function getUserIdIfPresent(request: NextRequest): Promise<{ userId
   }
 
   return { userId: data.user.id };
+}
+
+/**
+ * Look up the subscription tier for an authenticated user.
+ *
+ * Returns the tier string from the profiles table (e.g. 'free', 'premium'),
+ * or undefined if the profile cannot be retrieved.  The query uses the
+ * service-role admin client so it bypasses RLS.
+ */
+export async function getUserTier(userId: string): Promise<string | undefined> {
+  try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('tier')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) return undefined;
+    return data.tier ?? undefined;
+  } catch {
+    // If the lookup fails for any reason, fall back to the default tier
+    return undefined;
+  }
 }

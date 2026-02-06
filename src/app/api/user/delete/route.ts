@@ -51,14 +51,36 @@ export async function POST(request: NextRequest) {
       .eq('id', userId)
       .single();
 
+    let stripeSubscriptionCancelled = false;
     if (profile?.stripe_subscription_id) {
       try {
         const stripe = getStripe();
         await stripe.subscriptions.cancel(profile.stripe_subscription_id);
+        stripeSubscriptionCancelled = true;
       } catch (stripeError: any) {
         console.error('Stripe subscription cancellation error:', stripeError);
         // Continue with deletion even if Stripe cancellation fails
       }
+    }
+
+    // Audit trail: log the deletion BEFORE removing data
+    try {
+      const forwarded = request.headers.get('x-forwarded-for');
+      const ipAddress = forwarded ? forwarded.split(',')[0].trim() : null;
+
+      await supabaseAdmin.from('audit_log').insert({
+        action: 'account_deleted',
+        user_id: userId,
+        user_email: authUser.user.email,
+        ip_address: ipAddress,
+        details: {
+          tables_deleted: ['strategy_checks', 'saved_content', 'campaigns', 'projects', 'profiles'],
+          stripe_subscription_cancelled: stripeSubscriptionCancelled,
+        },
+      });
+    } catch (auditError: any) {
+      // Audit logging must not block the deletion flow
+      console.error('Audit log insert failed:', auditError);
     }
 
     // Delete user data in order (respects FK constraints)

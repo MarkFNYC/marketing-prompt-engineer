@@ -539,13 +539,13 @@ export default function Home() {
     }
   };
 
-  const handleForgotPassword = async (email: string) => {
+  const handleForgotPassword = async (email: string, turnstileToken?: string) => {
     updateState({ authLoading: true, authError: null });
     try {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, turnstileToken }),
       });
       const data = await response.json();
 
@@ -2292,7 +2292,7 @@ Important: Address this specific feedback while maintaining the core brief requi
 }
 
 // Auth Modal Component
-const TURNSTILE_SITE_KEY = '0x4AAAAAACYSY9iyDUHa3N6Y';
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 function AuthModal({
   mode,
@@ -2309,7 +2309,7 @@ function AuthModal({
   onClose: () => void;
   onLogin: (email: string) => void;
   onSignup: (email: string, password: string, turnstileToken?: string) => void;
-  onForgotPassword: (email: string) => void;
+  onForgotPassword: (email: string, turnstileToken?: string) => void;
   onSwitchMode: (mode: AuthModal) => void;
   isLoading: boolean;
   error: string | null;
@@ -2321,17 +2321,20 @@ function AuthModal({
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileForgotRef = useRef<HTMLDivElement>(null);
 
-  // Load Turnstile script and render widget for signup
+  // Load Turnstile script and render widget for signup and forgot-password
   useEffect(() => {
-    if (mode !== 'signup') return;
+    if ((mode !== 'signup' && mode !== 'forgot-password') || !TURNSTILE_SITE_KEY) return;
 
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-    script.async = true;
-    script.onload = () => {
-      if (turnstileRef.current && (window as any).turnstile) {
-        (window as any).turnstile.render(turnstileRef.current, {
+    const targetRef = mode === 'signup' ? turnstileRef : turnstileForgotRef;
+
+    // Reset token when switching modes
+    setTurnstileToken(null);
+
+    const renderWidget = () => {
+      if (targetRef.current && (window as any).turnstile) {
+        (window as any).turnstile.render(targetRef.current, {
           sitekey: TURNSTILE_SITE_KEY,
           callback: (token: string) => setTurnstileToken(token),
           'error-callback': () => setTurnstileToken(null),
@@ -2339,12 +2342,22 @@ function AuthModal({
         });
       }
     };
-    document.body.appendChild(script);
+
+    // If Turnstile script is already loaded, just render
+    if ((window as any).turnstile) {
+      renderWidget();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      script.async = true;
+      script.onload = renderWidget;
+      document.body.appendChild(script);
+    }
 
     return () => {
       // Cleanup
-      if ((window as any).turnstile && turnstileRef.current) {
-        (window as any).turnstile.remove(turnstileRef.current);
+      if ((window as any).turnstile && targetRef.current) {
+        (window as any).turnstile.remove(targetRef.current);
       }
     };
   }, [mode]);
@@ -2354,12 +2367,15 @@ function AuthModal({
     if (mode === 'login') {
       onLogin(email); // Magic link - no password needed
     } else if (mode === 'signup') {
-      if (!turnstileToken) {
+      if (TURNSTILE_SITE_KEY && !turnstileToken) {
         return; // Wait for Turnstile
       }
-      onSignup(email, password, turnstileToken);
+      onSignup(email, password, turnstileToken ?? undefined);
     } else if (mode === 'forgot-password') {
-      onForgotPassword(email);
+      if (TURNSTILE_SITE_KEY && !turnstileToken) {
+        return; // Wait for Turnstile
+      }
+      onForgotPassword(email, turnstileToken ?? undefined);
     }
   };
 
@@ -2512,9 +2528,14 @@ function AuthModal({
               />
             </div>
 
+            {/* Turnstile widget for forgot-password */}
+            <div className="flex justify-center">
+              <div ref={turnstileForgotRef}></div>
+            </div>
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
               className="w-full py-3 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isLoading ? (
@@ -2633,8 +2654,8 @@ function AuthModal({
             </label>
           )}
 
-          {/* Turnstile widget for signup */}
-          {mode === 'signup' && (
+          {/* Turnstile widget for signup (only renders when site key is configured) */}
+          {mode === 'signup' && TURNSTILE_SITE_KEY && (
             <div className="flex justify-center">
               <div ref={turnstileRef}></div>
             </div>
@@ -2649,7 +2670,7 @@ function AuthModal({
 
           <button
             type="submit"
-            disabled={isLoading || (mode === 'signup' && (!turnstileToken || !agreedToTerms))}
+            disabled={isLoading || (mode === 'signup' && ((!TURNSTILE_SITE_KEY ? false : !turnstileToken) || !agreedToTerms))}
             className="w-full py-3 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isLoading ? (

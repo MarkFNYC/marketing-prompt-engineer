@@ -27,7 +27,7 @@ Users must be able to delete their account and all associated data (CCPA Right t
 - [x] Cascade delete: campaigns, projects, saved_content, strategy_checks, profile
 - [x] Delete Supabase auth user
 - [x] Add "Delete Account" button in UI with confirmation dialog
-- [ ] Log deletion for compliance audit trail
+- [x] Log deletion for compliance audit trail
 
 ### Data Export Endpoint
 Users must be able to download their personal data (CCPA Right to Know).
@@ -40,7 +40,7 @@ All API routes are currently unlimited — risk of cost abuse on AI generation e
 - [x] Add rate-limiting middleware (e.g. `next-rate-limit` or custom)
 - [x] Unauthenticated: 5 req/min (IP-based)
 - [x] Free tier: 10 req/min
-- [ ] Premium: 50 req/min
+- [x] Premium: 50 req/min
 - [x] Apply to all `/api/generate`, `/api/creative-ideas`, `/api/remix`, `/api/planning-review`, `/api/briefs/parse` routes
 
 ### Turnstile Fail-Closed Fix
@@ -96,9 +96,9 @@ CCPA requires a visible opt-out link.
 - [ ] Link to data export and account deletion
 
 ### Password Reset Hardening
-- [ ] Return generic response regardless of email existence (prevent account enumeration)
-- [ ] Add rate limiting to reset-password endpoint
-- [ ] Add Turnstile verification to reset-password form
+- [x] Return generic response regardless of email existence (prevent account enumeration)
+- [x] Add rate limiting to reset-password endpoint
+- [x] Add Turnstile verification to reset-password form
 
 ### Centralize Origin Allowlist
 Allowed origins are hardcoded in 3+ route files.
@@ -117,9 +117,9 @@ No automated cleanup of old data.
 - [ ] Document retention schedule in privacy policy
 
 ### Environment Variable Housekeeping
-- [ ] Create `.env.example` with all required variables documented
-- [ ] Move hardcoded GA measurement ID to env var
-- [ ] Move hardcoded Turnstile site key to `NEXT_PUBLIC_` env var
+- [x] Create `.env.example` with all required variables documented
+- [x] Move hardcoded GA measurement ID to env var
+- [x] Move hardcoded Turnstile site key to `NEXT_PUBLIC_` env var
 
 ---
 
@@ -129,9 +129,9 @@ No automated cleanup of old data.
 - [ ] Field-level encryption for Stripe customer/subscription IDs
 - [ ] Prompt injection mitigation (structured input instead of string concatenation)
 - [ ] Encrypt user-provided API keys in transit/storage
-- [ ] Security headers (CSP, X-Frame-Options) via `next.config.js`
+- [x] Security headers (CSP, X-Frame-Options) via `next.config.js`
 - [ ] Webhook idempotency and failure alerting for Stripe
-- [ ] Audit logging for sensitive operations (account changes, data access)
+- [x] Audit logging for sensitive operations (account changes, data access)
 
 ---
 
