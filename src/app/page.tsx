@@ -2179,6 +2179,7 @@ function AuthModal({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
 
@@ -2475,6 +2476,24 @@ function AuthModal({
             </div>
           )}
 
+          {/* Terms agreement for signup */}
+          {mode === 'signup' && (
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-[#FFFF00] cursor-pointer"
+              />
+              <span className="text-xs text-[#888] leading-relaxed group-hover:text-[#aaa]">
+                I agree to the{' '}
+                <a href="/terms" target="_blank" className="text-[#FF0066] hover:text-[#FFFF00] underline" onClick={(e) => e.stopPropagation()}>Terms of Service</a>
+                {' '}and{' '}
+                <a href="/privacy" target="_blank" className="text-[#FF0066] hover:text-[#FFFF00] underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>
+              </span>
+            </label>
+          )}
+
           {/* Turnstile widget for signup */}
           {mode === 'signup' && (
             <div className="flex justify-center">
@@ -2491,7 +2510,7 @@ function AuthModal({
 
           <button
             type="submit"
-            disabled={isLoading || (mode === 'signup' && !turnstileToken)}
+            disabled={isLoading || (mode === 'signup' && (!turnstileToken || !agreedToTerms))}
             className="w-full py-3 bg-[#FFFF00] hover:bg-white text-black rounded-lg font-semibold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isLoading ? (
@@ -2526,7 +2545,10 @@ function AuthModal({
 
         {mode === 'signup' && (
           <p className="text-center text-xs text-[#777] mt-4">
-            By creating an account, you agree to our Terms of Service
+            By creating an account, you agree to our{' '}
+            <a href="/terms" target="_blank" className="text-[#FF0066] hover:text-[#FFFF00] underline">Terms of Service</a>
+            {' '}and{' '}
+            <a href="/privacy" target="_blank" className="text-[#FF0066] hover:text-[#FFFF00] underline">Privacy Policy</a>
           </p>
         )}
       </div>
@@ -2689,11 +2711,16 @@ function LandingPage({
         </div>
       </div>
 
-      {/* Footer - minimal */}
+      {/* Footer */}
       <div className="py-6 border-t border-[#333] flex flex-wrap justify-between items-center gap-4">
         <p className="text-xs text-[#888]">
           <a href="https://fabricacollective.com" target="_blank" className="text-[#FF0066] hover:text-[#FFFF00] transition-colors">FABRICA COLLECTIVE</a>
         </p>
+        <div className="flex items-center gap-4 text-xs">
+          <a href="/privacy" className="text-[#888] hover:text-[#FFFF00] transition-colors tracking-wider">PRIVACY</a>
+          <span className="text-[#333]">/</span>
+          <a href="/terms" className="text-[#888] hover:text-[#FFFF00] transition-colors tracking-wider">TERMS</a>
+        </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-[#FF0066]"></div>
           <div className="w-2 h-2 bg-[#FFFF00]"></div>
